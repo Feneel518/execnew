@@ -2,6 +2,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
+export const runtime = "edge";
 
 const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
 

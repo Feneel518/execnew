@@ -35,6 +35,8 @@ import {
 } from "@prisma/client";
 import { ProductInQuotation, QuotationType } from "./types";
 
+export const runtime = "edge";
+
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
 
