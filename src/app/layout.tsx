@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+import clsx from "clsx";
+import Provider from "@/lib/providers/TanstackProvider";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "100", "200", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={clsx(inter.className, "bg")}>
+        <Provider>{children}</Provider>
+        <Toaster />
+      </body>
     </html>
   );
 }
