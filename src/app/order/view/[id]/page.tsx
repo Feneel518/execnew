@@ -35,7 +35,7 @@ const page: FC<pageProps> = async ({ params }) => {
 
   if (!orderData?.success) return;
 
-  console.log(orderData);
+  console.log(orderData.success.ProductInOrder);
 
   return (
     <div

@@ -14,6 +14,7 @@ export const OrderValidator = z.object({
   ProductInOrder: z
     .object({
       id: z.string().optional(),
+      index: z.number(),
       price: z.coerce.number(),
       quantity: z.coerce.number(),
       description: z.string().optional(),

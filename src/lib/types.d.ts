@@ -257,6 +257,7 @@ export type OrderForDashboard = Prisma.OrderGetPayload<{
     status: true;
     ProductInOrder: {
       select: {
+        index: true;
         certificateNumber: true;
         description: true;
         productId: true;

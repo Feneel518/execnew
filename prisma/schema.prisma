@@ -327,6 +327,7 @@ model Order {
 model ProductInOrder {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   price             Int
+  index             Int?
   quantity          Int
   description       String?
   certificateNumber String?

@@ -101,6 +101,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                 certificateNumber: item.certificateNumber
                   ? item.certificateNumber
                   : "",
+                index: item.index ? item.index : 0,
                 description: item.description ? item.description : "",
                 price: item.price ? item.price : 0,
                 productId: item.productId ? item.productId : "",
@@ -113,6 +114,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
               {
                 certificateNumber: "",
                 description: "",
+                index: 0,
                 id: ObjectID().toString(),
                 price: 0,
                 productId: "",
@@ -463,6 +465,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
               {fields.map((field, index) => {
+                form.setValue(`ProductInOrder.${index}.index`, index + 1);
                 return (
                   <div
                     key={field.id}
@@ -528,6 +531,15 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                           </FormItem>
                         )}
                       ></FormField>
+                      <Input
+                        className="hidden"
+                        readOnly
+                        {...form.register(`ProductInOrder.${index}.index`)}
+                        // type="hidden"
+                        type="number"
+                        placeholder="Ratings"
+                        value={index + 1}
+                      ></Input>
                       <FormField
                         disabled={isLoading}
                         control={form.control}
@@ -609,6 +621,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                               productId: "",
                               quantity: 0,
                               supplied: 0,
+                              index: 0,
                               certificateNumber: "",
                               description: "",
                               id: "",

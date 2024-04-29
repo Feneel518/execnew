@@ -25,6 +25,7 @@ const page: FC<pageProps> = async ({ params }) => {
     >
       <DownloadButton
         quotationNumber={orderData.success.orderNumber}
+        // @ts-ignore
         clientName={orderData.success.customer.name}
       ></DownloadButton>
 

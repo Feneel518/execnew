@@ -1037,6 +1037,7 @@ export const upsertOrder = async (
         create: order.ProductInOrder?.map((item) => {
           return {
             price: item?.price as number,
+            index: item?.index as number,
             // productId: item?.productId,
             quantity: item?.quantity as number,
             certificateNumber: item?.certificateNumber,
@@ -1063,6 +1064,7 @@ export const upsertOrder = async (
         create: order.ProductInOrder?.map((item) => {
           return {
             price: item?.price as number,
+            index: item?.index as number,
             // productId: item?.productId,
             quantity: item?.quantity as number,
             certificateNumber: item?.certificateNumber,
@@ -1104,6 +1106,8 @@ export const getOrderBasedOnId = async (id: string) => {
       status: true,
       ProductInOrder: {
         select: {
+          // index: true,
+          index: true,
           certificateNumber: true,
           description: true,
           productId: true,
@@ -1111,6 +1115,9 @@ export const getOrderBasedOnId = async (id: string) => {
           quantity: true,
           supplied: true,
           id: true,
+        },
+        orderBy: {
+          index: "asc",
         },
       },
     },
@@ -1148,6 +1155,8 @@ export const getOrderDetailsBasedOnId = async (id: string) => {
       ProductInOrder: {
         select: {
           id: true,
+          // index: true,
+          index: true,
           price: true,
           quantity: true,
           supplied: true,
@@ -1158,6 +1167,9 @@ export const getOrderDetailsBasedOnId = async (id: string) => {
               name: true,
             },
           },
+        },
+        orderBy: {
+          index: "asc",
         },
       },
     },

@@ -27,6 +27,7 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
         poNumber?: string | null;
         clientName: string;
         productName: string;
+        productDescription: string | null;
         quantity: string;
       }[] = productDetails?.success?.ProductInOrder.map((pro) => {
     return {
@@ -37,6 +38,7 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
       productName: productDetails.success.name,
       quantity: pro.quantity.toString(),
       poNumber: pro.order.poNumber,
+      productDescription: pro.description,
     };
   });
 

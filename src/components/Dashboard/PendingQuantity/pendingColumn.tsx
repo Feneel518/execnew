@@ -65,6 +65,10 @@ export const pendingColumns: ColumnDef<PendingItem>[] = [
     header: "Product Name",
   },
   {
+    accessorKey: "productDescription",
+    header: "Product Description",
+  },
+  {
     accessorKey: "quantity",
     header: "quantity",
   },
