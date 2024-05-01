@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import {
   CategoryCreationRequest,
@@ -58,6 +59,7 @@ const CategoryForm: FC<CategoryFormProps> = ({ data }) => {
     defaultValues: {
       image: data?.image ? data.image : "",
       name: data?.name ? data.name : "",
+      description: data?.description ? data.description : "",
     },
   });
 
@@ -71,10 +73,11 @@ const CategoryForm: FC<CategoryFormProps> = ({ data }) => {
         id: data?.id ? data.id : ObjectID().toString(),
         image: value.image,
         name: value.name,
+        description: value.description,
         slug: encodeURI(value.name.toLowerCase()),
       });
 
-      console.log(response);
+      // console.log(response);
       toast({
         title: "Your Category has been created.",
       });
@@ -144,6 +147,26 @@ const CategoryForm: FC<CategoryFormProps> = ({ data }) => {
                           placeholder="Your Category Name"
                           {...field}
                         ></Input>
+                      </FormControl>
+                      <FormMessage></FormMessage>
+                    </FormItem>
+                  )}
+                ></FormField>
+              </div>
+              <div className="flex mf:flex-row gap-4">
+                <FormField
+                  disabled={isLoading}
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Category Name</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={10}
+                          placeholder="Your Category Description"
+                          {...field}
+                        ></Textarea>
                       </FormControl>
                       <FormMessage></FormMessage>
                     </FormItem>

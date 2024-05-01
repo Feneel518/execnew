@@ -39,3 +39,14 @@ export const SettingsSchema = z.object({
 });
 
 export type SettingsSchemaRequest = z.infer<typeof SettingsSchema>;
+
+export const ContactValidator = z.object({
+  name: z.string().min(1, { message: "Name is required." }),
+  email: z.string().email({
+    message: "Email is required.",
+  }),
+  companyName: z.string().min(1, { message: "Company Name is required." }),
+  message: z.string().min(1, { message: "Name is required." }),
+  terms: z.boolean(),
+});
+export type ContactSchemeRequest = z.infer<typeof ContactValidator>;

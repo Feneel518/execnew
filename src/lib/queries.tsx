@@ -406,12 +406,14 @@ export const upsertCategory = async (
         image: category.image as string,
         name: category.name as string,
         slug: category.slug as string,
+        description: category.description as string,
       },
 
       create: {
         image: category.image as string,
         name: category.name as string,
         slug: category.slug as string,
+        description: category.description as string,
       },
     });
     return JSON.parse(JSON.stringify(response));
@@ -442,29 +444,26 @@ export const getCategoryDetailsBasedOnSlug = async (slug: string) => {
 export const getProductDetailsBasedOnSlug = async (slug: string) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
-  try {
-    const response = await db.product.findUnique({
-      where: {
-        slug,
-      },
-      include: {
-        ProductComponentsOnProducts: {
-          select: {
-            productComponents: {
-              select: {
-                item: true,
-              },
+
+  const response = await db.product.findUnique({
+    where: {
+      slug,
+    },
+    include: {
+      ProductComponentsOnProducts: {
+        select: {
+          productComponents: {
+            select: {
+              item: true,
             },
           },
         },
       },
-    });
-    return JSON.parse(JSON.stringify(response));
-  } catch (error) {
-    console.log(error);
-
-    return new Response("Something went wrong.");
-  }
+    },
+  });
+  if (!response)
+    return { error: "Could not find product, please try again later!" };
+  if (response) return { success: response };
 };
 
 export const deleteCategory = async (id: string) => {
@@ -661,6 +660,8 @@ export const fetchProductsForSelect = async () => {
     select: {
       id: true,
       name: true,
+      createdAt: true,
+      slug: true,
     },
     orderBy: {
       name: "asc",
@@ -1273,5 +1274,54 @@ export const fetchCategoryForCatalog = async () => {
   });
 
   if (!response) return { error: "No Categoriess" };
+  if (response) return { success: response };
+};
+
+export const getRandomProducts = async () => {
+  const productCount = await db.product.count();
+  const skip = Math.floor(Math.random() * productCount);
+
+  const response = await db.product.findMany({
+    where: {
+      image: {
+        not: "",
+      },
+    },
+    select: {
+      name: true,
+      id: true,
+      image: true,
+    },
+    skip: skip,
+    take: 5,
+  });
+
+  if (!response) return { error: "No Products" };
+  if (response) return { success: response };
+};
+
+export const getCategoriesAndProducts = async () => {
+  const response = await db.category.findMany({
+    where: {
+      product: {
+        some: {
+          image: {
+            not: "",
+          },
+        },
+      },
+    },
+    include: {
+      product: {
+        select: {
+          name: true,
+          id: true,
+          image: true,
+          slug: true,
+        },
+      },
+    },
+  });
+  if (!response) return { error: "No Categories" };
   if (response) return { success: response };
 };

@@ -1,4 +1,6 @@
-import { Bebas_Neue } from "next/font/google";
+"use client";
+
+import { Bebas_Neue, Inter } from "next/font/google";
 import { FC } from "react";
 import {
   Carousel,
@@ -11,20 +13,25 @@ import Arrow from "../../../../public/arrow.png";
 import Image from "next/image";
 import Gujarat from "../../../../public/gujarat.png";
 import { Card, CardContent } from "../../ui/card";
+import { getRandomProducts } from "@/lib/queries";
+import Link from "next/link";
+import Autoplay from "embla-carousel-autoplay";
+import { FeasturedProducts } from "@/lib/types";
+import { bebas, inter } from "@/lib/fonts";
 
-interface FeaturedProductsProps {}
+interface FeaturedProductsProps {
+  products: FeasturedProducts[] | undefined;
+}
 
-const bebas = Bebas_Neue({
-  weight: ["400"],
-  subsets: ["latin"],
-  variable: "--font-bebas",
-});
+const FeaturedProducts: FC<FeaturedProductsProps> = ({ products }) => {
+  console.log(products);
 
-const FeaturedProducts: FC<FeaturedProductsProps> = ({}) => {
+  // const products = await getRandomProducts();
+
   return (
     <div className="mt-2 md:mt-24 relative">
       <h1
-        className={`${bebas.className} text-7xl max-md:text-5xl text-center my-10`}
+        className={`${bebas.className} text-7xl max-md:text-5xl text-center my-10 `}
       >
         GETTING IT RIGHT SINCE 1996
       </h1>
@@ -70,18 +77,35 @@ const FeaturedProducts: FC<FeaturedProductsProps> = ({}) => {
            );
          })}
        </Carousel> */}
-            <Carousel className="w-full max-w-xs max-lg:mb-10">
+            <Carousel
+              plugins={[
+                Autoplay({
+                  delay: 5000,
+                }),
+              ]}
+              className="w-[85%] flex items-center justify-center  max-lg:mb-10"
+            >
               <CarouselContent>
-                {Array.from({ length: 5 }).map((_, index) => (
+                {products?.map((product, index) => (
                   <CarouselItem key={index}>
-                    <div className="p-1">
-                      <Card>
-                        <CardContent className="flex aspect-square items-center justify-center p-6">
-                          <span className="text-4xl font-semibold">
-                            {index + 1}
-                          </span>
-                        </CardContent>
-                      </Card>
+                    <div
+                      key={product.id}
+                      className={`${inter.className} flex flex-col items-center justify-between h-full `}
+                    >
+                      <img
+                        className=" h-72 lg:h-[450px] object-contain mb-4 "
+                        src={product.image}
+                        alt=""
+                      />
+                      <h1 className=" font-light text-sm tracking-wider mt-2">
+                        {product.name}
+                      </h1>
+
+                      <Link href={`/product/${product.id}`}>
+                        <button className="mt-4 font-light tracking-wide underline underline-offset-4 mb-8 decoration-amber-600">
+                          INQUIRE NOW
+                        </button>
+                      </Link>
                     </div>
                   </CarouselItem>
                 ))}

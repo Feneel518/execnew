@@ -375,3 +375,38 @@ export type productCatalog = Prisma.ProductGetPayload<{
     };
   };
 }>;
+
+export type FeasturedProducts = Prisma.ProductGetPayload<{
+  select: {
+    name: true;
+    id: true;
+    image: true;
+  };
+}>;
+
+export type CategoriesAndProducts = Prisma.CategoryGetPayload<{
+  include: {
+    product: {
+      select: {
+        name: true;
+        id: true;
+        slug: true;
+        image: true;
+      };
+    };
+  };
+}>;
+
+export type productForm = Prisma.ProductGetPayload<{
+  include: {
+    ProductComponentsOnProducts: {
+      select: {
+        productComponents: {
+          select: {
+            item: true;
+          };
+        };
+      };
+    };
+  };
+}>;

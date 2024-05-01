@@ -50,17 +50,10 @@ import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import ObjectId from "bson-objectid";
+import { productForm } from "@/lib/types";
 
 interface ProductFormProps {
-  productData?:
-    | Product & {
-        ProductComponentsOnProducts: ProductComponentsOnProducts &
-          {
-            productComponents: {
-              item: string;
-            };
-          }[];
-      };
+  productData?: productForm;
 }
 
 const ProductForm: FC<ProductFormProps> = ({ productData }) => {

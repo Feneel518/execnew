@@ -6,6 +6,7 @@ import FeaturedProducts from "@/components/Frontend/FeaturedProducts/FeaturedPro
 import Mission from "@/components/Frontend/Mission/Mission";
 import NewsLetter from "@/components/Frontend/NewsLetter/NewsLetter";
 import { Button } from "@/components/ui/button";
+import { getRandomProducts } from "@/lib/queries";
 import { Metadata } from "next";
 import { signOut } from "next-auth/react";
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const session = await auth();
+  const products = await getRandomProducts();
 
   console.log(session?.user);
 
@@ -30,7 +32,7 @@ export default async function Home() {
         Signout
       </Button> */}
       <Banner></Banner>
-      <FeaturedProducts></FeaturedProducts>
+      <FeaturedProducts products={products?.success}></FeaturedProducts>
       <NewsLetter></NewsLetter>
       <Mission></Mission>
     </main>

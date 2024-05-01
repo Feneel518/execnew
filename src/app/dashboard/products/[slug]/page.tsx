@@ -19,9 +19,9 @@ interface pageProps {
 
 const page: FC<pageProps> = async ({ params }) => {
   const queryClient = new QueryClient();
-  const productDetails: Product & {
-    ProductComponentsOnProducts: ProductComponentsOnProducts[];
-  } = await getProductDetailsBasedOnSlug(params.slug);
+  const productDetails = await getProductDetailsBasedOnSlug(params.slug);
+
+  console.log(productDetails);
 
   await queryClient.prefetchQuery({
     queryKey: ["categoryForSelect"],
@@ -31,8 +31,7 @@ const page: FC<pageProps> = async ({ params }) => {
   return (
     <div>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        {/* @ts-ignore */}
-        <ProductForm productData={productDetails}></ProductForm>
+        <ProductForm productData={productDetails?.success}></ProductForm>
       </HydrationBoundary>
     </div>
   );

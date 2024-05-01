@@ -36,9 +36,11 @@ const Banner: FC<BannerProps> = ({}) => {
           <Image
             className="object-contain w-[500px] max-lg:w-[300px] "
             src={WellGlass}
+            draggable={false}
             alt="image"
-            width={1000}
-            height={1000}
+            width={500}
+            height={500}
+            priority
           ></Image>
         </div>
         <div className=" flex-1 border-color max-lg:border-top max-lg:border-b lg:border-right w-full">
@@ -69,7 +71,8 @@ const Banner: FC<BannerProps> = ({}) => {
             <Image
               className=" object-contain lg:w-[300px] w-[200px]"
               src={flame}
-              width={400}
+              width={300}
+              height={300}
               alt="image"
             ></Image>
           </div>
@@ -77,8 +80,8 @@ const Banner: FC<BannerProps> = ({}) => {
             <Image
               src={sketchfl}
               alt="image"
-              width={400}
-              height={400}
+              width={256}
+              height={171}
               className="max-lg:w-[170px]"
             ></Image>
           </div>

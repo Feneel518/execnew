@@ -10,20 +10,21 @@ const links = [
   { id: 1, name: "HOME", link: "/" },
   { id: 2, name: "GALLERY", link: "/gallery" },
   { id: 3, name: "OUR STORY", link: "/about-us" },
-  { id: 4, name: "CONTACT", link: "/contact" },
+  { id: 4, name: "CONTACT", link: "/contact-us" },
 ];
 const NavbartLinks: FC<NavbartLinksProps> = ({}) => {
   const pathname = usePathname();
 
   return (
-    <div className="flex  items-center justify-around font-thin h-full">
+    <div className="flex  items-center justify-around font-light tracking-widest h-full">
       {links.map((link) => {
-        const isActive = false;
         return (
           <Link
             href={`${link.link}`}
             className={`${
-              isActive ? "font-bold  underline underline-offset-4" : ""
+              pathname === link.link
+                ? "font-bold  underline underline-offset-4"
+                : ""
             }`}
             key={link.id}
           >
