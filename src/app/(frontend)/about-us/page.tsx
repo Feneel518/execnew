@@ -1,7 +1,12 @@
 import { bebas } from "@/lib/fonts";
+import { Metadata } from "next";
 import { FC } from "react";
 
 interface pageProps {}
+
+export const metadata: Metadata = {
+  title: "About Us",
+};
 
 const page: FC<pageProps> = ({}) => {
   return (

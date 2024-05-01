@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ContactSchemeRequest, ContactValidator } from "@/lib/Validators";
 import { bebas } from "@/lib/fonts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Metadata } from "next";
 import Link from "next/link";
 import { FC } from "react";
 import { useForm } from "react-hook-form";

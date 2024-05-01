@@ -3,13 +3,27 @@ import { getProductDetailsBasedOnSlug } from "@/lib/queries";
 import { FC } from "react";
 import India from "../../../../../public/india.png";
 import Image from "next/image";
+import { Metadata, ResolvingMetadata } from "next";
 
 interface pageProps {
   params: {
     id: string;
   };
 }
+export async function generateMetadata(
+  { params }: pageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const id = params.id;
 
+  // fetch data
+  const productDetails = await getProductDetailsBasedOnSlug(params.id);
+
+  return {
+    title: productDetails?.success?.name,
+  };
+}
 const page: FC<pageProps> = async ({ params }) => {
   const productDetails = await getProductDetailsBasedOnSlug(params.id);
 

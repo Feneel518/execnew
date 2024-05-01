@@ -4,9 +4,14 @@ import {
   fetchCategoryForCatalog,
   getCategoriesAndProducts,
 } from "@/lib/queries";
+import { Metadata } from "next";
 import { FC } from "react";
 
 interface pageProps {}
+
+export const metadata: Metadata = {
+  title: "Gallery",
+};
 
 const page: FC<pageProps> = async ({}) => {
   const categoriesWithProducts = await getCategoriesAndProducts();
