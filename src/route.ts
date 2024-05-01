@@ -5,6 +5,10 @@ export const publicRoutes = [
   "/auth/new-verification",
   "/api/uploadthing",
   "/quotation/view",
+  "/gallery",
+  "/product",
+  "/about-us",
+  "/contact-us",
 ];
 
 // Array of routes to be protected
