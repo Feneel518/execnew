@@ -6,7 +6,7 @@ export const publicRoutes = [
   "/api/uploadthing",
   "/quotation/view",
   "/gallery",
-  "/product/*",
+  "/product/:path",
   "/about-us",
   "/contact-us",
 ];
