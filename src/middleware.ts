@@ -43,6 +43,6 @@ export const config = {
     "/((?!.+\\.[\\w]+$|_next).*)",
     "/",
     "/(api|trpc)(.*)",
-    "/product/:id",
+    "/product/:id*",
   ],
 };
