@@ -696,39 +696,44 @@ export const upsertQuotation = async (
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  console.log(quotation);
-
-  const componentsDeletion = quotation.items?.map(async (item) => {
-    if (item?.id) {
-      return await db.componentsOfProductInQuotation.deleteMany({
-        where: {
-          productInQuotation: {
-            quotationId: quotation.id,
-          },
+  const componentsDeletion = await db.componentsOfProductInQuotation.deleteMany(
+    {
+      where: {
+        productInQuotation: {
+          quotationId: quotation.id,
         },
-      });
-    } else {
-      return;
+      },
     }
-  });
+  );
 
-  const componentsOfQuotationDeletion = quotation.items?.map(async (item) => {
-    if (item?.id) {
-      return await db.componentsOfQuotation.deleteMany({
-        where: {
-          ComponentsOfProductInQuotation: {
-            every: {
-              productInQuotation: {
-                quotationId: quotation.id,
-              },
+  const componentsOfQuotationDeletion =
+    await db.componentsOfQuotation.deleteMany({
+      where: {
+        ComponentsOfProductInQuotation: {
+          every: {
+            productInQuotation: {
+              quotationId: quotation.id,
             },
           },
         },
-      });
-    } else {
-      return;
-    }
+      },
+    });
+
+  const oldProductsInQuotation = await db.productInQuotation.deleteMany({
+    where: {
+      quotationId: quotation.id,
+    },
   });
+
+  // const ProductsInQuotationDeletion = quotation.items?.map(async (item) => {
+  //   return await db.productInQuotation.deleteMany({
+  //     where: {
+  //       quotationId: quotation.id,
+  //     },
+  //   });
+  // });
+
+  console.log(quotation.id);
 
   const response = await db.quotation.upsert({
     where: {
@@ -747,93 +752,135 @@ export const upsertQuotation = async (
       transportationPayment: quotation.transportationPayment ?? "TO_PAY",
       deliverDateNew: quotation.deliverDateNew,
       ProductInQuotation: {
-        upsert: quotation.items?.map((item) => {
+        create: quotation.items?.map((item) => {
           return {
-            where: {
-              id: item?.id,
-            },
-            update: {
-              product: {
-                connect: {
-                  id: item?.productId,
-                },
-              },
-              index: item?.index,
-              cableEntry: item?.cableEntry,
-              cutoutSize: item?.cutoutSize,
-              earting: item?.earting,
-              gasket: item?.gasket,
-              glass: item?.glass,
-              hardware: item?.hardware,
-              HorsePower: item?.HorsePower,
-              hsnCode: item?.hsnCode,
-              kW: item?.kW,
-              plateSize: item?.plateSize,
-              mounting: item?.mounting,
-              poReferrence: item?.poReferrence,
-              rating: item?.rating,
-              rpm: item?.rpm,
-              size: item?.size,
-              terminals: item?.terminals,
-              typeNumber: item?.typeNumber,
-              variant: item?.variant,
-              wireGuard: item?.wireGuard,
-              price: Number(item?.price) ?? 1,
-              quantity: item?.quantity,
-              ComponentsOfProductInQuotation: {
-                create: item?.components.map((ite) => {
-                  return {
-                    componentsOfQuotation: {
-                      create: {
-                        item: ite.items,
-                      },
-                    },
-                  };
-                }),
+            product: {
+              connect: {
+                id: item?.productId,
               },
             },
-            create: {
-              product: {
-                connect: {
-                  id: item?.productId,
-                },
-              },
-              index: item?.index,
-              cableEntry: item?.cableEntry,
-              cutoutSize: item?.cutoutSize,
-              earting: item?.earting,
-              gasket: item?.gasket,
-              glass: item?.glass,
-              hardware: item?.hardware,
-              HorsePower: item?.HorsePower,
-              hsnCode: item?.hsnCode,
-              kW: item?.kW,
-              plateSize: item?.plateSize,
-              mounting: item?.mounting,
-              poReferrence: item?.poReferrence,
-              rating: item?.rating,
-              rpm: item?.rpm,
-              size: item?.size,
-              terminals: item?.terminals,
-              typeNumber: item?.typeNumber,
-              variant: item?.variant,
-              wireGuard: item?.wireGuard,
-              price: Number(item?.price) ?? 1,
-              quantity: item?.quantity,
-              ComponentsOfProductInQuotation: {
-                create: item?.components.map((ite) => {
-                  return {
-                    componentsOfQuotation: {
-                      create: {
-                        item: ite.items,
-                      },
+            index: item?.index,
+            cableEntry: item?.cableEntry,
+            cutoutSize: item?.cutoutSize,
+            earting: item?.earting,
+            gasket: item?.gasket,
+            glass: item?.glass,
+            hardware: item?.hardware,
+            HorsePower: item?.HorsePower,
+            hsnCode: item?.hsnCode,
+            kW: item?.kW,
+            plateSize: item?.plateSize,
+            mounting: item?.mounting,
+            poReferrence: item?.poReferrence,
+            rating: item?.rating,
+            rpm: item?.rpm,
+            size: item?.size,
+            terminals: item?.terminals,
+            typeNumber: item?.typeNumber,
+            variant: item?.variant,
+            wireGuard: item?.wireGuard,
+            price: Number(item?.price) ?? 1,
+            quantity: item?.quantity,
+            ComponentsOfProductInQuotation: {
+              create: item?.components.map((ite) => {
+                return {
+                  componentsOfQuotation: {
+                    create: {
+                      item: ite.items,
                     },
-                  };
-                }),
-              },
+                  },
+                };
+              }),
             },
           };
         }),
+        // upsert: quotation.items?.map((item) => {
+        //   return {
+        //     where: {
+        //       id: item?.id,
+        //     },
+        //     update: {
+        //       product: {
+        //         connect: {
+        //           id: item?.productId,
+        //         },
+        //       },
+        //       index: item?.index,
+        //       cableEntry: item?.cableEntry,
+        //       cutoutSize: item?.cutoutSize,
+        //       earting: item?.earting,
+        //       gasket: item?.gasket,
+        //       glass: item?.glass,
+        //       hardware: item?.hardware,
+        //       HorsePower: item?.HorsePower,
+        //       hsnCode: item?.hsnCode,
+        //       kW: item?.kW,
+        //       plateSize: item?.plateSize,
+        //       mounting: item?.mounting,
+        //       poReferrence: item?.poReferrence,
+        //       rating: item?.rating,
+        //       rpm: item?.rpm,
+        //       size: item?.size,
+        //       terminals: item?.terminals,
+        //       typeNumber: item?.typeNumber,
+        //       variant: item?.variant,
+        //       wireGuard: item?.wireGuard,
+        //       price: Number(item?.price) ?? 1,
+        //       quantity: item?.quantity,
+        //       ComponentsOfProductInQuotation: {
+        //         create: item?.components.map((ite) => {
+        //           return {
+        //             componentsOfQuotation: {
+        //               create: {
+        //                 item: ite.items,
+        //               },
+        //             },
+        //           };
+        //         }),
+        //       },
+        //     },
+        //     create: {
+        // product: {
+        //   connect: {
+        //     id: item?.productId,
+        //   },
+        // },
+        // index: item?.index,
+        // cableEntry: item?.cableEntry,
+        // cutoutSize: item?.cutoutSize,
+        // earting: item?.earting,
+        // gasket: item?.gasket,
+        // glass: item?.glass,
+        // hardware: item?.hardware,
+        // HorsePower: item?.HorsePower,
+        // hsnCode: item?.hsnCode,
+        // kW: item?.kW,
+        // plateSize: item?.plateSize,
+        // mounting: item?.mounting,
+        // poReferrence: item?.poReferrence,
+        // rating: item?.rating,
+        // rpm: item?.rpm,
+        // size: item?.size,
+        // terminals: item?.terminals,
+        // typeNumber: item?.typeNumber,
+        // variant: item?.variant,
+        // wireGuard: item?.wireGuard,
+        // price: Number(item?.price) ?? 1,
+        // quantity: item?.quantity,
+        // ComponentsOfProductInQuotation: {
+        //   create: item?.components.map((ite) => {
+        //     return {
+        //       componentsOfQuotation: {
+        //         create: {
+        //           item: ite.items,
+        //         },
+        //       },
+        //     };
+        //   }),
+        // },
+        //     },
+        //   };
+        // }),
       },
     },
     create: {
@@ -857,6 +904,7 @@ export const upsertQuotation = async (
                 id: item?.productId,
               },
             },
+            index: item?.index,
             cableEntry: item?.cableEntry,
             cutoutSize: item?.cutoutSize,
             earting: item?.earting,
@@ -1011,8 +1059,6 @@ export const upsertOrder = async (
 ) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
-
-  console.log(order.ProductInOrder);
 
   const productsInOrdersDeletion = order.ProductInOrder?.map(async (item) => {
     return await db.productInOrder.deleteMany({

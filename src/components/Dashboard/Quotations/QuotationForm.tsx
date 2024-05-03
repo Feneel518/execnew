@@ -258,7 +258,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
       });
     }
 
-    // console.log(value.items);
+    console.log(value.items);
 
     const response = await upsertQuotation({
       additionalNotes: value.additionalNotes,

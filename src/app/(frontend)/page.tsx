@@ -20,7 +20,7 @@ export default async function Home() {
   const session = await auth();
   const products = await getRandomProducts();
 
-  console.log(session?.user);
+  // console.log(session?.user);
 
   return (
     <main className="max-2xl:mx-4">
