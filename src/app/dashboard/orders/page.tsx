@@ -1,9 +1,12 @@
 import { DataTable } from "@/components/Dashboard/Customers/data-table";
+import OrderTableBody from "@/components/Dashboard/Orders/OrderTableBody";
+import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
+import NoResults from "@/components/Global/NoResults";
 import { ordersColumns } from "@/components/columns/ordersColumns";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
-import { OrderColumns } from "@/lib/types";
+import { OrderColumns, OrderTable } from "@/lib/types";
 
 import clsx from "clsx";
 import { format } from "date-fns";
@@ -11,78 +14,130 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
-interface pageProps {}
+interface pageProps {
+  searchParams?: {
+    query?: string;
+    page?: string;
+  };
+}
 
+const page: FC<pageProps> = async ({ searchParams }) => {
+  const query = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page || 1);
+  let orders: OrderTable[] = [];
 
+  let totalPages: number = 0;
 
-const page: FC<pageProps> = async ({}) => {
-  const orders = await db.order.findMany({
-    select: {
-      id: true,
-      orderNumber: true,
-      poNumber: true,
-      poDate: true,
-      status: true,
-      customer: {
-        select: {
-          name: true,
+  if (query) {
+    const orderCount = await db.order.count({
+      where: {
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
+          },
+          {
+            poNumber: {
+              contains: encodeURI(query?.toLowerCase()),
+            },
+          },
+        ],
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    totalPages = Math.ceil(Number(orderCount) / 10);
+
+    orders = await db.order.findMany({
+      where: {
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
+          },
+          {
+            poNumber: {
+              contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+            },
+          },
+        ],
+        status: {
+          not: "COMPLETED",
         },
       },
-      ProductInOrder: {
-        select: {
-          id: true,
+      select: {
+        id: true,
+        orderNumber: true,
+        poNumber: true,
+        poDate: true,
+        status: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+        ProductInOrder: {
+          select: {
+            id: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  let OrderCompleted = orders.filter((a) => a.status === "COMPLETED");
-  let OrderPending = orders.filter((a) => a.status !== "COMPLETED");
-
-  let orderCompletedData: {
-    id: string;
-    orderNumber: string;
-    poNumber?: string | null;
-    poDate?: string | null;
-    clientName: string;
-    itemsLength: number;
-    status: string;
-  }[] = [];
-  OrderCompleted.map((cust) => {
-    return orderCompletedData.push({
-      clientName: cust.customer.name,
-      id: cust.id,
-      itemsLength: cust.ProductInOrder.length,
-      orderNumber: cust.orderNumber.toString().padStart(4, "0"),
-      poDate: format(cust.poDate as Date, "PP"),
-      poNumber: cust.poNumber,
-      status: cust.status,
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+      skip: (currentPage - 1) * 10,
     });
-  });
-
-  let orderData: {
-    id: string;
-    orderNumber: string;
-    poNumber?: string | null;
-    poDate?: string | null;
-    clientName: string;
-    itemsLength: number;
-    status: string;
-  }[] = [];
-  OrderPending.map((cust) => {
-    return orderData.push({
-      clientName: cust.customer.name,
-      id: cust.id,
-      itemsLength: cust.ProductInOrder.length,
-      orderNumber: cust.orderNumber.toString().padStart(4, "0"),
-      poDate: format(cust.poDate as Date, "PP"),
-      poNumber: cust.poNumber,
-      status: cust.status,
+  } else {
+    const orderCount = await db.order.count({
+      where: {
+        status: {
+          equals: "PENDING" || "PARTIAL_COMPLETED",
+        },
+      },
     });
-  });
+
+    orders = await db.order.findMany({
+      where: {
+        status: {
+          equals: "PENDING" || "PARTIAL_COMPLETED",
+        },
+      },
+      select: {
+        id: true,
+        orderNumber: true,
+        poNumber: true,
+        poDate: true,
+        status: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+        ProductInOrder: {
+          select: {
+            id: true,
+            quantity: true,
+            supplied: true,
+          },
+        },
+      },
+      take: 10,
+      skip: (currentPage - 1) * 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    totalPages = Math.ceil(Number(orderCount) / 10);
+  }
 
   return (
     <div className="">
@@ -99,23 +154,43 @@ const page: FC<pageProps> = async ({}) => {
       <div className="mt-4">
         <Card>
           <CardContent>
-            <DataTable
-              isOrder={true}
-              columns={ordersColumns}
-              data={orderData}
-            ></DataTable>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="mt-10">
-        <h1>Completed Orders</h1>
-        <Card>
-          <CardContent>
-            <DataTable
-              isOrder={true}
-              columns={ordersColumns}
-              data={orderCompletedData}
-            ></DataTable>
+            <ProductsTable
+              totalPages={totalPages}
+              columns={
+                <>
+                  <div className="flex items-center border-b  p-4 justify-between">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-32">
+                      Order Number
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
+                      Client
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-60">
+                      PO Number
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
+                      PO Date
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
+                      Status
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-20 lg:flex hidden">
+                      No. of Items
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40">
+                      Actions
+                    </h1>
+                  </div>
+                </>
+              }
+              body={
+                orders.length > 0 ? (
+                  <OrderTableBody orders={orders}></OrderTableBody>
+                ) : (
+                  <NoResults></NoResults>
+                )
+              }
+            ></ProductsTable>
           </CardContent>
         </Card>
       </div>

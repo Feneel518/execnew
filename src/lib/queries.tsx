@@ -27,11 +27,14 @@ import { getVerificationTokenByToken } from "@/data/verificationToken";
 import {
   Category,
   Customer,
+  Employee,
+  Inventory,
   Order,
   Product,
   ProductComponents,
   ProductInOrder,
   Quotation,
+  StoreProduct,
 } from "@prisma/client";
 import { ProductInQuotation, QuotationType } from "./types";
 
@@ -1050,6 +1053,19 @@ export const fetchPreviousOrderNumber = async () => {
   if (orderNumber) return { success: orderNumber };
 };
 
+export const fetchPreviousStoreProductId = async () => {
+  const response = await db.storeProduct.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      StoreProductId: true,
+    },
+  });
+  if (!response) return { error: "No order number" };
+  if (response) return { success: response };
+};
+
 export const upsertOrder = async (
   order: Partial<
     Order & {
@@ -1067,6 +1083,10 @@ export const upsertOrder = async (
       },
     });
   });
+
+  const checkingForSuppliedQty = order?.ProductInOrder?.filter(
+    (a, b) => a?.quantity === a?.supplied
+  );
 
   const response = await db.order.upsert({
     where: {
@@ -1369,5 +1389,202 @@ export const getCategoriesAndProducts = async () => {
     },
   });
   if (!response) return { error: "No Categories" };
+  if (response) return { success: response };
+};
+
+export const upsertStoreProduct = async (
+  storeProduct: Partial<StoreProduct>
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.storeProduct.upsert({
+    where: {
+      id: storeProduct.id,
+    },
+    create: {
+      name: storeProduct.name ?? "",
+      description: storeProduct.description,
+      StoreProductId: storeProduct.StoreProductId ?? "",
+      image: storeProduct.image,
+      slug: storeProduct.name
+        ? encodeURI(storeProduct.name?.toLowerCase().replace(/\//g, "-"))
+        : "",
+      qrCodeLink: storeProduct.qrCodeLink ?? "",
+    },
+    update: {
+      name: storeProduct.name ?? "",
+      description: storeProduct.description,
+      StoreProductId: storeProduct.StoreProductId ?? "",
+      image: storeProduct.image,
+      slug: storeProduct.name
+        ? encodeURI(storeProduct.name?.toLowerCase().replace(/\//g, "-"))
+        : "",
+      qrCodeLink: storeProduct.qrCodeLink ?? "",
+    },
+  });
+
+  if (!response) return { error: "No Products" };
+  if (response) return { success: response };
+};
+
+export const getStoreProductDetailsBasedOnSlug = async (slug: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.storeProduct.findFirst({
+    where: {
+      slug,
+    },
+  });
+  if (!response)
+    return { error: "Could not find product, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const deleteStoreProduct = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  const response = await db.storeProduct.delete({
+    where: {
+      id,
+    },
+  });
+  if (!response)
+    return { error: "Could not delete product, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const fetchStoreProductsForSelect = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  const products = await db.storeProduct.findMany({
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      slug: true,
+      StoreProductId: true,
+    },
+    orderBy: {
+      StoreProductId: "asc",
+    },
+  });
+
+  if (!products) return { error: "No Products" };
+  if (products) return { success: products };
+};
+
+export const upsertEmployee = async (employee: Partial<Employee>) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.employee.upsert({
+    where: {
+      id: employee.id,
+    },
+    create: {
+      name: employee.name ?? "",
+      phoneNumber: employee.phoneNumber,
+      image: employee.image,
+      slug: employee.name
+        ? encodeURI(employee.name?.toLowerCase().replace(/\//g, "-"))
+        : "",
+      aadharNumber: employee.aadharNumber,
+    },
+    update: {
+      name: employee.name ?? "",
+      phoneNumber: employee.phoneNumber,
+
+      image: employee.image,
+      slug: employee.name
+        ? encodeURI(employee.name?.toLowerCase().replace(/\//g, "-"))
+        : "",
+      aadharNumber: employee.aadharNumber,
+    },
+  });
+
+  if (!response) return { error: "No Categories" };
+  if (response) return { success: response };
+};
+
+export const getCustomerDetailsBasedOnSlug = async (slug: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  const response = await db.employee.findUnique({
+    where: {
+      slug,
+    },
+  });
+
+  if (!response) return { error: "No Categories" };
+  if (response) return { success: response };
+};
+
+export const deleteEmployee = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.employee.delete({
+    where: {
+      id,
+    },
+  });
+  if (!response) return { error: "No Employee Found" };
+  if (response) return { success: response };
+};
+
+export const fetchEmployeeForSelect = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.employee.findMany();
+
+  console.log(response);
+
+  if (!response) return { error: "No Employee Found" };
+  if (response) return { success: response };
+};
+
+export const upsertInventory = async (inventory: Partial<Inventory>) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  let response;
+  if (inventory.employeeId) {
+    response = await db.inventory.upsert({
+      where: {
+        id: inventory.id,
+      },
+      create: {
+        quantity: inventory.quantity ?? "",
+        employeeId: inventory.employeeId,
+        storeProductId: inventory.storeProductId ?? "",
+        status: inventory.status ?? "IN",
+      },
+      update: {
+        quantity: inventory.quantity ?? "",
+        employeeId: inventory.employeeId,
+        storeProductId: inventory.storeProductId,
+        status: inventory.status ?? "IN",
+      },
+    });
+  } else {
+    response = await db.inventory.upsert({
+      where: {
+        id: inventory.id,
+      },
+      create: {
+        quantity: inventory.quantity ?? "",
+        storeProductId: inventory.storeProductId ?? "",
+        status: inventory.status ?? "IN",
+      },
+      update: {
+        quantity: inventory.quantity ?? "",
+        storeProductId: inventory.storeProductId,
+        status: inventory.status ?? "IN",
+      },
+    });
+  }
+  if (!response) return { error: "Could not save inventory" };
   if (response) return { success: response };
 };

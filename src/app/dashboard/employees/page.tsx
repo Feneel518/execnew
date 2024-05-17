@@ -1,24 +1,12 @@
-import { DataTable } from "@/components/Dashboard/Customers/data-table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import EmployeeTableBody from "@/components/Dashboard/Employees/EmployeeTableBody";
+import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
-import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import { FC } from "react";
-import { categoriesColumns } from "../../../components/columns/categoriesColumns";
-import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
-import CategoriesTableBody from "@/components/Dashboard/Categories/CategoriesTableBody";
-
-const pacifico = Dancing_Script({ weight: ["400"], subsets: ["latin"] });
 
 interface pageProps {
   searchParams?: {
@@ -30,15 +18,16 @@ interface pageProps {
 const page: FC<pageProps> = async ({ searchParams }) => {
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page || 1);
-  let categories: {
-    slug: string;
-    name: string;
+  let employee: {
+    id?: string;
+    name?: string;
+    slug?: string;
   }[] = [];
 
   let totalPages: number = 0;
 
   if (query) {
-    const categoriesCount = await db.category.count({
+    const employeeCount = await db.employee.count({
       where: {
         slug: {
           contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
@@ -46,24 +35,30 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       },
     });
 
-    totalPages = Math.ceil(Number(categoriesCount) / 10);
+    totalPages = Math.ceil(Number(employeeCount) / 10);
 
-    categories = await db.category.findMany({
+    employee = await db.employee.findMany({
       where: {
         slug: {
           contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
         },
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
       },
       take: 10,
       skip: (currentPage - 1) * 10,
     });
   } else {
-    const categoriesCount = await db.category.count({});
+    const employeeCount = await db.employee.count({});
 
-    categories = await db.category.findMany({
+    employee = await db.employee.findMany({
       select: {
-        slug: true,
+        id: true,
         name: true,
+        slug: true,
       },
       take: 10,
       skip: (currentPage - 1) * 10,
@@ -71,27 +66,25 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         name: "asc",
       },
     });
-    totalPages = Math.ceil(Number(categoriesCount) / 10);
+    totalPages = Math.ceil(Number(employeeCount) / 10);
   }
-
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="">List of categories</div>
+        <div className="">List of employees</div>
         <Link
-          href={"/dashboard/categories/new"}
+          href={"/dashboard/employees/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}
         >
           <Plus></Plus>
           <span>New</span>
         </Link>
       </div>
-
       <div className="mt-4">
         <Card>
           <CardContent>
             <ProductsTable
-              categories={categories}
+              employees={employee}
               totalPages={totalPages}
               columns={
                 <>
@@ -99,17 +92,13 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       Name
                     </h1>
-                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-80">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40">
                       Actions
                     </h1>
                   </div>
                 </>
               }
-              body={
-                <CategoriesTableBody
-                  categories={categories}
-                ></CategoriesTableBody>
-              }
+              body={<EmployeeTableBody employee={employee}></EmployeeTableBody>}
             ></ProductsTable>
           </CardContent>
         </Card>

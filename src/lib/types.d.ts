@@ -410,3 +410,79 @@ export type productForm = Prisma.ProductGetPayload<{
     };
   };
 }>;
+
+export type OrderTable = Prisma.OrderGetPayload<{
+  select: {
+    id: true;
+    orderNumber: true;
+    poNumber: true;
+    poDate: true;
+    status: true;
+    customer: {
+      select: {
+        name: true;
+      };
+    };
+    ProductInOrder: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;
+
+export type Quotationtable = Prisma.QuotationGetPayload<{
+  select: {
+    id: true;
+    createdAt: true;
+    customer: {
+      select: {
+        name: true;
+      };
+    };
+    quotationNumber: true;
+    ProductInQuotation: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;
+
+export type InventoryForDashboard = Prisma.InventoryGetPayload<{
+  include: {
+    employee: {
+      select: {
+        name: true;
+        id: true;
+      };
+    };
+    storeProduct: {
+      select: {
+        StoreProductId: true;
+        id: true;
+        name: true;
+      };
+    };
+  };
+}>;
+
+export type Inventorytable = Prisma.InventoryGetPayload<{
+  select: {
+    id: true;
+    employee: {
+      select: {
+        name: true;
+      };
+    };
+    quantity: true;
+    storeProduct: {
+      select: {
+        name: true;
+        StoreProductId: true;
+      };
+    };
+    status: true;
+    createdAt: true;
+  };
+}>;

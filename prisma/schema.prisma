@@ -342,3 +342,48 @@ model ProductInOrder {
   product   Product @relation(fields: [productId], references: [id])
   productId String  @db.ObjectId
 }
+
+model StoreProduct {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  image          String?
+  slug           String     @unique
+  description    String?
+  StoreProductId String     @unique
+  qrCodeLink     String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  Inventory      Inventory?
+}
+
+model Employee {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  image        String?
+  slug         String     @unique
+  phoneNumber  String?
+  aadharNumber String?
+  createdAt    DateTime?  @default(now())
+  updatedAt    DateTime?  @updatedAt
+  Inventory    Inventory?
+}
+
+model Inventory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @unique @db.ObjectId
+
+  storeProduct   StoreProduct @relation(fields: [storeProductId], references: [StoreProductId])
+  storeProductId String       @unique
+
+  status Status
+}
+
+enum Status {
+  IN
+  OUT
+}

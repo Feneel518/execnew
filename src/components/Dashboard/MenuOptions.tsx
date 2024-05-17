@@ -108,6 +108,26 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                     Customers
                   </Link>
                 </AccordionContent>
+                <AccordionContent>
+                  <Link
+                    href={"/dashboard/store-products"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <FaLightbulb />
+                    Store Products
+                  </Link>
+                </AccordionContent>
+                <AccordionContent>
+                  <Link
+                    href={"/dashboard/employees"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <IoPeopleSharp />
+                    Employees
+                  </Link>
+                </AccordionContent>
               </AccordionItem>
               <AccordionItem
                 className="border-none text-white  flex flex-col "
@@ -144,6 +164,16 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                   >
                     <IoPeopleSharp />
                     Pending Items Quantity
+                  </Link>
+                </AccordionContent>
+                <AccordionContent>
+                  <Link
+                    href={"/dashboard/inventory"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <IoDocumentText />
+                    Inventory
                   </Link>
                 </AccordionContent>
               </AccordionItem>

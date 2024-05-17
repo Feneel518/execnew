@@ -19,6 +19,8 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         whiteLink: "text-color/80 underline-offset-4 hover:underline",
+        chart:
+          "text-woodsmoke-700 hover:text-woodsmoke-200 hover:bg-woodsmoke-700/30",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -26,6 +28,8 @@ const buttonVariants = cva(
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
         withoutPadding: "h-fit p-0",
+        chart: "p-1",
+        exsm: "h-6 p-1",
       },
     },
     defaultVariants: {

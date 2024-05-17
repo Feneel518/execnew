@@ -17,20 +17,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const session = await auth();
   const products = await getRandomProducts();
 
   // console.log(session?.user);
 
   return (
     <main className="max-2xl:mx-4">
-      {/* <Button
-        onClick={async () => {
-          await signOut();
-        }}
-      >
-        Signout
-      </Button> */}
       <Banner></Banner>
       <FeaturedProducts products={products?.success}></FeaturedProducts>
       <NewsLetter></NewsLetter>

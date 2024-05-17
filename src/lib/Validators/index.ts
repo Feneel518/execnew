@@ -50,3 +50,34 @@ export const ContactValidator = z.object({
   terms: z.boolean(),
 });
 export type ContactSchemeRequest = z.infer<typeof ContactValidator>;
+
+export const StoreProductValidator = z.object({
+  name: z
+    .string()
+    .min(1, { message: "Product should atleast have one character" }),
+  image: z.string(),
+  description: z.string().optional(),
+  qrCodeLink: z.string(),
+  storeProductId: z.string(),
+});
+
+export type StoreProductSchemeRequest = z.infer<typeof StoreProductValidator>;
+
+export const InventoryValidator = z.object({
+  storeProductId: z.string(),
+  employeeId: z.string().optional(),
+  status: z.string(),
+  quantity: z.string(),
+});
+
+export type InventorySchemaRequest = z.infer<typeof InventoryValidator>;
+
+export const EmployeeValidator = z.object({
+  name: z
+    .string()
+    .min(1, { message: "Product should atleast have one character" }),
+  image: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  aadhharNumber: z.string().optional(),
+});
+export type EmployeeSchemeRequest = z.infer<typeof EmployeeValidator>;
