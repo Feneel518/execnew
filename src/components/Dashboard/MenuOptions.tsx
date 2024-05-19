@@ -176,6 +176,16 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                     Inventory
                   </Link>
                 </AccordionContent>
+                <AccordionContent>
+                  <Link
+                    href={"/dashboard/stock"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <IoDocumentText />
+                    Stock
+                  </Link>
+                </AccordionContent>
               </AccordionItem>
             </Accordion>
           </div>

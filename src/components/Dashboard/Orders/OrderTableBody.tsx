@@ -27,7 +27,10 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
     <div>
       {orders.map((order) => {
         return (
-          <div className="border-b transition-colors hover:bg-muted/50 ">
+          <div
+            className="border-b transition-colors hover:bg-muted/50 "
+            key={order.id}
+          >
             <div className="px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal w-32">
                 {order.orderNumber}

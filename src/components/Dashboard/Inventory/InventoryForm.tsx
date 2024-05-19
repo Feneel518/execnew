@@ -50,7 +50,7 @@ import { InventorySchemaRequest, InventoryValidator } from "@/lib/Validators";
 import { Status } from "@prisma/client";
 
 interface InventoryFormProps {
-  inventoryData?: InventoryForDashboard;
+  inventoryData?: InventoryForDashboard | null | undefined;
   employee: {
     name: string;
     id: string;
@@ -62,7 +62,13 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
   const { data: products } = useGetStoreProductsForSelect();
   const searchParams = useSearchParams().get("productId");
 
-  console.log(searchParams);
+  if (inventoryData?.storeProductId) {
+    router.replace(
+      `/dashboard/inventory/${inventoryData.id}?productId=${inventoryData.storeProductId}`
+    );
+  }
+
+  // console.log(searchParams);
 
   const [deletingQuotation, setDeletingQuotation] = useState(false);
   const [customerForm, setCustomerForm] = useState(false);
@@ -101,16 +107,18 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
       });
     }
 
-    console.log(value);
+    // console.log({ value });
 
     const response = await upsertInventory({
       id: inventoryData?.id ? inventoryData.id : ObjectID().toString(),
-      employeeId: value.employeeId,
+      employeeId: value.employeeId ?? "",
       quantity: value.quantity,
       status: value.status as Status,
       storeProductId: value.storeProductId,
     });
     if (response?.success) {
+      console.log(response.success);
+
       toast({
         title: "Your Quotation has been saved.",
       });
@@ -189,6 +197,8 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                             </FormControl>
                             <SelectContent>
                               {products.success.map((product) => {
+                                console.log(product.StoreProductId);
+
                                 return (
                                   <SelectItem
                                     key={product.id}

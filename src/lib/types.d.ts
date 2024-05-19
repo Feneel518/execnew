@@ -450,20 +450,12 @@ export type Quotationtable = Prisma.QuotationGetPayload<{
 }>;
 
 export type InventoryForDashboard = Prisma.InventoryGetPayload<{
-  include: {
-    employee: {
-      select: {
-        name: true;
-        id: true;
-      };
-    };
-    storeProduct: {
-      select: {
-        StoreProductId: true;
-        id: true;
-        name: true;
-      };
-    };
+  select: {
+    id: true;
+    storeProductId: true;
+    employeeId: true;
+    status: true;
+    quantity: true;
   };
 }>;
 

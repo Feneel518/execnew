@@ -28,7 +28,7 @@ interface ProductsTableProps {
     name?: string;
     slug?: string;
   }[];
-  totalPages: number;
+  totalPages?: number;
   columns: React.ReactNode;
   body: React.ReactNode;
 }

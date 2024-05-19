@@ -1546,10 +1546,19 @@ export const fetchEmployeeForSelect = async () => {
   if (response) return { success: response };
 };
 
-export const upsertInventory = async (inventory: Partial<Inventory>) => {
+export const upsertInventory = async (
+  inventory: Partial<Inventory> & {
+    employeeId: string;
+    storeProductId: string;
+  }
+) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
+
+  console.log("backend", inventory.storeProductId);
   let response;
+
+  // let response;
   if (inventory.employeeId) {
     response = await db.inventory.upsert({
       where: {
@@ -1557,34 +1566,103 @@ export const upsertInventory = async (inventory: Partial<Inventory>) => {
       },
       create: {
         quantity: inventory.quantity ?? "",
-        employeeId: inventory.employeeId,
-        storeProductId: inventory.storeProductId ?? "",
         status: inventory.status ?? "IN",
+        employeeId: inventory.employeeId,
+        storeProductId: inventory.storeProductId,
       },
       update: {
         quantity: inventory.quantity ?? "",
+        status: inventory.status ?? "IN",
         employeeId: inventory.employeeId,
         storeProductId: inventory.storeProductId,
-        status: inventory.status ?? "IN",
       },
     });
-  } else {
+  } else if (!inventory.employeeId) {
     response = await db.inventory.upsert({
       where: {
         id: inventory.id,
       },
       create: {
         quantity: inventory.quantity ?? "",
-        storeProductId: inventory.storeProductId ?? "",
         status: inventory.status ?? "IN",
+        storeProductId: inventory.storeProductId,
       },
       update: {
         quantity: inventory.quantity ?? "",
-        storeProductId: inventory.storeProductId,
         status: inventory.status ?? "IN",
+        storeProductId: inventory.storeProductId,
       },
     });
   }
+  // if (inventory.employeeId) {
+  //   response = await db.inventory.upsert({
+  //     where: {
+  //       id: inventory.id,
+  //     },
+  //     create: {
+  //       quantity: inventory.quantity ?? "",
+  //       employee: {
+  //         connect: {
+  //           id: inventory.employeeId,
+  //         },
+  //       },
+
+  //       storeProduct: {
+  //         connect: {
+  //           StoreProductId: inventory.storeProductId,
+  //         },
+  //       },
+  //       status: inventory.status ?? "IN",
+  //     },
+  //     update: {
+  //       quantity: inventory.quantity ?? "",
+  //       employee: {
+  //         connect: {
+  //           id: inventory.employeeId,
+  //         },
+  //       },
+  //       storeProduct: {
+  //         connect: {
+  //           StoreProductId: inventory.storeProductId,
+  //         },
+  //       },
+  //       status: inventory.status ?? "IN",
+  //     },
+  //   });
+  // } else {
+  //   response = await db.inventory.upsert({
+  //     where: {
+  //       id: inventory.id,
+  //     },
+  //     create: {
+  //       quantity: inventory.quantity ?? "",
+  //       storeProduct: {
+  //         connect: {
+  //           StoreProductId: inventory.storeProductId,
+  //         },
+  //       },
+  //       status: inventory.status ?? "IN",
+  //     },
+  //     update: {
+  //       quantity: inventory.quantity ?? "",
+  //       storeProduct: {
+  //         connect: {
+  //           StoreProductId: inventory.storeProductId,
+  //         },
+  //       },
+  //       status: inventory.status ?? "IN",
+  //     },
+  //   });
+  // }
   if (!response) return { error: "Could not save inventory" };
   if (response) return { success: response };
+};
+
+export const getStockData = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const stockData = await db.inventory.findMany();
+
+  return { stockData };
 };

@@ -30,12 +30,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         },
       },
       quantity: true,
-      storeProduct: {
-        select: {
-          name: true,
-          StoreProductId: true,
-        },
-      },
+      storeProduct: true,
       status: true,
       createdAt: true,
     },
@@ -47,6 +42,8 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     },
   });
   const totalPages = Math.ceil(Number(inventoryCount) / 10);
+
+  console.log({ inventory });
 
   return (
     <div className="">
@@ -76,6 +73,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       Employee
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 lg:flex hidden">
+                      Quantity
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       date

@@ -24,18 +24,27 @@ const InventoryTableBody: FC<InventoryTableBodyProps> = ({ inventory }) => {
   return (
     <div>
       {inventory.map((invent) => {
+        console.log("store", invent);
+
         return (
-          <div className="border-b transition-colors hover:bg-muted/50 ">
+          <div
+            key={invent.id}
+            className="border-b transition-colors hover:bg-muted/50 "
+          >
             <div className="px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal flex-1">
-                {invent.storeProduct.name} |{" "}
-                {invent.storeProduct.StoreProductId}
+                {invent.storeProduct?.name}
+                {/* {invent.storeProduct?.name} |{" "}
+                {invent.storeProduct?.StoreProductId} */}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1 lg:flex hidden">
                 {invent.status}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {invent.employee?.name}
+              </div>
+              <div className="p-4 align-middle text-sm font-normal flex-1 lg:flex hidden">
+                {invent.quantity}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {format(invent.createdAt, "PP")}

@@ -26,7 +26,10 @@ const ProductTableBody: FC<ProductTableBody> = ({ products }) => {
     <div>
       {products.map((prod) => {
         return (
-          <div className="border-b transition-colors hover:bg-muted/50 ">
+          <div
+            key={prod.slug}
+            className="border-b transition-colors hover:bg-muted/50 "
+          >
             <div className="px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {prod.name}

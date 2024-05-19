@@ -208,7 +208,7 @@ const page: FC<pageProps> = async ({}) => {
             <h1 className="text-3xl sm:text-5xl lg:text-7xl">5.01</h1>
             <div className="max-lg:text-sm">/ $18.00</div>
           </div>
-          <Progress value={60} className="w-[60%]" />
+          <Progress value={60} className="w-[60%] " />
         </div>
       </div>
       {/* sixth block*/}

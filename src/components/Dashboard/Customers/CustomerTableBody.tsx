@@ -28,7 +28,10 @@ const CustomerTableBody: FC<CustomerTableBodyProps> = ({ customer }) => {
     <div>
       {customer.map((cust) => {
         return (
-          <div className="border-b transition-colors hover:bg-muted/50 ">
+          <div
+            key={cust.id}
+            className="border-b transition-colors hover:bg-muted/50 "
+          >
             <div className=" px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {cust.name}

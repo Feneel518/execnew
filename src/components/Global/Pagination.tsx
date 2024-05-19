@@ -13,7 +13,7 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface PaginationProps {
-  totalPages: number;
+  totalPages?: number;
 }
 
 const CustomPagination: FC<PaginationProps> = ({ totalPages }) => {
@@ -45,7 +45,7 @@ const CustomPagination: FC<PaginationProps> = ({ totalPages }) => {
           <ChevronLeft size={18}></ChevronLeft> Previous
         </Button>
         <div className="-mx-6 flex items-center gap-2">
-          {totalPages >= 1 && (
+          {totalPages! >= 1 && (
             <Button
               onClick={() => {
                 createPageUrl(1);
@@ -56,7 +56,7 @@ const CustomPagination: FC<PaginationProps> = ({ totalPages }) => {
               1
             </Button>
           )}
-          {totalPages >= 2 && (
+          {totalPages! >= 2 && (
             <Button
               onClick={() => {
                 createPageUrl(2);
@@ -67,11 +67,11 @@ const CustomPagination: FC<PaginationProps> = ({ totalPages }) => {
               2
             </Button>
           )}
-          {totalPages > 2 && <MoreHorizontal className="h-4 w-4" />}
-          {totalPages > 2 && (
+          {totalPages! > 2 && <MoreHorizontal className="h-4 w-4" />}
+          {totalPages! > 2 && (
             <Button
               onClick={() => {
-                createPageUrl(totalPages);
+                createPageUrl(totalPages!);
               }}
               variant={"ghost"}
               className="flex items-center border"
@@ -81,7 +81,7 @@ const CustomPagination: FC<PaginationProps> = ({ totalPages }) => {
           )}
         </div>
         <Button
-          disabled={page >= totalPages}
+          disabled={page >= totalPages!}
           onClick={() => {
             createPageUrl(page + 1);
           }}

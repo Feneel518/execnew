@@ -26,7 +26,10 @@ const CategoriesTableBody: FC<CategoriesTableBodyProps> = ({ categories }) => {
     <div>
       {categories.map((cate) => {
         return (
-          <div className="border-b transition-colors hover:bg-muted/50 ">
+          <div
+            key={cate.slug}
+            className="border-b transition-colors hover:bg-muted/50 "
+          >
             <div className=" px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {cate.name}

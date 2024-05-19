@@ -12,37 +12,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Quotationtable } from "@/lib/types";
-import { format } from "date-fns";
-import { deleteQuotation } from "@/lib/queries";
 
-interface QuotationTableBodyProps {
-  quotation: Quotationtable[];
+interface ProductTableBodyProps {
+  product: {
+    name: string;
+    StoreProductId: string;
+    slug: string;
+  }[];
 }
 
-const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
+const ProductTableBody: FC<ProductTableBodyProps> = ({ product }) => {
   const router = useRouter();
   return (
     <div>
-      {quotation.map((quot) => {
+      {product.map((quot) => {
         return (
           <div
-            key={quot.id}
+            key={quot.slug}
             className="border-b transition-colors hover:bg-muted/50 "
           >
             <div className="px-4 text-left align-middle font-medium flex items-center     ">
-              <div className="p-4 align-middle text-sm font-normal w-32">
-                {quot.quotationNumber}
+              <div className="p-4 align-middle text-sm font-normal flex-1">
+                {quot.name}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">
-                {quot.customer.name}
+                {quot.StoreProductId}
               </div>
-              <div className="p-4 align-middle text-sm font-normal lg:w-40 lg:flex hidden">
-                {format(quot.createdAt, "PP")}
-              </div>
-              <div className="p-4 align-middle text-sm font-normal lg:w-20 lg:flex hidden">
-                {quot.ProductInQuotation.length}
-              </div>
+
               <div className="p-4 align-middle text-sm font-normal lg:w-40">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -54,32 +50,19 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem
-                      onClick={() => navigator.clipboard.writeText(quot.id)}
+                      onClick={() => navigator.clipboard.writeText(quot.slug)}
                     >
                       Copy payment ID
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => window.open(`/quotation/view/${quot.id}`)}
-                    >
-                      {" "}
-                      View Quotation
-                    </DropdownMenuItem>
+
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/quotations/${quot.id}`)
+                        router.push(`/dashboard/quotations/${quot.slug}`)
                       }
                     >
                       {" "}
                       Edit Quotation
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        await deleteQuotation(quot.id);
-                        router.refresh();
-                      }}
-                    >
-                      Delete Quotation
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -92,4 +75,4 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
   );
 };
 
-export default QuotationTableBody;
+export default ProductTableBody;

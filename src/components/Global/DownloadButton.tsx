@@ -4,8 +4,8 @@ import { FC } from "react";
 import { Button } from "../ui/button";
 
 interface DownloadButtonProps {
-  quotationNumber: number;
-  clientName: string;
+  quotationNumber?: number;
+  clientName?: string;
   isOrder?: boolean;
 }
 

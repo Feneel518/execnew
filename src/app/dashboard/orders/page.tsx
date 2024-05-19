@@ -64,7 +64,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             },
           },
           {
-            poNumber: {
+            poNumberSlug: {
               contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
             },
           },
