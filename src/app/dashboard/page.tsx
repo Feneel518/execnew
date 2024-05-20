@@ -8,6 +8,9 @@ import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { HiDotsVertical } from "react-icons/hi";
 import ChartComponent from "@/components/Dashboard/ChartComponent";
+import FirstBlock from "@/components/Dashboard/Dashboard/FirstBlock";
+import SecondBlock from "@/components/Dashboard/Dashboard/SecondBlock";
+import ThirdBlock from "@/components/Dashboard/Dashboard/ThirdBlock";
 
 interface pageProps {}
 
@@ -27,57 +30,15 @@ const page: FC<pageProps> = async ({}) => {
 
       {/* first block*/}
       <div className=" grid grid-rows-2 row-span-2 gap-4   ">
-        <div className="bg-bamboo-500 p-4 lg:p-8 text-woodsmoke-200 h-full flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="uppercase">today&apos;s focus</div>
-            <div className="">
-              <HiDotsVertical />
-            </div>
-          </div>
-          <div className="flex items-end justify-between">
-            <div className="">
-              <h1 className="text-5xl lg:text-7xl">1.8</h1>
-            </div>
-            <div className="text-sm lg:text-lg">/ 6H</div>
-          </div>
-        </div>
-        <div className="bg-black/10 p-4 lg:p-8 text-woodsmoke-200 h-full flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div className="uppercase">completed task</div>
-            <div className="">
-              <HiDotsVertical />
-            </div>
-          </div>
-          <div className="flex items-end justify-between">
-            <div className="">
-              <h1 className="text-5xl lg:text-7xl">2</h1>
-            </div>
-            <div className="text-sm lg:text-lg">/ 5</div>
-          </div>
-        </div>
+        <FirstBlock></FirstBlock>
+        <SecondBlock></SecondBlock>
       </div>
       {/* first block*/}
 
       {/* second block*/}
-      <div className="bg-black/10 row-span-2 text-woodsmoke-200 flex flex-col justify-between p-4 lg:p-8">
-        <div className="flex items-center justify-between">
-          <div className="uppercase">paid invoices</div>
-          <div className="">
-            <HiDotsVertical />
-          </div>
-        </div>
-        <div className="flex flex-col  justify-between gap-2">
-          <div className="flex items-end justify-between w-full">
-            <h1 className="text-5xl lg:text-7xl">24</h1>
-            <div className="text-sm lg:text-lg">/ 32</div>
-          </div>
-          <div className=" h-[1px] bg-white/50 w-full"></div>
-          <div className="flex items-end justify-between w-full">
-            <h1 className="uppercase max-sm:text-xs">Total</h1>
-            <div className="text-xs sm:text-sm lg:text-lg">$6,000 / 12,000</div>
-          </div>
-        </div>
-      </div>
+
+      <ThirdBlock></ThirdBlock>
+
       {/* second block*/}
 
       {/* third block*/}
@@ -113,7 +74,7 @@ const page: FC<pageProps> = async ({}) => {
       <div className="bg-black/10 row-span-3 p-4 lg:p-8 text-woodsmoke-200">
         <div className="flex flex-col items-start justify-between h-full w-full">
           <div className="flex items-center justify-between w-full">
-            <div className="uppercase whitespace-nowrap">mj fast hours</div>
+            <div className="uppercase whitespace-nowrap">Inventory</div>
             <div className="border rounded-full p-1 bg-woodsmoke-200 text-elbg-black/10 hover:scale-110 transition-all ease-in-out duration-100 cursor-pointer max-md:-mr-4">
               <ArrowUpRight />
             </div>

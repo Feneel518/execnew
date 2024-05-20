@@ -22,8 +22,6 @@ const Search: FC<SearchProps> = ({}) => {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  console.log(searchParams);
-
   return (
     <div>
       <Input

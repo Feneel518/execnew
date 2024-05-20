@@ -18,125 +18,361 @@ interface pageProps {
   searchParams?: {
     query?: string;
     page?: string;
+    sort?: "all" | "pending" | "completed";
   };
 }
 
 const page: FC<pageProps> = async ({ searchParams }) => {
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page || 1);
+  const sortStatus = searchParams?.sort || "all";
   let orders: OrderTable[] = [];
 
   let totalPages: number = 0;
 
   if (query) {
-    const orderCount = await db.order.count({
-      where: {
-        OR: [
-          {
-            customer: {
-              slug: {
+    if (sortStatus === "all") {
+      const orderCount = await db.order.count({
+        where: {
+          OR: [
+            {
+              customer: {
+                slug: {
+                  contains: encodeURI(query?.toLowerCase()),
+                },
+              },
+            },
+            {
+              poNumber: {
                 contains: encodeURI(query?.toLowerCase()),
               },
             },
-          },
-          {
-            poNumber: {
-              contains: encodeURI(query?.toLowerCase()),
-            },
-          },
-        ],
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
-    totalPages = Math.ceil(Number(orderCount) / 10);
+      totalPages = Math.ceil(Number(orderCount) / 10);
 
-    orders = await db.order.findMany({
-      where: {
-        OR: [
-          {
-            customer: {
-              slug: {
-                contains: encodeURI(query?.toLowerCase()),
+      orders = await db.order.findMany({
+        where: {
+          OR: [
+            {
+              customer: {
+                slug: {
+                  contains: encodeURI(query?.toLowerCase()),
+                },
               },
             },
-          },
-          {
-            poNumberSlug: {
-              contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+            {
+              poNumberSlug: {
+                contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
             },
           },
-        ],
-        status: {
-          not: "COMPLETED",
-        },
-      },
-      select: {
-        id: true,
-        orderNumber: true,
-        poNumber: true,
-        poDate: true,
-        status: true,
-        customer: {
-          select: {
-            name: true,
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
           },
         },
-        ProductInOrder: {
-          select: {
-            id: true,
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
+    if (sortStatus === "pending") {
+      const orderCount = await db.order.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  customer: {
+                    slug: {
+                      contains: encodeURI(query?.toLowerCase()),
+                    },
+                  },
+                },
+                {
+                  poNumberSlug: {
+                    contains: encodeURI(
+                      query?.toLowerCase().replace(/\//g, "-")
+                    ),
+                  },
+                },
+              ],
+            },
+            {
+              status: "PENDING" || "PARTIAL_COMPLETED",
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      totalPages = Math.ceil(Number(orderCount) / 10);
+
+      orders = await db.order.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  customer: {
+                    slug: {
+                      contains: encodeURI(query?.toLowerCase()),
+                    },
+                  },
+                },
+                {
+                  poNumberSlug: {
+                    contains: encodeURI(
+                      query?.toLowerCase().replace(/\//g, "-")
+                    ),
+                  },
+                },
+              ],
+            },
+            {
+              status: "PENDING" || "PARTIAL_COMPLETED",
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 10,
-      skip: (currentPage - 1) * 10,
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
+    if (sortStatus === "completed") {
+      const orderCount = await db.order.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  customer: {
+                    slug: {
+                      contains: encodeURI(query?.toLowerCase()),
+                    },
+                  },
+                },
+                {
+                  poNumberSlug: {
+                    contains: encodeURI(
+                      query?.toLowerCase().replace(/\//g, "-")
+                    ),
+                  },
+                },
+              ],
+            },
+            {
+              status: "COMPLETED",
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      totalPages = Math.ceil(Number(orderCount) / 10);
+
+      orders = await db.order.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  customer: {
+                    slug: {
+                      contains: encodeURI(query?.toLowerCase()),
+                    },
+                  },
+                },
+                {
+                  poNumberSlug: {
+                    contains: encodeURI(
+                      query?.toLowerCase().replace(/\//g, "-")
+                    ),
+                  },
+                },
+              ],
+            },
+            {
+              status: "COMPLETED",
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
   } else {
-    const orderCount = await db.order.count({
-      where: {
-        status: {
-          equals: "PENDING" || "PARTIAL_COMPLETED",
-        },
-      },
-    });
+    if (sortStatus === "all") {
+      const orderCount = await db.order.count({});
 
-    orders = await db.order.findMany({
-      where: {
-        status: {
-          equals: "PENDING" || "PARTIAL_COMPLETED",
-        },
-      },
-      select: {
-        id: true,
-        orderNumber: true,
-        poNumber: true,
-        poDate: true,
-        status: true,
-        customer: {
-          select: {
-            name: true,
+      orders = await db.order.findMany({
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+              quantity: true,
+              supplied: true,
+            },
           },
         },
-        ProductInOrder: {
-          select: {
-            id: true,
-            quantity: true,
-            supplied: true,
+        take: 10,
+        skip: (currentPage - 1) * 10,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      totalPages = Math.ceil(Number(orderCount) / 10);
+    }
+    if (sortStatus === "pending") {
+      const orderCount = await db.order.count({
+        where: {
+          status: "PENDING" || "PARTIAL_COMPLETED",
+        },
+      });
+
+      orders = await db.order.findMany({
+        where: {
+          status: "PENDING" || "PARTIAL_COMPLETED",
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+              quantity: true,
+              supplied: true,
+            },
           },
         },
-      },
-      take: 10,
-      skip: (currentPage - 1) * 10,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    totalPages = Math.ceil(Number(orderCount) / 10);
+        take: 10,
+        skip: (currentPage - 1) * 10,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      totalPages = Math.ceil(Number(orderCount) / 10);
+    }
+    if (sortStatus === "completed") {
+      const orderCount = await db.order.count({
+        where: {
+          status: "COMPLETED",
+        },
+      });
+
+      orders = await db.order.findMany({
+        where: {
+          status: "COMPLETED",
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+              quantity: true,
+              supplied: true,
+            },
+          },
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+      totalPages = Math.ceil(Number(orderCount) / 10);
+    }
   }
 
   return (
@@ -156,6 +392,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           <CardContent>
             <ProductsTable
               totalPages={totalPages}
+              sort={true}
               columns={
                 <>
                   <div className="flex items-center border-b  p-4 justify-between">
