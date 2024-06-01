@@ -85,14 +85,6 @@ const ProductsTable: FC<ProductsTableProps> = ({
                 {" "}
                 Fiter completed
               </DropdownMenuItem>
-              {/* <DropdownMenuItem
-              onClick={async () => {
-                await deleteQuotation(order.id);
-                router.refresh();
-              }}
-            >
-              Delete Order
-            </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         ) : null}

@@ -9,6 +9,8 @@ interface ThirdBlockProps {}
 const ThirdBlock: FC<ThirdBlockProps> = async ({}) => {
   const dates = getThisMonthsDate();
 
+  console.log(dates);
+
   const quotations = await db.quotation.findMany({
     select: {
       createdAt: true,
@@ -24,11 +26,15 @@ const ThirdBlock: FC<ThirdBlockProps> = async ({}) => {
     },
   });
 
+  // console.log(quotations);
+
   const thisMonthsQuotations = quotations.filter(
     (a) =>
       a.createdAt >= dates.firstDayOfMonth &&
       a.createdAt < dates.firstDayOfNextMonth
   );
+
+  console.log(thisMonthsQuotations);
 
   const month = thisMonthsQuotations.map((a) => {
     return a.ProductInQuotation.reduce((b, c) => {
@@ -40,9 +46,12 @@ const ThirdBlock: FC<ThirdBlockProps> = async ({}) => {
     }, 0);
   });
 
-  const monthlyQuoattaionAmount = month.reduce((a, b) => {
-    return a + b;
-  });
+  const monthlyQuoattaionAmount =
+    month.length > 0
+      ? month.reduce((a, b) => {
+          return a + b;
+        })
+      : 0;
 
   const total = quotations.map((a) => {
     return a.ProductInQuotation.reduce((b, c) => {
