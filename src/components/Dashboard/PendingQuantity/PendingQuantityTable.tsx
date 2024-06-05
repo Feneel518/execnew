@@ -43,7 +43,7 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
   });
 
   const totalItem = productDetails?.success?.ProductInOrder.reduce((a, b) => {
-    return a + b.quantity;
+    return a + (b.quantity - (b.supplied ? b.supplied : 0));
   }, 0);
 
   console.log(totalItem);

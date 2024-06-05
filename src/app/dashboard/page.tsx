@@ -37,7 +37,7 @@ const page: FC<pageProps> = async ({}) => {
 
       {/* second block*/}
 
-      <ThirdBlock></ThirdBlock>
+      <ThirdBlock></ThirdBlock> 
 
       {/* second block*/}
 
