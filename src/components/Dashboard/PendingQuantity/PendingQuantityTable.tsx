@@ -36,7 +36,7 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
       orderId: pro.orderId,
       orderNumber: pro.order.orderNumber.toString(),
       productName: productDetails.success.name,
-      quantity: pro.quantity.toString(),
+      quantity: (pro.quantity - (pro.supplied ? pro.supplied : 0)).toString(),
       poNumber: pro.order.poNumber,
       productDescription: pro.description,
     };
