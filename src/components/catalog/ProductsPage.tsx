@@ -34,6 +34,9 @@ const ProductsPage: FC<ProductsPageProps> = async ({}) => {
           image: true,
           gasGroup: true,
         },
+        orderBy: {
+          name: "asc",
+        },
       },
     },
     orderBy: {
