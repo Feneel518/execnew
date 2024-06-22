@@ -6,6 +6,7 @@ import SecondPage from "./SecondPage";
 import ThirdPage from "./ThirdPage";
 import FouthPage from "./FouthPage";
 import FifthPage from "./FifthPage";
+import LastPage from "./LastPage";
 
 interface ProductsPageProps {}
 
@@ -58,6 +59,7 @@ const ProductsPage: FC<ProductsPageProps> = async ({}) => {
           ></Catalog>
         );
       })}
+
       {/* <Catalog index={0 + 5} catalogData={categories[0]}></Catalog> */}
     </div>
   );

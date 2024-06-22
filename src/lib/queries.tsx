@@ -37,6 +37,7 @@ import {
   StoreProduct,
 } from "@prisma/client";
 import { ProductInQuotation, QuotationType } from "./types";
+import { revalidatePath } from "next/cache";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -384,6 +385,8 @@ export const upsertProduct = async (
       },
     },
   });
+
+  revalidatePath("/catalog");
 
   if (!response)
     return { error: "Could not create product, please try again later!" };

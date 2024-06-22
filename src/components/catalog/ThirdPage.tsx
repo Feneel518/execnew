@@ -44,14 +44,49 @@ const ThirdPage: FC<ThirdPageProps> = async ({}) => {
             <p>05</p>
           </div>
           <div className="h-[2px] w-full bg-white"></div>
-          {categories.map((category) => {
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Clean Room Lightings</h1>
+            <p>06</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Clean Room Switch Gears</h1>
+            <p>07</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Fire Alarm</h1>
+            <p>08</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Junction Box</h1>
+            <p>10</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Lighting Fittings</h1>
+            <p>11</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Panel Boxes</h1>
+            <p>13</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          <div className="flex items-center justify-between px-8">
+            <h1 className="">Switch Gears</h1>
+            <p>14</p>
+          </div>
+          <div className="h-[2px] w-full bg-white"></div>
+          {/* {categories.map((category) => {
             return (
               <div className="flex flex-col gap-[12px]">
                 <h1 className="pl-8">{category.name}</h1>
                 <div className="h-[2px] w-full bg-white"></div>
               </div>
             );
-          })}
+          })} */}
         </div>
       </div>
     </div>
