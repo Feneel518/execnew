@@ -8,6 +8,7 @@ import FouthPage from "./FouthPage";
 import FifthPage from "./FifthPage";
 import LastPage from "./LastPage";
 import { getCategoriesWithProductsForCatalog } from "@/lib/queries";
+import ClientsPage from "./ClientsPage";
 
 interface ProductsPageProps {}
 
@@ -32,6 +33,7 @@ const ProductsPage: FC<ProductsPageProps> = async ({}) => {
           ></Catalog>
         );
       })}
+      {/* <ClientsPage></ClientsPage> */}
 
       {/* <Catalog index={0 + 5} catalogData={categories[0]}></Catalog> */}
     </div>

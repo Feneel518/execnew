@@ -44,7 +44,8 @@ const OrderTable: FC<OrderTableProps> = ({ products, itemsIndex }) => {
                     <div className="">{invoice.description}</div>
                   </TableCell>
                   <TableCell className="text-right">
-                    {invoice.quantity}
+                    {invoice.quantity -
+                      (invoice.supplied ? invoice.supplied : 0)}
                   </TableCell>
                   <TableCell className="text-right">
                     {formatPrice(invoice.price)}
