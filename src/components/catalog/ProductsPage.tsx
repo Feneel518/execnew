@@ -7,44 +7,14 @@ import ThirdPage from "./ThirdPage";
 import FouthPage from "./FouthPage";
 import FifthPage from "./FifthPage";
 import LastPage from "./LastPage";
+import { getCategoriesWithProductsForCatalog } from "@/lib/queries";
 
 interface ProductsPageProps {}
 
 const ProductsPage: FC<ProductsPageProps> = async ({}) => {
-  const categories = await db.category.findMany({
-    where: {
-      product: {
-        some: {
-          image: {
-            not: "",
-          },
-        },
-      },
-    },
-    select: {
-      name: true,
-      product: {
-        where: {
-          image: {
-            not: "",
-          },
-        },
-        select: {
-          name: true,
-          image: true,
-          gasGroup: true,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+  const categories = await getCategoriesWithProductsForCatalog();
 
-  if (categories === undefined) return;
+  if (!categories?.success || categories.error) return;
 
   return (
     <div className="flex flex-col gap-10 print:gap-0">
@@ -53,7 +23,7 @@ const ProductsPage: FC<ProductsPageProps> = async ({}) => {
       <ThirdPage></ThirdPage>
       <FouthPage></FouthPage>
       <FifthPage></FifthPage>
-      {categories.map((categor, index) => {
+      {categories.success.map((categor, index) => {
         return (
           <Catalog
             key={categor.name}

@@ -1669,3 +1669,43 @@ export const getStockData = async () => {
 
   return { stockData };
 };
+
+export const getCategoriesWithProductsForCatalog = async () => {
+  const response = await db.category.findMany({
+    where: {
+      product: {
+        some: {
+          image: {
+            not: "",
+          },
+        },
+      },
+    },
+    select: {
+      name: true,
+      product: {
+        where: {
+          image: {
+            not: "",
+          },
+        },
+        select: {
+          name: true,
+          image: true,
+          gasGroup: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  revalidatePath("/catalog");
+
+  if (!response) return { error: "No Products Found" };
+  if (response) return { success: response };
+};
