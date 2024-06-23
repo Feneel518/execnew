@@ -54,7 +54,9 @@ const PendingCustomerTableData: FC<PendingCustomerTableDataProps> = ({
                       <div className="grid grid-cols-3 gap-2">
                         <p>{prod.product.name}</p>
                         <p>{prod.description}</p>
-                        <p>{prod.quantity}</p>
+                        <p>
+                          {prod.quantity - (prod.supplied ? prod.supplied : 0)}
+                        </p>
                       </div>
                     );
                   })}
