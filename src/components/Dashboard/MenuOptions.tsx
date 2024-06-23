@@ -36,7 +36,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
     <Sheet modal={false} {...openState}>
       <SheetTrigger
         asChild
-        className="absolute left-4 top-4 z-[100] lg:!hidden flex"
+        className="absolute left-4 top-4 z-[100] lg:!hidden flex print:hidden"
       >
         <Button variant={"outline"} size={"icon"}>
           <Menu className="text-black"></Menu>

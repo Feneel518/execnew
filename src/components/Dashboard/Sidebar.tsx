@@ -5,7 +5,7 @@ interface SidebarProps {}
 
 const Sidebar: FC<SidebarProps> = ({}) => {
   return (
-    <div className="">
+    <div className="pint:hidden">
       <MenuOptions defaultOpen={true}></MenuOptions>
       <MenuOptions></MenuOptions>
     </div>

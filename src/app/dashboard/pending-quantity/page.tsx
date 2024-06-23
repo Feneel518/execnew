@@ -11,7 +11,9 @@ interface pageProps {
 const page: FC<pageProps> = ({ searchParams }) => {
   return (
     <div>
-      <SelectProductForPending></SelectProductForPending>
+      <div className="print:hidden">
+        <SelectProductForPending></SelectProductForPending>
+      </div>
 
       {searchParams.product && (
         <PendingQuantityTable id={searchParams.product}></PendingQuantityTable>

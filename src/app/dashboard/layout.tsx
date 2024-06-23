@@ -18,7 +18,7 @@ const layout: FC<layoutProps> = async ({ children }) => {
       <Sidebar></Sidebar>
       <div className="lg:pl-[300px] w-full">
         <DashboardNavigationBar user={session.user}></DashboardNavigationBar>
-        <div className=" p-2 lg:p-10">{children}</div>
+        <div className=" p-2 lg:p-10 print:p-0">{children}</div>
       </div>
     </div>
   );

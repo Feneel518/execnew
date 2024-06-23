@@ -1,5 +1,9 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 import { fetchPendingCustomerProductsQuantity } from "@/lib/queries";
+
 import { FC } from "react";
+import PendingCustomerTableData from "./PendingCustomerTableData";
 
 interface PendingCustomerTableProps {
   id: string | undefined;
@@ -15,15 +19,36 @@ const PendingCustomerTable: FC<PendingCustomerTableProps> = async ({ id }) => {
   console.log(productDetails.success);
 
   return (
-    <div>
-      {productDetails.success.map((order) => {
-        return (
-          <div className="">
-            {order.orderNumber} {order.poNumber}
-          </div>
-        );
-      })}
-    </div>
+    <Card className="mt-8 print:p-0 print:mt-0">
+      <CardContent className="print:p-0">
+        <div className="flex items-center border-b  p-4 justify-between print:hidden">
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-32">
+            Order Number
+          </h1>
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
+            Product Name
+          </h1>
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-60">
+            PO Number
+          </h1>
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
+            PO Date
+          </h1>
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
+            Status
+          </h1>
+
+          <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40">
+            Actions
+          </h1>
+        </div>
+        <div>
+          <PendingCustomerTableData
+            order={productDetails.success}
+          ></PendingCustomerTableData>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
