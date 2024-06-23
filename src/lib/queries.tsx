@@ -1291,11 +1291,39 @@ export const updateOrder = async (id: string) => {
   if (response) return { success: response };
 };
 
+export const fetchPendingCustomerProductsQuantity = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  if (!id) return { error: "Could not find id, please try again later!" };
+
+  const response = await db.order.findMany({
+    where: {
+      customerId: id,
+    },
+    include: {
+      ProductInOrder: {
+        where: {
+          order: {
+            status: "PENDING" || "PARTIAL_COMPLETED",
+          },
+        },
+        include: {
+          order: true,
+          product: true,
+        },
+      },
+    },
+  });
+  if (!response)
+    return { error: "Could not update order, please try again later!" };
+  if (response) return { success: response };
+};
 export const fetchPendingProductsQuantity = async (id: string) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  if (!id) return { error: "Could not update order, please try again later!" };
+  if (!id) return { error: "Could not find id, please try again later!" };
 
   const response = await db.product.findUnique({
     where: {

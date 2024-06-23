@@ -70,11 +70,6 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               },
             },
           },
-          {
-            quotationNumber: {
-              gte: Number(query) && Number(query),
-            },
-          },
         ],
       },
     });
@@ -89,11 +84,6 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               slug: {
                 contains: encodeURI(query?.toLowerCase()),
               },
-            },
-          },
-          {
-            quotationNumber: {
-              gte: Number(query) && Number(query),
             },
           },
         ],
