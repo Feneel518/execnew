@@ -65,6 +65,7 @@ const Order: FC<OrderProps> = ({ orderData, isWorkOrder }) => {
               <OrderTable
                 //   @ts-ignore
                 products={group}
+                isWorkOrder={isWorkOrder}
                 itemsIndex={
                   index === 0 ? index : list[index - 1].length + index - 1
                 }

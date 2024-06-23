@@ -15,9 +15,14 @@ import { ProductInOrderTable } from "@/lib/types";
 interface OrderTableProps {
   products: ProductInOrderTable[];
   itemsIndex: number;
+  isWorkOrder?: boolean;
 }
 
-const OrderTable: FC<OrderTableProps> = ({ products, itemsIndex }) => {
+const OrderTable: FC<OrderTableProps> = ({
+  products,
+  itemsIndex,
+  isWorkOrder,
+}) => {
   return (
     <div>
       <Table>
@@ -26,7 +31,9 @@ const OrderTable: FC<OrderTableProps> = ({ products, itemsIndex }) => {
             <TableHead className="w-[50px]">#</TableHead>
             <TableHead className="w-[300px]">Items</TableHead>
             <TableHead className="w-[50px]">Quantity</TableHead>
-            <TableHead className="text-right w-[100px]">Unit Price</TableHead>
+            {!isWorkOrder && (
+              <TableHead className="text-right w-[100px]">Unit Price</TableHead>
+            )}
             <TableHead className="text-right w-[50px]">Supplied</TableHead>
             <TableHead className="text-right w-[100px]">Certificate</TableHead>
           </TableRow>
@@ -47,9 +54,11 @@ const OrderTable: FC<OrderTableProps> = ({ products, itemsIndex }) => {
                     {invoice.quantity -
                       (invoice.supplied ? invoice.supplied : 0)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    {formatPrice(invoice.price)}
-                  </TableCell>
+                  {!isWorkOrder && (
+                    <TableCell className="text-right">
+                      {formatPrice(invoice.price)}
+                    </TableCell>
+                  )}
                   <TableCell className="text-right">
                     {invoice.supplied ? invoice.supplied : 0}
                   </TableCell>

@@ -62,11 +62,20 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   if (query) {
     const quotationCount = await db.quotation.count({
       where: {
-        customer: {
-          slug: {
-            contains: encodeURI(query?.toLowerCase()),
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
           },
-        },
+          {
+            quotationNumber: {
+              gte: Number(query) && Number(query),
+            },
+          },
+        ],
       },
     });
 
@@ -74,11 +83,20 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
     quotation = await db.quotation.findMany({
       where: {
-        customer: {
-          slug: {
-            contains: encodeURI(query?.toLowerCase()),
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
           },
-        },
+          {
+            quotationNumber: {
+              gte: Number(query) && Number(query),
+            },
+          },
+        ],
       },
       select: {
         id: true,

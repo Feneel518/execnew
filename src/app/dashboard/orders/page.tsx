@@ -47,6 +47,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                 contains: encodeURI(query?.toLowerCase()),
               },
             },
+            {
+              orderNumber: {
+                gte: Number(query) && Number(query),
+              },
+            },
           ],
         },
         orderBy: {
@@ -69,6 +74,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             {
               poNumberSlug: {
                 contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+              },
+            },
+            {
+              orderNumber: {
+                gte: Number(query) && Number(query),
               },
             },
           ],
@@ -117,6 +127,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     ),
                   },
                 },
+                {
+                  orderNumber: {
+                    gte: Number(query) && Number(query),
+                  },
+                },
               ],
             },
             {
@@ -148,6 +163,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     contains: encodeURI(
                       query?.toLowerCase().replace(/\//g, "-")
                     ),
+                  },
+                },
+                {
+                  orderNumber: {
+                    gte: Number(query) && Number(query),
                   },
                 },
               ],
@@ -201,6 +221,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     ),
                   },
                 },
+                {
+                  orderNumber: {
+                    gte: Number(query) && Number(query),
+                  },
+                },
               ],
             },
             {
@@ -232,6 +257,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     contains: encodeURI(
                       query?.toLowerCase().replace(/\//g, "-")
                     ),
+                  },
+                },
+                {
+                  orderNumber: {
+                    gte: Number(query) && Number(query),
                   },
                 },
               ],
