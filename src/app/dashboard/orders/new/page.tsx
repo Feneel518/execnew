@@ -6,7 +6,7 @@ interface pageProps {}
 const page: FC<pageProps> = ({}) => {
   return (
     <div>
-      <OrderForm></OrderForm>
+      <OrderForm isEdit={false}></OrderForm>
     </div>
   );
 };

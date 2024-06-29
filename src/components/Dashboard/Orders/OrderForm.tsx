@@ -68,7 +68,7 @@ import SupplyForm from "./SupplyForm";
 
 interface OrderFormProps {
   orderData?: OrderForDashboard;
-  isEdit: boolean;
+  isEdit?: boolean;
 }
 
 const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
