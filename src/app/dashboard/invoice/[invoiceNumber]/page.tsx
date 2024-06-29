@@ -20,15 +20,17 @@ const page: FC<pageProps> = async ({ params }) => {
   if (!orderDetails?.success || orderDetails.error) return;
 
   const remainingInvoices = orderDetails.success.Invoice.filter(
-    (id) => id.invoiceNumber !== params.invoiceNumber
+    (id) => id.invoiceNumberSlug !== params.invoiceNumber
   );
+
+  console.log({ remainingInvoices });
 
   const acc = calculateRemainingQuantities(
     orderDetails?.success,
     remainingInvoices
   );
 
-  console.log({ acc });
+  // console.log({ acc });
 
   return (
     <div>

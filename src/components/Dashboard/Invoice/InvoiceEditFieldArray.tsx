@@ -47,6 +47,8 @@ const InvoiceEditFieldArray: FC<InvoiceEditFieldArrayProps> = ({
 }) => {
   const router = useRouter();
 
+  console.log({ invoice });
+
   const form = useForm<InvoiceCreationSchemaRequest>({
     resolver: zodResolver(InvoiceCreationSchema),
     defaultValues: {
