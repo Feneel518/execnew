@@ -16,12 +16,14 @@ interface OrderTableProps {
   products: ProductInOrderTable[];
   itemsIndex: number;
   isWorkOrder?: boolean;
+  remainingQuantity: { [x: string]: number };
 }
 
 const OrderTable: FC<OrderTableProps> = ({
   products,
   itemsIndex,
   isWorkOrder,
+  remainingQuantity,
 }) => {
   return (
     <div>
@@ -34,8 +36,12 @@ const OrderTable: FC<OrderTableProps> = ({
             {!isWorkOrder && (
               <TableHead className="text-right w-[100px]">Unit Price</TableHead>
             )}
-            <TableHead className="text-right w-[50px]">Supplied</TableHead>
-            <TableHead className="text-right w-[100px]">Certificate</TableHead>
+            <TableHead className="text-right w-[50px]">
+              Supplied Quantity
+            </TableHead>
+            <TableHead className="text-right w-[100px]">
+              Pending Qantity
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,8 +57,7 @@ const OrderTable: FC<OrderTableProps> = ({
                     <div className="">{invoice.description}</div>
                   </TableCell>
                   <TableCell className="text-right">
-                    {invoice.quantity -
-                      (invoice.supplied ? invoice.supplied : 0)}
+                    {invoice.quantity}
                   </TableCell>
                   {!isWorkOrder && (
                     <TableCell className="text-right">
@@ -60,10 +65,10 @@ const OrderTable: FC<OrderTableProps> = ({
                     </TableCell>
                   )}
                   <TableCell className="text-right">
-                    {invoice.supplied ? invoice.supplied : 0}
+                    {invoice.quantity - remainingQuantity[invoice.id]}
                   </TableCell>
                   <TableCell className="text-right w-[100px]">
-                    {invoice.certificateNumber ? invoice.certificateNumber : ""}
+                    {remainingQuantity[invoice.id]}
                   </TableCell>
                 </TableRow>
                 <Separator></Separator>

@@ -13,6 +13,7 @@ import InvoiceTable from "../Invoice/InvoiceTable";
 import TestHeading from "./TestHeading";
 import TestTable from "./TestTable";
 import TestData from "./TestData";
+import { format } from "date-fns";
 
 interface TestCertificateProps {
   invoiceData: InvoicePageType;
@@ -103,6 +104,46 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
       {invoiceData && (
         <div className="w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col">
           <SmallHeading></SmallHeading>
+          <div className={`w-full p-8  flex justify-between border-b`}>
+            <div className={`flex flex-col w-[180px] gap-2 `}>
+              <h1 className="text-lg leading-tight">{customerDetails.name}</h1>
+
+              <div className="">
+                {/* Change its name */}
+                {/* <h1 className="text-lg leading-tight">{customerDetails.name}</h1> */}
+                <p className="text-xs">{customerDetails.addressLine1}</p>
+                <p className="text-xs">
+                  {customerDetails.state}, {customerDetails.pincode}
+                </p>
+                {customerDetails.GST && (
+                  <p className="text-xs">{customerDetails.GST}</p>
+                )}
+              </div>
+            </div>
+            <div className="text-right flex flex-col justify-between">
+              <h1 className="text-3xl uppercase tracking-tighter">
+                test certificate
+              </h1>
+              <h1 className="">{format(new Date(), "PP")}</h1>
+              <div className="">
+                <h3>TC no. ExTC {customerDetails.invoiceNumber}</h3>
+                {customerDetails.poNumber && (
+                  <h3 className="">
+                    PO Number: <strong>{customerDetails.poNumber} </strong>
+                  </h3>
+                )}
+                {customerDetails.poDate && (
+                  <h3 className="">
+                    PO Date:{" "}
+                    <strong>
+                      {format(customerDetails.poDate as Date, "PP")}
+                    </strong>
+                  </h3>
+                )}
+              </div>
+            </div>
+          </div>
+
           <TestData></TestData>
         </div>
       )}

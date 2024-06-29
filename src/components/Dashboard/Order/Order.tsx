@@ -12,9 +12,14 @@ import SmallHeading from "@/components/Global/SmallHeading";
 interface OrderProps {
   orderData: OrderToView;
   isWorkOrder?: boolean;
+  remainingQuantity: { [x: string]: number };
 }
 
-const Order: FC<OrderProps> = ({ orderData, isWorkOrder }) => {
+const Order: FC<OrderProps> = ({
+  orderData,
+  isWorkOrder,
+  remainingQuantity,
+}) => {
   const [perPage, setPerPage] = useState([orderData.ProductInOrder.length]);
 
   let pages = perPage.map((amount, i) => {
@@ -69,6 +74,7 @@ const Order: FC<OrderProps> = ({ orderData, isWorkOrder }) => {
                 itemsIndex={
                   index === 0 ? index : list[index - 1].length + index - 1
                 }
+                remainingQuantity={remainingQuantity}
               ></OrderTable>
             }
             heading={

@@ -76,14 +76,22 @@ const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
                           });
                         }
 
-                        router.push(`/invoice/view/${invo.invoiceNumber}`);
+                        router.push(
+                          `/invoice/view/${encodeURI(
+                            invo.invoiceNumber.replace(/\//g, "%")
+                          )}`
+                        );
                       }}
                     >
                       View Invoice
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/invoice/${invo.invoiceNumber}`)
+                        router.push(
+                          `/dashboard/invoice/${encodeURI(
+                            invo.invoiceNumber.replace(/\//g, "%")
+                          )}`
+                        )
                       }
                     >
                       Edit Invoice

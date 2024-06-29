@@ -403,12 +403,13 @@ enum Status {
 // }
 
 model Invoice {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  invoiceNumber String   @unique
-  invoiceDate   DateTime
-  transportName String?
-  LrNumber      String?
-  LrUrl         String?
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber     String   @unique
+  invoiceNumberSlug String   @unique
+  invoiceDate       DateTime
+  transportName     String?
+  LrNumber          String?
+  LrUrl             String?
 
   order   Order  @relation(fields: [orderId], references: [id])
   orderId String @db.ObjectId

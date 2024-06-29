@@ -1862,7 +1862,10 @@ export const upsertInvoice = async (value: InvoiceCreationSchemaRequest) => {
     },
     create: {
       invoiceDate: value.invoiceDate,
-      invoiceNumber: value.invoiceNumber,
+      invoiceNumber: value.invoiceNumber.trim(),
+      invoiceNumberSlug: encodeURI(
+        value.invoiceNumber.trim().replace(/\//g, "%")
+      ),
       LrNumber: value.LrNumber,
       LrUrl: value.LrUrl,
       transportName: value.transportName,
@@ -1889,7 +1892,10 @@ export const upsertInvoice = async (value: InvoiceCreationSchemaRequest) => {
     },
     update: {
       invoiceDate: value.invoiceDate,
-      invoiceNumber: value.invoiceNumber,
+      invoiceNumber: value.invoiceNumber.trim(),
+      invoiceNumberSlug: encodeURI(
+        value.invoiceNumber.trim().replace(/\//g, "%")
+      ),
       LrNumber: value.LrNumber,
       LrUrl: value.LrUrl,
       transportName: value.transportName,
@@ -1975,7 +1981,10 @@ export const editInvoice = async (value: InvoiceCreationSchemaRequest) => {
       id: value.id,
     },
     data: {
-      invoiceNumber: value.invoiceNumber,
+      invoiceNumber: value.invoiceNumber.trim(),
+      invoiceNumberSlug: encodeURI(
+        value.invoiceNumber.trim().replace(/\//g, "%")
+      ),
       invoiceDate: value.invoiceDate,
       LrNumber: value.LrNumber,
       LrUrl: value.LrUrl,
@@ -2047,7 +2056,7 @@ export const getInvoiceDetailsBasedOnInvoiceNumber = async (
 
   const response = await db.invoice.findUnique({
     where: {
-      invoiceNumber: invoiceNumber,
+      invoiceNumberSlug: invoiceNumber,
     },
     include: {
       order: {
@@ -2094,6 +2103,8 @@ export const getInvoiceDetailsBasedOnInvoiceNumber = async (
       },
     },
   });
+  console.log(response);
+
   if (!response)
     return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };
@@ -2105,7 +2116,7 @@ export const getInvoiceDetails = async (invoiceNumber: string) => {
 
   const response = await db.invoice.findUnique({
     where: {
-      invoiceNumber,
+      invoiceNumberSlug: invoiceNumber,
     },
     include: {
       order: {

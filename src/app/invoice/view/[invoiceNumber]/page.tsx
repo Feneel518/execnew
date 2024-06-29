@@ -28,15 +28,13 @@ const page: FC<pageProps> = async ({ params }) => {
       >
         <InvoicePage invoiceData={invoiceData.success}></InvoicePage>
       </div>
-      {!invoiceData.success.ProductInInvoiceOfOrder.some(
-        (cert) => !cert.certificateNumber
-      ) && (
-        <div
-          className={` ${lora.className} flex flex-col items-center justify-center gap-4 print:gap-0 my-20 print:my-0`}
-        >
-          <TestCertificate invoiceData={invoiceData.success}></TestCertificate>
-        </div>
-      )}
+
+      <div
+        className={` ${lora.className} flex flex-col items-center justify-center gap-4 print:gap-0 my-20 print:my-0`}
+      >
+        <TestCertificate invoiceData={invoiceData.success}></TestCertificate>
+      </div>
+
       <div
         className={` ${lora.className} flex flex-col items-center justify-center gap-4 print:gap-0 my-20 print:my-0`}
       >
