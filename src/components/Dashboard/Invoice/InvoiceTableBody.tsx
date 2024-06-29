@@ -12,43 +12,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { OrderTable } from "@/lib/types";
+import { InvoiceTable, OrderTable } from "@/lib/types";
 import { format } from "date-fns";
 import { updateOrder } from "@/lib/queries";
 import { toast } from "@/components/ui/use-toast";
 
-interface OrderTableBodyProps {
-  orders: OrderTable[];
+interface InvoiceTableBodyProps {
+  invoice: InvoiceTable[];
 }
 
-const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
+const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
   const router = useRouter();
   return (
     <div>
-      {orders.map((order) => {
+      {invoice.map((invo) => {
         return (
           <div
             className="border-b transition-colors hover:bg-muted/50 "
-            key={order.id}
+            key={invo.id}
           >
             <div className="px-4 text-left align-middle font-medium flex items-center     ">
               <div className="p-4 align-middle text-sm font-normal w-32">
-                {order.orderNumber}
+                {invo.invoiceNumber}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">
-                {order.customer.name}
+                {invo.order.customer.name}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-60">
-                {order.poNumber}
+                {invo.order.poNumber}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-40 lg:flex hidden">
-                {format(order.poDate as Date, "PP")}
+                {format(invo.order.poDate as Date, "PP")}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-40 lg:flex hidden">
-                {order.status}
+                {invo.order.orderNumber}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-20 lg:flex hidden">
-                {order.ProductInOrder.length}
+                {invo.ProductInInvoiceOfOrder.length}
               </div>
               <div className="p-4 align-middle text-sm font-normal lg:w-40">
                 <DropdownMenu>
@@ -60,57 +60,34 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        const response = await updateOrder(order.id);
-                        router.refresh();
-
-                        if (response?.success) {
-                          return toast({
-                            title: `Your order (${order.orderNumber}), has been updated`,
-                          });
-                        } else if (response?.error) {
-                          return toast({
-                            title: response.error,
-                          });
-                        }
-                      }}
-                    >
-                      Mark as Complete
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => window.open(`/order/view/${order.id}`)}
+                      onClick={() => {
+                        if (
+                          invo.ProductInInvoiceOfOrder.some(
+                            (cert) => !cert.certificateNumber
+                          )
+                        ) {
+                          console.log("its herwe");
+
+                          toast({
+                            description:
+                              "Test certificate cannot be generated as there are some certificate numbers missing.",
+                          });
+                        }
+
+                        router.push(`/invoice/view/${invo.invoiceNumber}`);
+                      }}
                     >
-                      View Order
+                      View Invoice
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/orders/${order.id}`)
+                        router.push(`/dashboard/invoice/${invo.invoiceNumber}`)
                       }
                     >
-                      Edit Order
+                      Edit Invoice
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => router.push(`/workorders/${order.id}`)}
-                    >
-                      Generate Work Order
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        router.push(`/dashboard/test-certificate/${order.id}`)
-                      }
-                    >
-                      Generate Test Certificate
-                    </DropdownMenuItem>
-                    {/* <DropdownMenuItem
-              onClick={async () => {
-                await deleteQuotation(order.id);
-                router.refresh();
-              }}
-            >
-              Delete Order
-            </DropdownMenuItem> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -122,4 +99,4 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
   );
 };
 
-export default OrderTableBody;
+export default InvoiceTableBody;

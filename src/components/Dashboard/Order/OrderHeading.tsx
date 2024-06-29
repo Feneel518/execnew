@@ -8,15 +8,18 @@ interface OrderHeadingProps {
     poNumber?: string;
     poDate?: Date;
     orderNumber: string;
-    status: string;
+    status?: string;
     quotationNumber?: string;
+    invoiceNumber?: string;
   };
   isWorkOrder?: boolean;
+  isInvoice?: boolean;
 }
 
 const OrderHeading: FC<OrderHeadingProps> = ({
   customerDetails,
   isWorkOrder,
+  isInvoice,
 }) => {
   return (
     <div>
@@ -45,12 +48,27 @@ const OrderHeading: FC<OrderHeadingProps> = ({
                 <p className="text-xs">{customerDetails.GST}</p>
               )}
             </div>
-            <div className="">Status: {customerDetails.status}</div>
+            {customerDetails.status && (
+              <div className="">Status: {customerDetails.status}</div>
+            )}
           </div>
           <div className="text-right flex flex-col justify-between">
-            <h1 className="text-3xl uppercase tracking-tighter">Order</h1>
+            <h1 className="text-3xl uppercase tracking-tighter">
+              {isInvoice ? "Invoice" : "Order"}
+            </h1>
+            <h1 className="">{format(new Date(), "PP")}</h1>
             <div className="">
-              <h3>Qtn no. ExOr-{customerDetails.orderNumber} </h3>
+              <h3>
+                {isInvoice ? (
+                  <div className="">
+                    Invoice no. ExIN {customerDetails.invoiceNumber}
+                  </div>
+                ) : (
+                  <div className="">
+                    Order no. ExOr-{customerDetails.orderNumber}
+                  </div>
+                )}{" "}
+              </h3>
               {customerDetails.poNumber && (
                 <h3 className="">
                   PO Number: <strong>{customerDetails.poNumber} </strong>

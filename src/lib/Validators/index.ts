@@ -81,3 +81,64 @@ export const EmployeeValidator = z.object({
   aadhharNumber: z.string().optional(),
 });
 export type EmployeeSchemeRequest = z.infer<typeof EmployeeValidator>;
+
+export const TestCertificatevalidator = z.object({
+  items: z.array(
+    z.object({
+      name: z
+        .string()
+        .min(3, { message: "Required" })
+        .min(3, { message: "Required" }),
+      type: z.string().min(3, { message: "Required" }),
+      protection: z.string().min(3, { message: "Required" }),
+      gasGroup: z.string().min(3, { message: "Required" }),
+      typeNumber: z.string().min(3, { message: "Required" }),
+      certificateNumber: z.string().min(3, { message: "Required" }),
+      invoice: z.array(
+        z.object({
+          invoiceNumber: z.string().min(3, { message: "Required" }),
+          invoiceDate: z.date(),
+        })
+      ),
+      quantity: z.coerce.number().positive(),
+      id: z.string().min(3, { message: "Required" }),
+    })
+  ),
+});
+
+export type TestCertificateSchemaRequest = z.infer<
+  typeof TestCertificatevalidator
+>;
+
+export const InvoiceCreationSchema = z.object({
+  id: z.string().optional(),
+  invoiceNumber: z.string().min(3, { message: "Invoice number is required" }),
+  invoiceDate: z.date(),
+  transportName: z.string().optional(),
+  LrNumber: z.string().optional(),
+  LrUrl: z.string().optional(),
+  orderId: z.string().optional(),
+  items: z.array(
+    z
+      .object({
+        id: z.string().optional(),
+        orderProductName: z.string(),
+        orderProductDescription: z.string().optional(),
+        orderProductQuantity: z.coerce.number(),
+        suppliedQuantity: z.coerce.number(),
+        certificateNumber: z.string().optional(),
+        typeNumber: z.string().optional(),
+        orderProductInOrderId: z.string(),
+        numberOfBoxes: z.coerce.number().optional(),
+        pendingQuantity: z.coerce.number(),
+      })
+      .refine((data) => data.suppliedQuantity <= data.pendingQuantity, {
+        path: ["suppliedQuantity"],
+        message: "Supplied quantity cannot be larger than pending quantity",
+      })
+  ),
+});
+
+export type InvoiceCreationSchemaRequest = z.infer<
+  typeof InvoiceCreationSchema
+>;

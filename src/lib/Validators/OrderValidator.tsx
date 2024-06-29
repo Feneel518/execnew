@@ -21,6 +21,14 @@ export const OrderValidator = z.object({
       certificateNumber: z.string().optional(),
       supplied: z.coerce.number(),
       productId: z.string(),
+      supply: z
+        .object({
+          supplyQuantity: z.coerce.number().optional(),
+          invoiceNumber: z.string().optional(),
+          invoiceDate: z.date().optional(),
+        })
+        .array()
+        .optional(),
     })
     .array(),
 });

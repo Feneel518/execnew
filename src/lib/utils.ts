@@ -1,5 +1,8 @@
+import { Order, Prisma, ProductInOrder } from "@prisma/client";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { InvoiceCreationSchemaRequest } from "./Validators";
+import { ProductInInvoiceTable } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,4 +61,93 @@ export const getThisMonthsDate = () => {
   );
 
   return { firstDayOfMonth, firstDayOfNextMonth };
+};
+
+export const areQuantitiesEqual = (
+  order: Prisma.OrderGetPayload<{
+    include: {
+      ProductInOrder: true;
+    };
+  }>,
+  invoices: Prisma.InvoiceGetPayload<{
+    include: {
+      ProductInInvoiceOfOrder: true;
+    };
+  }>[]
+) => {
+  // if (order.ProductInOrder.length !== invoice.ProductInInvoiceOfOrder.length) {
+  //   return false;
+  // }
+  const orderQuantities = order.ProductInOrder.reduce((acc, product) => {
+    acc[product.id] = product.quantity;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // console.log(orderQuantities);
+
+  const accumulatedInvoiceQuantities = accumulateInvoiceQuantities(invoices);
+
+  for (const productId in orderQuantities) {
+    if (
+      orderQuantities[productId] !== accumulatedInvoiceQuantities[productId]
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const accumulateInvoiceQuantities = (
+  invoices: Prisma.InvoiceGetPayload<{
+    include: {
+      ProductInInvoiceOfOrder: true;
+    };
+  }>[]
+) => {
+  return invoices.reduce((acc, invoice) => {
+    for (const product of invoice.ProductInInvoiceOfOrder) {
+      if (!acc[product.productInOrderId]) {
+        acc[product.productInOrderId] = 0;
+      }
+      acc[product.productInOrderId] += product.supplidQuantity;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+};
+
+export const calculateRemainingQuantities = (
+  order: Prisma.OrderGetPayload<{
+    include: {
+      ProductInOrder: true;
+    };
+  }>,
+  invoices: Prisma.InvoiceGetPayload<{
+    include: {
+      ProductInInvoiceOfOrder: true;
+    };
+  }>[]
+) => {
+  const orderQuantities = order.ProductInOrder.reduce((acc, product) => {
+    acc[product.id] = product.quantity;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const acc = accumulateInvoiceQuantities(invoices);
+  const remainingQuantities = { ...orderQuantities };
+
+  for (const productId in acc) {
+    if (remainingQuantities[productId] !== undefined) {
+      remainingQuantities[productId] -= acc[productId];
+    }
+  }
+  return remainingQuantities;
+};
+
+export const taxAmountCalculation = (items: ProductInInvoiceTable[]) => {
+  const abc = items.reduce((acc, item) => {
+    return acc + item.supplidQuantity * item.ProductInOrder.price;
+  }, 0);
+
+  return { taxAmount: abc * 0.18, totalAmount: abc * 1.18 };
 };

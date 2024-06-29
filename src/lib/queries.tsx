@@ -1,6 +1,7 @@
 "use server";
 import { getUserByEmail } from "@/data/user";
 import {
+  InvoiceCreationSchemaRequest,
   LoginSchema,
   LoginSchemaRequest,
   NewPasswordSchema,
@@ -38,6 +39,9 @@ import {
 } from "@prisma/client";
 import { ProductInQuotation, QuotationType } from "./types";
 import { revalidatePath } from "next/cache";
+import { OrderCreationRequest } from "./Validators/OrderValidator";
+import { QueryClient } from "@tanstack/react-query";
+import { areQuantitiesEqual } from "./utils";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -1069,13 +1073,7 @@ export const fetchPreviousStoreProductId = async () => {
   if (response) return { success: response };
 };
 
-export const upsertOrder = async (
-  order: Partial<
-    Order & {
-      ProductInOrder: Partial<ProductInOrder[]>;
-    }
-  >
-) => {
+export const upsertOrder = async (order: OrderCreationRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
@@ -1140,6 +1138,7 @@ export const upsertOrder = async (
             certificateNumber: item?.certificateNumber,
             description: item?.description,
             supplied: item?.supplied,
+
             product: {
               connect: {
                 id: item?.productId,
@@ -1235,6 +1234,10 @@ export const getOrderDetailsBasedOnId = async (id: string) => {
           product: {
             select: {
               name: true,
+              typeNumber: true,
+              protection: true,
+              gasGroup: true,
+              type: true,
             },
           },
         },
@@ -1319,6 +1322,7 @@ export const fetchPendingCustomerProductsQuantity = async (id: string) => {
     return { error: "Could not update order, please try again later!" };
   if (response) return { success: response };
 };
+
 export const fetchPendingProductsQuantity = async (id: string) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
@@ -1735,5 +1739,400 @@ export const getCategoriesWithProductsForCatalog = async () => {
   revalidatePath("/catalog");
 
   if (!response) return { error: "No Products Found" };
+  if (response) return { success: response };
+};
+
+export const createTestCertificate = async (values: any) => {
+  return;
+};
+
+export const fetchCustomersWithPenndingOrderForSelect = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const customers = await db.customer.findMany({
+    where: {
+      Order: {
+        some: {
+          status: {
+            not: "COMPLETED",
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  if (!customers) return { error: "No Customers" };
+  if (customers) return { success: customers };
+};
+
+export const fetchPONumberBasedOnCustomer = async (id: string) => {
+  if (!id) return { error: "No Id Provided" };
+
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.order.findMany({
+    where: {
+      AND: [
+        {
+          customerId: id,
+        },
+        {
+          status: {
+            not: "COMPLETED",
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      poNumber: true,
+      orderNumber: true,
+      Invoice: {
+        select: {
+          ProductInInvoiceOfOrder: {
+            select: {
+              supplidQuantity: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getOrderDetailsForInvoice = async (id: string) => {
+  if (!id) return { error: "No Id Provided" };
+
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.order.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      customer: true,
+      ProductInOrder: {
+        include: {
+          product: true,
+        },
+      },
+      Invoice: {
+        include: {
+          ProductInInvoiceOfOrder: true,
+        },
+      },
+    },
+  });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const upsertInvoice = async (value: InvoiceCreationSchemaRequest) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const order = await db.order.findUnique({
+    where: {
+      id: value.orderId,
+    },
+    include: {
+      ProductInOrder: true,
+    },
+  });
+
+  if (!order) return;
+
+  const response = await db.invoice.upsert({
+    where: {
+      id: value.id,
+    },
+    create: {
+      invoiceDate: value.invoiceDate,
+      invoiceNumber: value.invoiceNumber,
+      LrNumber: value.LrNumber,
+      LrUrl: value.LrUrl,
+      transportName: value.transportName,
+      order: {
+        connect: {
+          id: value.orderId,
+        },
+      },
+      ProductInInvoiceOfOrder: {
+        create: value.items.map((product) => {
+          return {
+            certificateNumber: product.certificateNumber ?? "",
+            ProductInOrder: {
+              connect: {
+                id: product.orderProductInOrderId,
+              },
+            },
+            supplidQuantity: product.suppliedQuantity,
+            typeNumber: product.typeNumber ?? "",
+            numberOfBoxes: product.numberOfBoxes ?? 0,
+          };
+        }),
+      },
+    },
+    update: {
+      invoiceDate: value.invoiceDate,
+      invoiceNumber: value.invoiceNumber,
+      LrNumber: value.LrNumber,
+      LrUrl: value.LrUrl,
+      transportName: value.transportName,
+      order: {
+        connect: {
+          id: value.orderId,
+        },
+      },
+      ProductInInvoiceOfOrder: {
+        create: value.items.map((product) => {
+          return {
+            certificateNumber: product.certificateNumber ?? "",
+            ProductInOrder: {
+              connect: {
+                id: product.orderProductInOrderId,
+              },
+            },
+            supplidQuantity: product.suppliedQuantity,
+            typeNumber: product.typeNumber ?? "",
+            numberOfBoxes: product.numberOfBoxes ?? 0,
+          };
+        }),
+      },
+    },
+    include: {
+      ProductInInvoiceOfOrder: true,
+    },
+  });
+
+  const invoices = await db.invoice.findMany({
+    where: {
+      orderId: value.orderId,
+    },
+    include: {
+      ProductInInvoiceOfOrder: true,
+    },
+  });
+
+  const productLengthCheck = areQuantitiesEqual(order, invoices);
+
+  if (productLengthCheck) {
+    await db.order.update({
+      where: {
+        id: value.orderId,
+      },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+  } else {
+    await db.order.update({
+      where: {
+        id: value.orderId,
+      },
+      data: {
+        status: "PARTIAL_COMPLETED",
+      },
+    });
+  }
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const editInvoice = async (value: InvoiceCreationSchemaRequest) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const order = await db.order.findUnique({
+    where: {
+      id: value.orderId,
+    },
+    include: {
+      ProductInOrder: true,
+    },
+  });
+
+  if (!order) return;
+
+  const response = await db.invoice.update({
+    where: {
+      id: value.id,
+    },
+    data: {
+      invoiceNumber: value.invoiceNumber,
+      invoiceDate: value.invoiceDate,
+      LrNumber: value.LrNumber,
+      LrUrl: value.LrUrl,
+      transportName: value.transportName,
+      ProductInInvoiceOfOrder: {
+        update: value.items.map((item) => {
+          return {
+            where: {
+              id: item.id,
+            },
+            data: {
+              certificateNumber: item.certificateNumber,
+              numberOfBoxes: item.numberOfBoxes,
+              supplidQuantity: item.suppliedQuantity,
+              typeNumber: item.typeNumber,
+            },
+          };
+        }),
+      },
+    },
+
+    include: {
+      ProductInInvoiceOfOrder: true,
+    },
+  });
+
+  const invoices = await db.invoice.findMany({
+    where: {
+      orderId: value.orderId,
+    },
+    include: {
+      ProductInInvoiceOfOrder: true,
+    },
+  });
+
+  const productLengthCheck = areQuantitiesEqual(order, invoices);
+
+  if (productLengthCheck) {
+    await db.order.update({
+      where: {
+        id: value.orderId,
+      },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+  } else {
+    await db.order.update({
+      where: {
+        id: value.orderId,
+      },
+      data: {
+        status: "PARTIAL_COMPLETED",
+      },
+    });
+  }
+
+  // let response = "yes";
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getInvoiceDetailsBasedOnInvoiceNumber = async (
+  invoiceNumber: string
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.invoice.findUnique({
+    where: {
+      invoiceNumber: invoiceNumber,
+    },
+    include: {
+      order: {
+        select: {
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          quotationNumber: true,
+          customer: {
+            select: {
+              name: true,
+              addressLine1: true,
+              GST: true,
+              pincode: true,
+              state: true,
+            },
+          },
+        },
+      },
+      ProductInInvoiceOfOrder: {
+        include: {
+          ProductInOrder: {
+            select: {
+              id: true,
+              // index: true,
+              index: true,
+              price: true,
+              quantity: true,
+              supplied: true,
+              description: true,
+              certificateNumber: true,
+              product: {
+                select: {
+                  name: true,
+                  typeNumber: true,
+                  protection: true,
+                  gasGroup: true,
+                  type: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getInvoiceDetails = async (invoiceNumber: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.invoice.findUnique({
+    where: {
+      invoiceNumber,
+    },
+    include: {
+      order: {
+        include: {
+          ProductInOrder: true,
+          customer: true,
+        },
+      },
+      ProductInInvoiceOfOrder: {
+        include: {
+          ProductInOrder: {
+            select: {
+              product: {
+                select: {
+                  name: true,
+                },
+              },
+              description: true,
+              quantity: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };
 };

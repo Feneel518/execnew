@@ -324,6 +324,8 @@ model Order {
   updatedAt       DateTime         @updatedAt
   quotationNumber String?
   ProductInOrder  ProductInOrder[]
+  // TestCertificate TestCertificate?
+  Invoice         Invoice[]
 }
 
 model ProductInOrder {
@@ -340,8 +342,9 @@ model ProductInOrder {
   order   Order  @relation(fields: [orderId], references: [id])
   orderId String @db.ObjectId
 
-  product   Product @relation(fields: [productId], references: [id])
-  productId String  @db.ObjectId
+  product                 Product                   @relation(fields: [productId], references: [id])
+  productId               String                    @db.ObjectId
+  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
 }
 
 model StoreProduct {
@@ -387,4 +390,45 @@ model Inventory {
 enum Status {
   IN
   OUT
+}
+
+// model TestCertificate {
+//   id String @id @default(auto()) @map("_id") @db.ObjectId
+
+//   order   Order  @relation(fields: [orderId], references: [id])
+//   orderId String @unique @db.ObjectId
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+model Invoice {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String   @unique
+  invoiceDate   DateTime
+  transportName String?
+  LrNumber      String?
+  LrUrl         String?
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+}
+
+model ProductInInvoiceOfOrder {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  supplidQuantity   Int
+  certificateNumber String
+  typeNumber        String
+  numberOfBoxes     Int?
+
+  Invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  invoiceId String  @db.ObjectId
+
+  ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
+  productInOrderId String         @db.ObjectId
 }

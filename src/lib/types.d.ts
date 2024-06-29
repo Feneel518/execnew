@@ -257,6 +257,7 @@ export type OrderForDashboard = Prisma.OrderGetPayload<{
     status: true;
     ProductInOrder: {
       select: {
+        // index: true,
         index: true;
         certificateNumber: true;
         description: true;
@@ -310,6 +311,22 @@ export type OrderToView = Prisma.OrderGetPayload<{
     ProductInOrder: {
       select: {
         id: true;
+        // index: true,
+        index: true;
+        price: true;
+        quantity: true;
+        supplied: true;
+        description: true;
+        certificateNumber: true;
+        product: {
+          select: {
+            name: true;
+            typeNumber: true;
+            protection: true;
+            gasGroup: true;
+            type: true;
+          };
+        };
       };
     };
   };
@@ -485,6 +502,146 @@ export type PendingCustomerTable = Prisma.OrderGetPayload<{
       include: {
         order: true;
         product: true;
+      };
+    };
+  };
+}>;
+
+export type SelectPOs = Prisma.OrderGetPayload<{
+  select: {
+    id: true;
+    poNumber: true;
+    orderNumber: true;
+  };
+}>;
+
+export type OrderInvoice = Prisma.OrderGetPayload<{
+  include: {
+    customer: true;
+    ProductInOrder: {
+      include: {
+        product: true;
+      };
+    };
+    Invoice: {
+      include: {
+        ProductInInvoiceOfOrder: true;
+      };
+    };
+  };
+}>;
+
+export type InvoiceTable = Prisma.InvoiceGetPayload<{
+  select: {
+    id: true;
+    invoiceNumber: true;
+    invoiceDate: true;
+    order: {
+      select: {
+        poNumber: true;
+        poDate: true;
+        orderNumber: true;
+        customer: {
+          select: {
+            name: true;
+          };
+        };
+      };
+    };
+    ProductInInvoiceOfOrder: {
+      select: {
+        id: true;
+        certificateNumber: true;
+      };
+    };
+  };
+}>;
+
+export type InvoicePageType = Prisma.InvoiceGetPayload<{
+  include: {
+    order: {
+      select: {
+        poNumber: true;
+        orderNumber: true;
+        poDate: true;
+        quotationNumber: true;
+        customer: {
+          select: {
+            name: true;
+            addressLine1: true;
+            GST: true;
+            pincode: true;
+            state: true;
+          };
+        };
+      };
+    };
+    ProductInInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          select: {
+            id: true;
+            // index: true,
+            index: true;
+            price: true;
+            quantity: true;
+            supplied: true;
+            description: true;
+            certificateNumber: true;
+            product: {
+              select: {
+                name: true;
+                typeNumber: true;
+                protection: true;
+                gasGroup: true;
+                type: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type ProductInInvoiceTable = Prisma.ProductInInvoiceOfOrderGetPayload<{
+  include: {
+    ProductInOrder: {
+      include: {
+        product: true;
+      };
+    };
+    certificateNumber: true;
+    id: true;
+    invoiceId: true;
+    numberOfBoxes: true;
+    productInOrderId: true;
+    supplidQuantity: true;
+    typeNumber: true;
+  };
+}>;
+
+export type InvoiceEditType = Prisma.InvoiceGetPayload<{
+  include: {
+    order: {
+      include: {
+        ProductInOrder: true;
+        customer: true;
+      };
+    };
+    ProductInInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          select: {
+            product: {
+              select: {
+                name: true;
+              };
+            };
+            description: true;
+            quantity: true;
+          };
+        };
       };
     };
   };

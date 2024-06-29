@@ -64,12 +64,14 @@ import { useGetProductsForSelect } from "@/data/get-products-for-select";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { upsertOrder } from "@/lib/queries";
+import SupplyForm from "./SupplyForm";
 
 interface OrderFormProps {
   orderData?: OrderForDashboard;
+  isEdit: boolean;
 }
 
-const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
+const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   const router = useRouter();
 
   const { data: orderNumber, isFetching } = useGetOrderNumber();
@@ -80,6 +82,8 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
   const [date, setDate] = useState<Date | undefined>(
     orderData?.poDate ? orderData.poDate : new Date()
   );
+
+  // console.log({ orderData });
 
   const form = useForm<OrderCreationRequest>({
     resolver: zodResolver(OrderValidator),
@@ -96,7 +100,9 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
       poNumber: orderData?.poNumber ? orderData.poNumber : "",
       ProductInOrder:
         orderData?.ProductInOrder && orderData.ProductInOrder.length > 0
-          ? orderData.ProductInOrder.map((item) => {
+          ? orderData.ProductInOrder.sort((a, b) =>
+              a.index ? a.index : 0 > (b.index ? b.index : 1) ? 1 : -1
+            ).map((item) => {
               return {
                 certificateNumber: item.certificateNumber
                   ? item.certificateNumber
@@ -469,13 +475,13 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                 return (
                   <div
                     key={field.id}
-                    className="flex flex-col gap-4 border p-4"
+                    className="flex flex-col gap-4 border p-4 py-8 border-black shadow-md"
                   >
                     <h2 className="underline underline-offset-4">
                       Product {index + 1}
                     </h2>
 
-                    <div className="grid lg:grid-cols-11 grid-cols-2 gap-4 items-end  ">
+                    <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 items-end  ">
                       {products?.success && (
                         <FormField
                           disabled={isLoading}
@@ -490,7 +496,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                                   defaultValue={field.value}
                                 >
                                   <FormControl>
-                                    <SelectTrigger className="w-[250px]">
+                                    <SelectTrigger className="w-full">
                                       <SelectValue placeholder="Select product for quotation" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -513,6 +519,41 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                           )}
                         ></FormField>
                       )}
+                      <FormField
+                        disabled={isLoading}
+                        control={form.control}
+                        name={`ProductInOrder.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1 col-span-1">
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Description"
+                                {...field}
+                              ></Input>
+                            </FormControl>
+                            <FormMessage></FormMessage>
+                          </FormItem>
+                        )}
+                      ></FormField>
+                      <FormField
+                        disabled={isLoading}
+                        control={form.control}
+                        name={`ProductInOrder.${index}.certificateNumber`}
+                        render={({ field }) => (
+                          <FormItem className="flex-1 col-span-1">
+                            <FormLabel>Certificate Number</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Certificate Number"
+                                {...field}
+                              ></Input>
+                            </FormControl>
+                            <FormMessage></FormMessage>
+                          </FormItem>
+                        )}
+                      ></FormField>
+
                       <FormField
                         disabled={isLoading}
                         control={form.control}
@@ -558,7 +599,25 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                           </FormItem>
                         )}
                       ></FormField>
-                      <FormField
+
+                      {/* <SupplyForm
+                        field={field}
+                        productName={
+                          products?.success?.filter(
+                            (id) => id.id === field.productId
+                          )[0].name as string
+                        }
+                      ></SupplyForm> */}
+
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
+
+                      {/* <FormField
                         disabled={isLoading}
                         control={form.control}
                         name={`ProductInOrder.${index}.supplied`}
@@ -575,46 +634,11 @@ const OrderForm: FC<OrderFormProps> = ({ orderData }) => {
                             <FormMessage></FormMessage>
                           </FormItem>
                         )}
-                      ></FormField>
-
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`ProductInOrder.${index}.certificateNumber`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1 col-span-2">
-                            <FormLabel>Certificate Number</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Certificate Number"
-                                {...field}
-                              ></Input>
-                            </FormControl>
-                            <FormMessage></FormMessage>
-                          </FormItem>
-                        )}
-                      ></FormField>
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`ProductInOrder.${index}.description`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1 col-span-2">
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Description"
-                                {...field}
-                              ></Input>
-                            </FormControl>
-                            <FormMessage></FormMessage>
-                          </FormItem>
-                        )}
-                      ></FormField>
-                      <div className="flex items-center gap-2">
+                      ></FormField> */}
+                      <div className="flex items-center gap-2 col-span-2">
                         <Button
                           type="button"
-                          className=""
+                          className="w-full"
                           onClick={() => {
                             append({
                               price: 0,

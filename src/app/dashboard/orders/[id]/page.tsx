@@ -13,8 +13,7 @@ const page: FC<pageProps> = async ({ params }) => {
 
   return (
     <div>
-      {/* @ts-ignore */}
-      <OrderForm orderData={orderData?.success}></OrderForm>
+      <OrderForm isEdit={true} orderData={orderData?.success}></OrderForm>
     </div>
   );
 };

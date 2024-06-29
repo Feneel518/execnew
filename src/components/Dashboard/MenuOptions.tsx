@@ -12,6 +12,8 @@ import { Separator } from "../ui/separator";
 import { FaLightbulb, FaShoppingCart } from "react-icons/fa";
 import { TbCategoryFilled } from "react-icons/tb";
 import { IoPeopleSharp, IoDocumentText } from "react-icons/io5";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
+
 import {
   Accordion,
   AccordionContent,
@@ -129,33 +131,41 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                   </Link>
                 </AccordionContent>
               </AccordionItem>
+              <Separator className="bg-white/40"></Separator>
+              <div className="flex flex-col my-4">
+                <Link
+                  href={"/dashboard/quotations"}
+                  draggable={false}
+                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                >
+                  <IoDocumentText />
+                  Quotations
+                </Link>
+                <Link
+                  href={"/dashboard/orders"}
+                  draggable={false}
+                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                >
+                  <FaShoppingCart />
+                  Orders
+                </Link>
+                <Link
+                  href={"/dashboard/invoice"}
+                  draggable={false}
+                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                >
+                  <FaFileInvoiceDollar />
+                  Invoice
+                </Link>
+              </div>
               <AccordionItem
                 className="border-none text-white  flex flex-col "
                 value="item-2"
               >
                 <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
-                  Documents
+                  Stock
                 </AccordionTrigger>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/quotations"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoDocumentText />
-                    Quotations
-                  </Link>
-                </AccordionContent>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/orders"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaShoppingCart />
-                    Orders
-                  </Link>
-                </AccordionContent>
+
                 <AccordionContent>
                   <Link
                     href={"/dashboard/pending-quantity"}

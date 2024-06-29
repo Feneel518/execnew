@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import { UploadDropzone } from "@/lib/uploadthing";
 
 interface FileUploadProps {
-  apiEndPoint: "imageUploader";
+  apiEndPoint: "imageUploader" | "LrUpload";
   onChange: (url?: string) => void;
   value?: string;
 }
