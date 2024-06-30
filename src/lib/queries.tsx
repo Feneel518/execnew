@@ -667,6 +667,11 @@ export const fetchCustomersForSelect = async () => {
 
 export const fetchProductsForSelect = async () => {
   const products = await db.product.findMany({
+    where: {
+      ProductInOrder: {
+        some: {},
+      },
+    },
     select: {
       id: true,
       name: true,
@@ -1305,13 +1310,17 @@ export const fetchPendingCustomerProductsQuantity = async (id: string) => {
       customerId: id,
     },
     include: {
+      customer: true,
       ProductInOrder: {
         where: {
           order: {
-            status: "PENDING" || "PARTIAL_COMPLETED",
+            status: {
+              not: "COMPLETED",
+            },
           },
         },
         include: {
+          ProductInInvoiceOfOrder: true,
           order: true,
           product: true,
         },
@@ -1337,10 +1346,13 @@ export const fetchPendingProductsQuantity = async (id: string) => {
       ProductInOrder: {
         where: {
           order: {
-            status: "PENDING" || "PARTIAL_COMPLETED",
+            status: {
+              not: "COMPLETED",
+            },
           },
         },
         include: {
+          ProductInInvoiceOfOrder: true,
           order: {
             include: {
               customer: true,

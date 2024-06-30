@@ -498,8 +498,10 @@ export type Inventorytable = Prisma.InventoryGetPayload<{
 
 export type PendingCustomerTable = Prisma.OrderGetPayload<{
   include: {
+    customer: true;
     ProductInOrder: {
       include: {
+        ProductInInvoiceOfOrder: true;
         order: true;
         product: true;
       };

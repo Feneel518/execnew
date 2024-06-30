@@ -12,11 +12,6 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
   if (!id) return;
   const productDetails = await fetchPendingProductsQuantity(id);
 
-  console.log(
-    productDetails?.success?.ProductInOrder.map(
-      (pro) => pro.order.customer.name
-    )
-  );
   if (!productDetails?.success?.ProductInOrder) return;
 
   let pendingData:
@@ -30,23 +25,31 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
         productDescription: string | null;
         quantity: string;
       }[] = productDetails?.success?.ProductInOrder.map((pro) => {
+    const acc = pro.ProductInInvoiceOfOrder.reduce((ac, item) => {
+      return ac + item.supplidQuantity;
+    }, 0);
+
     return {
       id: productDetails.success.id,
       clientName: pro.order.customer.name,
       orderId: pro.orderId,
       orderNumber: pro.order.orderNumber.toString(),
       productName: productDetails.success.name,
-      quantity: (pro.quantity - (pro.supplied ? pro.supplied : 0)).toString(),
+      quantity: (pro.quantity - acc).toString(),
       poNumber: pro.order.poNumber,
       productDescription: pro.description,
     };
   });
 
   const totalItem = productDetails?.success?.ProductInOrder.reduce((a, b) => {
-    return a + (b.quantity - (b.supplied ? b.supplied : 0));
+    return (
+      a +
+      (b.quantity -
+        b.ProductInInvoiceOfOrder.reduce((ac, item) => {
+          return ac + item.supplidQuantity;
+        }, 0))
+    );
   }, 0);
-
-  console.log(totalItem);
 
   return (
     <div className="flex flex-col">

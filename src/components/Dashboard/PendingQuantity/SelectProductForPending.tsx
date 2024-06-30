@@ -11,6 +11,7 @@ import {
 import { useGetProductsForSelect } from "@/data/get-products-for-select";
 import { useRouter } from "next/navigation";
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
+import { useGetCustomersWithPendingOrdersForSelect } from "@/data/get-customers-with-orders-for-select";
 
 interface SelectProductForPendingProps {}
 
@@ -19,7 +20,8 @@ const SelectProductForPending: FC<SelectProductForPendingProps> = ({}) => {
   const [customerId, setCustomerId] = useState("");
   const router = useRouter();
   const { data: products } = useGetProductsForSelect();
-  const { data: clients } = useGetCustomersForSelect();
+  const { data: clients } = useGetCustomersWithPendingOrdersForSelect();
+  // const { data: clients } = useGetCustomersForSelect();
   return (
     <div className=" flex flex-col gap-10">
       <Select
