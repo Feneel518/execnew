@@ -21,8 +21,6 @@ const page: FC<pageProps> = async ({ params }) => {
   const queryClient = new QueryClient();
   const productDetails = await getProductDetailsBasedOnSlug(params.slug);
 
-  console.log(productDetails);
-
   await queryClient.prefetchQuery({
     queryKey: ["categoryForSelect"],
     queryFn: fetchCategoryForSelect,

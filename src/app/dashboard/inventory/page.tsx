@@ -4,6 +4,7 @@ import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import { InventoryTable } from "@/lib/types";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -17,38 +18,92 @@ interface pageProps {
 }
 
 const page: FC<pageProps> = async ({ searchParams }) => {
+  const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page || 1);
 
-  const inventoryCount = await db.inventory.count({});
+  let inventory: InventoryTable[] = [];
+  let totalPages = 0;
 
-  const inventory = await db.inventory.findMany({
-    select: {
-      id: true,
-      employee: {
-        select: {
-          name: true,
-        },
+  if (query) {
+    const inventoryCount = await db.inventory.count({
+      where: {
+        OR: [
+          {
+            storeProduct: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+              },
+            },
+          },
+        ],
       },
-      quantity: true,
-      storeProduct: true,
-      status: true,
-      createdAt: true,
-    },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    take: 10,
-    skip: (currentPage - 1) * 10,
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
-  const totalPages = Math.ceil(Number(inventoryCount) / 10);
+    totalPages = Math.ceil(Number(inventoryCount) / 10);
 
-  console.log({ inventory });
+    inventory = await db.inventory.findMany({
+      where: {
+        OR: [
+          {
+            storeProduct: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+              },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        employee: {
+          select: {
+            name: true,
+          },
+        },
+        quantity: true,
+        storeProduct: true,
+        status: true,
+        createdAt: true,
+      },
+      take: 10,
+      skip: (currentPage - 1) * 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } else {
+    const inventoryCount = await db.inventory.count({});
+
+    inventory = await db.inventory.findMany({
+      select: {
+        id: true,
+        employee: {
+          select: {
+            name: true,
+          },
+        },
+        quantity: true,
+        storeProduct: true,
+        status: true,
+        createdAt: true,
+      },
+
+      take: 10,
+      skip: (currentPage - 1) * 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    totalPages = Math.ceil(Number(inventoryCount) / 10);
+  }
 
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="">List of employees</div>
+        <div className="">List of Inventories</div>
         <Link
           href={"/dashboard/inventory/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}

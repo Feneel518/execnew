@@ -1,12 +1,10 @@
-"use client";
-
 import { FC } from "react";
 import { Input } from "../ui/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-interface SearchProps {}
+interface SearchNumberProps {}
 
-const Search: FC<SearchProps> = ({}) => {
+const SearchNumber: FC<SearchNumberProps> = ({}) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -14,10 +12,10 @@ const Search: FC<SearchProps> = ({}) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", "1");
     if (term) {
-      params.set("query", term);
-      params.set("queryNumber", "");
-    } else {
+      params.set("queryNumber", term);
       params.delete("query");
+    } else {
+      params.delete("queryNumber");
     }
 
     router.replace(`${pathname}?${params.toString()}`);
@@ -26,13 +24,14 @@ const Search: FC<SearchProps> = ({}) => {
   return (
     <div>
       <Input
-        defaultValue={searchParams.get("query")?.toString()}
+        defaultValue={searchParams.get("queryNumber")?.toString()}
         onChange={(e) => handleSearch(e.target.value)}
-        placeholder="Filter name..."
+        placeholder={`Filter ${pathname.split("/").at(-1)} Numbers ...`}
         className="max-w-sm"
+        type="number"
       />
     </div>
   );
 };
 
-export default Search;
+export default SearchNumber;

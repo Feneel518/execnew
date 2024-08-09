@@ -58,9 +58,7 @@ const FileUpload: FC<FileUploadProps> = ({ apiEndPoint, onChange, value }) => {
         onClientUploadComplete={(res) => {
           onChange(res?.[0].url);
         }}
-        onUploadError={(error: Error) => {
-          console.log("UPLOAD ERROR", error);
-        }}
+        onUploadError={(error: Error) => {}}
       ></UploadDropzone>
     </div>
   );

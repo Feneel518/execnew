@@ -47,8 +47,6 @@ const InvoiceEditFieldArray: FC<InvoiceEditFieldArrayProps> = ({
 }) => {
   const router = useRouter();
 
-  console.log({ invoice });
-
   const form = useForm<InvoiceCreationSchemaRequest>({
     resolver: zodResolver(InvoiceCreationSchema),
     defaultValues: {
@@ -78,11 +76,8 @@ const InvoiceEditFieldArray: FC<InvoiceEditFieldArrayProps> = ({
   const onSubmit = async (values: InvoiceCreationSchemaRequest) => {
     values.id = invoice.id;
     values.orderId = invoice.orderId;
-    console.log(values);
 
     const response = await editInvoice(values);
-
-    console.log({ response });
 
     if (response?.success) {
       toast({
@@ -252,7 +247,6 @@ const InvoiceEditFieldArray: FC<InvoiceEditFieldArrayProps> = ({
                 )}
               ></FormField>
               {invoice.ProductInInvoiceOfOrder.map((item, index) => {
-                console.log(remainingQuantity);
                 form.setValue(`items.${index}.id`, item.id);
                 form.setValue(
                   `items.${index}.orderProductName`,

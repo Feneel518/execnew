@@ -31,7 +31,7 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
     return invoiceData.ProductInInvoiceOfOrder.slice(offset, offset + amount);
   });
 
-  //   console.log(invoiceData.ProductInInvoiceOfOrder);
+  //
 
   // @ts-ignore
   const taxAmount = taxAmountCalculation(invoiceData.ProductInInvoiceOfOrder);

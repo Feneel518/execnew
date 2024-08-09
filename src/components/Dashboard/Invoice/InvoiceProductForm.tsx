@@ -76,11 +76,8 @@ const InvoiceProductForm: FC<InvoiceProductFormProps> = ({
   const onSubmit = async (values: InvoiceCreationSchemaRequest) => {
     values.id = ObjectID().toString();
     values.orderId = order.id;
-    console.log(values);
 
     const response = await upsertInvoice(values);
-
-    console.log({ response });
 
     if (response?.success) {
       toast({

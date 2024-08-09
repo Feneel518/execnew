@@ -20,12 +20,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { User } from "next-auth";
 
 interface MenuOptionsProps {
   defaultOpen?: boolean;
+  session: User & {
+    role: string;
+  };
 }
 
-const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
+const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
   const openState = useMemo(() => (defaultOpen ? { open: true } : {}), []);
 
   const [isMounted, setIsMounted] = useState(false);
@@ -80,36 +84,40 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                 <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
                   Master
                 </AccordionTrigger>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/products"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaLightbulb />
-                    Products
-                  </Link>
-                </AccordionContent>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/categories"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <TbCategoryFilled />
-                    Categories
-                  </Link>
-                </AccordionContent>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/customers"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoPeopleSharp />
-                    Customers
-                  </Link>
-                </AccordionContent>
+                {session.role === "ADMIN" && (
+                  <>
+                    <AccordionContent>
+                      <Link
+                        href={"/dashboard/products"}
+                        draggable={false}
+                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                      >
+                        <FaLightbulb />
+                        Products
+                      </Link>
+                    </AccordionContent>
+                    <AccordionContent>
+                      <Link
+                        href={"/dashboard/categories"}
+                        draggable={false}
+                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                      >
+                        <TbCategoryFilled />
+                        Categories
+                      </Link>
+                    </AccordionContent>
+                    <AccordionContent>
+                      <Link
+                        href={"/dashboard/customers"}
+                        draggable={false}
+                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                      >
+                        <IoPeopleSharp />
+                        Customers
+                      </Link>
+                    </AccordionContent>
+                  </>
+                )}
                 <AccordionContent>
                   <Link
                     href={"/dashboard/store-products"}
@@ -132,32 +140,42 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                 </AccordionContent>
               </AccordionItem>
               <Separator className="bg-white/40"></Separator>
-              <div className="flex flex-col my-4">
-                <Link
-                  href={"/dashboard/quotations"}
-                  draggable={false}
-                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                >
-                  <IoDocumentText />
-                  Quotations
-                </Link>
-                <Link
-                  href={"/dashboard/orders"}
-                  draggable={false}
-                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                >
-                  <FaShoppingCart />
-                  Orders
-                </Link>
-                <Link
-                  href={"/dashboard/invoice"}
-                  draggable={false}
-                  className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                >
-                  <FaFileInvoiceDollar />
-                  Invoice
-                </Link>
-              </div>
+              {session.role === "ADMIN" && (
+                <div className="flex flex-col my-4">
+                  <Link
+                    href={"/dashboard/quotations"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <IoDocumentText />
+                    Quotations
+                  </Link>
+                  <Link
+                    href={"/dashboard/orders"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <FaShoppingCart />
+                    Orders
+                  </Link>
+                  <Link
+                    href={"/dashboard/invoice"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <FaFileInvoiceDollar />
+                    Invoice
+                  </Link>
+                  <Link
+                    href={"/dashboard/delivery-challan"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <FaFileInvoiceDollar />
+                    Delivery Challan
+                  </Link>
+                </div>
+              )}
               <AccordionItem
                 className="border-none text-white  flex flex-col "
                 value="item-2"
@@ -165,17 +183,18 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen }) => {
                 <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
                   Stock
                 </AccordionTrigger>
-
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/pending-quantity"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoPeopleSharp />
-                    Pending Items Quantity
-                  </Link>
-                </AccordionContent>
+                {session.role === "ADMIN" && (
+                  <AccordionContent>
+                    <Link
+                      href={"/dashboard/pending-quantity"}
+                      draggable={false}
+                      className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                    >
+                      <IoPeopleSharp />
+                      Pending Items Quantity
+                    </Link>
+                  </AccordionContent>
+                )}
                 <AccordionContent>
                   <Link
                     href={"/dashboard/inventory"}

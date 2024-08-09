@@ -62,8 +62,6 @@ const ProductForm: FC<ProductFormProps> = ({ productData }) => {
 
   const router = useRouter();
 
-  console.log(productData);
-
   const form = useForm<ProductCreationRequest>({
     resolver: zodResolver(ProductValidator),
     // mode: "onChange",

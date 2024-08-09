@@ -17,6 +17,7 @@ import { FC } from "react";
 interface pageProps {
   searchParams?: {
     query?: string;
+    queryNumber?: string;
     page?: string;
     sort?: "all" | "pending" | "completed";
   };
@@ -24,6 +25,7 @@ interface pageProps {
 
 const page: FC<pageProps> = async ({ searchParams }) => {
   const query = searchParams?.query || "";
+  const queryNumber = searchParams?.queryNumber || "";
   const currentPage = Number(searchParams?.page || 1);
   const sortStatus = searchParams?.sort || "all";
   let orders: OrderTable[] = [];
@@ -120,7 +122,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               ],
             },
             {
-              status: "PENDING" || "PARTIAL_COMPLETED",
+              status: {
+                not: "COMPLETED",
+              },
             },
           ],
         },
@@ -204,7 +208,202 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               ],
             },
             {
+              status: {
+                equals: "COMPLETED",
+              },
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      totalPages = Math.ceil(Number(orderCount) / 10);
+
+      orders = await db.order.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  customer: {
+                    slug: {
+                      contains: encodeURI(query?.toLowerCase()),
+                    },
+                  },
+                },
+                {
+                  poNumberSlug: {
+                    contains: encodeURI(
+                      query?.toLowerCase().replace(/\//g, "-")
+                    ),
+                  },
+                },
+                {
+                  orderNumber: {
+                    gte: Number(query) && Number(query),
+                  },
+                },
+              ],
+            },
+            {
               status: "COMPLETED",
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
+  } else if (queryNumber) {
+    if (sortStatus === "all") {
+      const orderCount = await db.order.count({
+        where: {
+          OR: [
+            {
+              orderNumber: Number(queryNumber),
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      totalPages = Math.ceil(Number(orderCount) / 10);
+
+      orders = await db.order.findMany({
+        where: {
+          OR: [
+            {
+              orderNumber: Number(queryNumber),
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
+    if (sortStatus === "pending") {
+      const orderCount = await db.order.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  orderNumber: Number(queryNumber),
+                },
+              ],
+            },
+            {
+              status: {
+                not: "COMPLETED",
+              },
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      totalPages = Math.ceil(Number(orderCount) / 10);
+
+      orders = await db.order.findMany({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  orderNumber: Number(queryNumber),
+                },
+              ],
+            },
+            {
+              status: "PENDING" || "PARTIAL_COMPLETED",
+            },
+          ],
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          status: true,
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+          ProductInOrder: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+        skip: (currentPage - 1) * 10,
+      });
+    }
+    if (sortStatus === "completed") {
+      const orderCount = await db.order.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  orderNumber: Number(queryNumber),
+                },
+              ],
+            },
+            {
+              status: {
+                equals: "COMPLETED",
+              },
             },
           ],
         },
@@ -311,7 +510,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       orders = await db.order.findMany({
         where: {
-          status: "PENDING" || "PARTIAL_COMPLETED",
+          status: {
+            not: "COMPLETED",
+          },
         },
         select: {
           id: true,
@@ -343,7 +544,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     if (sortStatus === "completed") {
       const orderCount = await db.order.count({
         where: {
-          status: "COMPLETED",
+          status: {
+            equals: "COMPLETED",
+          },
         },
       });
 

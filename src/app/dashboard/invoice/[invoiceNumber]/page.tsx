@@ -23,14 +23,12 @@ const page: FC<pageProps> = async ({ params }) => {
     (id) => id.invoiceNumberSlug !== params.invoiceNumber
   );
 
-  console.log({ remainingInvoices });
-
   const acc = calculateRemainingQuantities(
     orderDetails?.success,
     remainingInvoices
   );
 
-  // console.log({ acc });
+  console.log(invoiceDetails);
 
   return (
     <div>

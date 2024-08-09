@@ -1,69 +1,61 @@
-"use client";
+import { db } from "@/lib/db";
 import { FC } from "react";
-import { BarChart, Bar, ResponsiveContainer, Tooltip } from "recharts";
+
+import OrderChart from "../Global/OrderChart";
+import { Order } from "@prisma/client";
 
 interface ChartComponentProps {}
-const data = [
-  {
-    name: "Page A",
-    uv: 2000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Page C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Page D",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Page E",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Page F",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Page G",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
-const ChartComponent: FC<ChartComponentProps> = ({}) => {
+const ChartComponent: FC<ChartComponentProps> = async ({}) => {
+  const orders = await db.order.findMany({
+    select: {
+      createdAt: true,
+    },
+  });
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const groupedOrders: { [key: string]: Partial<Order>[] } = {};
+
+  orders.forEach((order) => {
+    const month = monthNames[new Date(order.createdAt).getMonth()];
+
+    if (!groupedOrders[month]) {
+      groupedOrders[month] = [];
+    }
+
+    groupedOrders[month].push(order);
+  });
+
+  const results = Object.keys(groupedOrders).map((month) => {
+    return {
+      name: month,
+      numberOfOrders: groupedOrders[month].length,
+    };
+  });
+
   return (
     <div>
-      <ResponsiveContainer width={384} height={180} className=" z-20">
-        <BarChart width={150} height={40} data={data}>
-          <Tooltip
-            cursor={{ fill: "#635e6b50" }}
-            contentStyle={{ color: "#040404" }}
-            itemStyle={{ color: "#040404" }}
-          />
-          <Bar
-            dataKey="uv"
-            fill="#e1f3fd"
-            activeBar={{ className: "bg-transparent" }}
-          ></Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="flex items-end justify-between">
+        <h1 className="text-3xl sm:text-5xl lg:text-7xl ">
+          {orders.length} <span className="text-xs"> orders</span>
+        </h1>
+        <div className="">
+          <OrderChart results={results}></OrderChart>
+        </div>
+      </div>
     </div>
   );
 };

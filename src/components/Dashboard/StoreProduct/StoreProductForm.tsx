@@ -32,11 +32,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ObjectId from "bson-objectid";
-import { productForm } from "@/lib/types";
 import {
   StoreProductSchemeRequest,
   StoreProductValidator,
@@ -53,6 +52,9 @@ interface StoreProductFormProps {
 }
 
 const StoreProductForm: FC<StoreProductFormProps> = ({ productData }) => {
+  const searchParams = useSearchParams();
+  const page = searchParams.get("page");
+  const query = searchParams.get("query");
   const [deletingProduct, setDeletingProduct] = useState(false);
   const [src, setSrc] = useState(productData ? productData.qrCodeLink : "");
   const { data: oldStoreProductId, isFetching } = useGetStoreProductNumber();
@@ -60,10 +62,6 @@ const StoreProductForm: FC<StoreProductFormProps> = ({ productData }) => {
   const newStoreProductId = incrementStoreId(
     oldStoreProductId?.success?.StoreProductId
   );
-
-  console.log(newStoreProductId);
-
-  console.log(oldStoreProductId);
 
   const router = useRouter();
 
@@ -97,8 +95,6 @@ const StoreProductForm: FC<StoreProductFormProps> = ({ productData }) => {
   const isLoading = form.formState.isSubmitting;
 
   const handleSubmit = async (data: StoreProductSchemeRequest) => {
-    console.log({ src });
-
     const response = await upsertStoreProduct({
       id: productData?.id ? productData.id : ObjectId().toString(),
       image: data.image,
@@ -111,7 +107,9 @@ const StoreProductForm: FC<StoreProductFormProps> = ({ productData }) => {
       toast({
         title: "Your product has been created.",
       });
-      router.push("/dashboard/store-products");
+      router.push(
+        `/dashboard/store-products?${page === undefined ? "" : `page=${page}`}`
+      );
       return router.refresh();
     }
     if (response?.error)
@@ -128,7 +126,9 @@ const StoreProductForm: FC<StoreProductFormProps> = ({ productData }) => {
     const response = await deleteStoreProduct(productData?.id);
     setDeletingProduct(false);
     if (response?.success) {
-      router.push("/dashboard/store-products");
+      router.push(
+        `/dashboard/store-products?${page === undefined ? "" : `page=${page}`}`
+      );
       router.refresh();
       return toast({
         title: "Your Product has been deleted.",

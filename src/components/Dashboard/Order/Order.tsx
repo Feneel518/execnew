@@ -51,8 +51,6 @@ const Order: FC<OrderProps> = ({
   return (
     <div className="flex flex-col gap-4 print:gap-0">
       {pages.map((group, index, list) => {
-        console.log({ group, list, index });
-
         return (
           <A4Page
             onResize={() => {

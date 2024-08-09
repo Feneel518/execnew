@@ -14,8 +14,6 @@ interface CatalogProps {
 const Catalog: FC<CatalogProps> = ({ catalogData, index }) => {
   const [perPage, setPerPage] = useState([catalogData.product.length]);
 
-  //   console.log(perPage);
-
   let pages = perPage.map((amount, i) => {
     let offset = perPage
       .slice(0, i)
@@ -26,8 +24,6 @@ const Catalog: FC<CatalogProps> = ({ catalogData, index }) => {
   return (
     <div className="flex flex-col gap-4 print:gap-0 relative">
       {pages.map((group, pageIndex, list) => {
-        // console.log(list);
-
         return (
           <CatalogPage
             index={index}

@@ -68,8 +68,6 @@ const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
                             (cert) => !cert.certificateNumber
                           )
                         ) {
-                          console.log("its herwe");
-
                           toast({
                             description:
                               "Test certificate cannot be generated as there are some certificate numbers missing.",

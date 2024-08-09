@@ -67,8 +67,6 @@ const CategoryForm: FC<CategoryFormProps> = ({ data }) => {
 
   const handleSubmit = async (value: CategoryCreationRequest) => {
     try {
-      console.log(data);
-
       const response = await upsertCategory({
         id: data?.id ? data.id : ObjectID().toString(),
         image: value.image,
@@ -77,7 +75,7 @@ const CategoryForm: FC<CategoryFormProps> = ({ data }) => {
         slug: encodeURI(value.name.toLowerCase()),
       });
 
-      // console.log(response);
+      //
       toast({
         title: "Your Category has been created.",
       });

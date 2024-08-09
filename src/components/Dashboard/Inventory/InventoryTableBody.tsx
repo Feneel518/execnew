@@ -24,8 +24,6 @@ const InventoryTableBody: FC<InventoryTableBodyProps> = ({ inventory }) => {
   return (
     <div>
       {inventory.map((invent) => {
-        console.log("store", invent);
-
         return (
           <div
             key={invent.id}

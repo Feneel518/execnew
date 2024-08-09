@@ -24,8 +24,6 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts: FC<FeaturedProductsProps> = ({ products }) => {
-  console.log(products);
-
   // const products = await getRandomProducts();
 
   return (

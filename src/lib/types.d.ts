@@ -648,3 +648,18 @@ export type InvoiceEditType = Prisma.InvoiceGetPayload<{
     };
   };
 }>;
+
+export type InventoryTable = Prisma.InventoryGetPayload<{
+  select: {
+    id: true;
+    employee: {
+      select: {
+        name: true;
+      };
+    };
+    quantity: true;
+    storeProduct: true;
+    status: true;
+    createdAt: true;
+  };
+}>;

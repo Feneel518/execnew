@@ -19,8 +19,6 @@ export const metadata: Metadata = {
 export default async function Home() {
   const products = await getRandomProducts();
 
-  // console.log(session?.user);
-
   return (
     <main className="max-2xl:mx-4">
       <Banner></Banner>

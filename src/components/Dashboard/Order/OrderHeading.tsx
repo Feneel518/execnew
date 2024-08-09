@@ -21,8 +21,6 @@ const OrderHeading: FC<OrderHeadingProps> = ({
   isWorkOrder,
   isInvoice,
 }) => {
-  console.log(customerDetails);
-
   return (
     <div>
       <Heading></Heading>

@@ -32,8 +32,6 @@ const QuotationTable: FC<QuotationTableProps> = ({ products, itemsIndex }) => {
         </TableHeader>
         <TableBody>
           {products.map((invoice, index) => {
-            console.log("index", invoice.index);
-
             return (
               <>
                 <TableRow key={invoice.id} className="">

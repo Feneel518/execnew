@@ -29,8 +29,6 @@ const InvoiceFieldArray: FC<InvoiceFieldArrayProps> = ({ order }) => {
 
   const abc = areQuantitiesEqual(order, order.Invoice);
 
-  console.log({ abc });
-
   return (
     <div>
       <Card className="p-4">

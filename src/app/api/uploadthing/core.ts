@@ -5,16 +5,10 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } }).onUploadComplete(
-    async ({ metadata, file }) => {
-      console.log("Upload complete for userId:");
-      console.log("file url", file.url);
-    }
+    async ({ metadata, file }) => {}
   ),
   LrUpload: f({ image: { maxFileSize: "4MB" } }).onUploadComplete(
-    async ({ metadata, file }) => {
-      console.log("Upload complete for userId:");
-      console.log("file url", file.url);
-    }
+    async ({ metadata, file }) => {}
   ),
 } satisfies FileRouter;
 

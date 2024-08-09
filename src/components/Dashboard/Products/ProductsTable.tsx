@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import SearchNumber from "@/components/Global/SearchNumber";
 interface ProductsTableProps {
   products?: {
     name: string;
@@ -60,7 +61,12 @@ const ProductsTable: FC<ProductsTableProps> = ({
   return (
     <div className="py-4 lg:p-8 flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <Search></Search>
+        <div className="flex items-center  gap-4">
+          {pathname.includes("stock") ? null : <Search></Search>}
+          {pathname.includes("orders") || pathname.includes("quotations") ? (
+            <SearchNumber></SearchNumber>
+          ) : null}
+        </div>
         {sort ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -72,18 +78,15 @@ const ProductsTable: FC<ProductsTableProps> = ({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleFilter("all")}>
-                {" "}
-                Show all
+                All
               </DropdownMenuItem>
               <DropdownMenuSeparator />
 
               <DropdownMenuItem onClick={() => handleFilter("pending")}>
-                {" "}
-                Fiter pending
+                Pending
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleFilter("completed")}>
-                {" "}
-                Fiter completed
+                Completed
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -93,7 +96,9 @@ const ProductsTable: FC<ProductsTableProps> = ({
         {columns}
         {body}
       </div>
-      <CustomPagination totalPages={totalPages}></CustomPagination>
+      {pathname.includes("stock") ? null : (
+        <CustomPagination totalPages={totalPages}></CustomPagination>
+      )}
     </div>
   );
 };

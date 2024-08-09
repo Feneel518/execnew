@@ -47,9 +47,7 @@ const NewsLetter: FC<NewsLetterProps> = ({}) => {
     },
   });
 
-  const handleSubmit = (data: newsLetterRequest) => {
-    console.log(data);
-  };
+  const handleSubmit = (data: newsLetterRequest) => {};
 
   const isLoading = form.formState.isSubmitting;
   return (

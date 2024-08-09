@@ -63,9 +63,7 @@ const TestCertificateForm: FC<TestCertificateFormProps> = ({ order }) => {
 
   const isLoading = form.formState.isLoading;
 
-  const onSubmit = async (data: TestCertificateSchemaRequest) => {
-    console.log(data);
-  };
+  const onSubmit = async (data: TestCertificateSchemaRequest) => {};
 
   return (
     <div>

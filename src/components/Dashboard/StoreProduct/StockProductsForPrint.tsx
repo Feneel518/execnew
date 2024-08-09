@@ -4,6 +4,7 @@ import A4Page from "@/components/Global/A4Page";
 import { StoreProduct } from "@prisma/client";
 import { FC, useState } from "react";
 import StoreProductsTable from "./StoreProductsTable";
+import SmallHeading from "@/components/Global/SmallHeading";
 
 interface StockProductsForPrintProps {
   product: StoreProduct[];
@@ -22,8 +23,6 @@ const StockProductsForPrint: FC<StockProductsForPrintProps> = ({ product }) => {
   return (
     <div className="flex flex-col gap-4 print:gap-0">
       {pages.map((group, index, list) => {
-        console.log({ group, list, index });
-
         return (
           <A4Page
             onResize={() => {
@@ -38,8 +37,8 @@ const StockProductsForPrint: FC<StockProductsForPrintProps> = ({ product }) => {
             }}
             key={index}
             table={<StoreProductsTable product={group}></StoreProductsTable>}
-            heading={<div className=""></div>}
-            footer={<div className=""></div>}
+            heading={<div className="h-2 border"></div>}
+            footer={<div className="h-0"></div>}
           ></A4Page>
         );
       })}

@@ -17,43 +17,14 @@ import QuotationTableBody from "@/components/Dashboard/Quotations/QuotationTable
 interface pageProps {
   searchParams?: {
     query?: string;
+    queryNumber?: string;
     page?: string;
   };
 }
 
 const page: FC<pageProps> = async ({ searchParams }) => {
-  // const quotation = await db.quotation.findMany({
-  //   select: {
-  //     id: true,
-  //     createdAt: true,
-  //     customer: {
-  //       select: {
-  //         name: true,
-  //       },
-  //     },
-  //     quotationNumber: true,
-  //     ProductInQuotation: {
-  //       select: {
-  //         id: true,
-  //       },
-  //     },
-  //   },
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  // });
-
-  // const quotationData = quotation.map((item) => {
-  //   return {
-  //     quotationNumber: item.quotationNumber.toString().padStart(4, "0"),
-  //     clientName: item.customer.name ? item.customer.name : "",
-  //     itemsLength: item.ProductInQuotation.length,
-  //     id: item.id,
-  //     createdAt: format(item.createdAt, "PP"),
-  //   };
-  // });
-
   const query = searchParams?.query || "";
+  const queryNumber = searchParams?.queryNumber || "";
   const currentPage = Number(searchParams?.page || 1);
   let quotation: Quotationtable[] = [];
 
@@ -85,6 +56,49 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                 contains: encodeURI(query?.toLowerCase()),
               },
             },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+        quotationNumber: true,
+        ProductInQuotation: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      take: 10,
+      skip: (currentPage - 1) * 10,
+    });
+  } else if (queryNumber) {
+    const quotationCount = await db.quotation.count({
+      where: {
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    totalPages = Math.ceil(Number(quotationCount) / 10);
+
+    quotation = await db.quotation.findMany({
+      where: {
+        OR: [
+          {
+            quotationNumber: Number(queryNumber),
           },
         ],
       },

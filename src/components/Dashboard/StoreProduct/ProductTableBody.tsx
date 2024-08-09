@@ -19,9 +19,17 @@ interface ProductTableBodyProps {
     StoreProductId: string;
     slug: string;
   }[];
+  page?: string;
+  search?: string;
 }
 
-const ProductTableBody: FC<ProductTableBodyProps> = ({ product }) => {
+const ProductTableBody: FC<ProductTableBodyProps> = ({
+  product,
+  page,
+  search,
+}) => {
+  console.log(search);
+
   const router = useRouter();
   return (
     <div>
@@ -58,11 +66,14 @@ const ProductTableBody: FC<ProductTableBodyProps> = ({ product }) => {
 
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/quotations/${quot.slug}`)
+                        router.push(
+                          `/dashboard/store-products/${quot.slug}?page=${page}${
+                            search === undefined ? `` : `&query=${search}`
+                          }`
+                        )
                       }
                     >
-                      {" "}
-                      Edit Quotation
+                      Edit Store Product
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

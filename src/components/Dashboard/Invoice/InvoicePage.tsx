@@ -27,7 +27,7 @@ const InvoicePage: FC<InvoicePageProps> = ({ invoiceData }) => {
     return invoiceData.ProductInInvoiceOfOrder.slice(offset, offset + amount);
   });
 
-  //   console.log(invoiceData.ProductInInvoiceOfOrder);
+  //
 
   // @ts-ignore
   const taxAmount = taxAmountCalculation(invoiceData.ProductInInvoiceOfOrder);
@@ -54,8 +54,6 @@ const InvoicePage: FC<InvoicePageProps> = ({ invoiceData }) => {
   return (
     <div className="flex flex-col gap-4 print:gap-0">
       {pages.map((group, index, list) => {
-        console.log({ group, list, index });
-
         return (
           <A4Page
             onResize={() => {

@@ -237,7 +237,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
       name: "items",
     });
 
-  // console.log(quotationData);
+  //
 
   const handleSubmit = async (value: QuotationCreationRequest) => {
     if (!value.customerId) {
@@ -257,8 +257,6 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
         }
       });
     }
-
-    console.log(value.items);
 
     const response = await upsertQuotation({
       additionalNotes: value.additionalNotes,

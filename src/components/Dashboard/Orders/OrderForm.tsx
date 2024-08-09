@@ -78,12 +78,14 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   const { data: customers } = useGetCustomersForSelect();
   const { data: products } = useGetProductsForSelect();
 
+  console.log(products?.success?.length);
+
   const [customerForm, setCustomerForm] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
     orderData?.poDate ? orderData.poDate : new Date()
   );
 
-  // console.log({ orderData });
+  //
 
   const form = useForm<OrderCreationRequest>({
     resolver: zodResolver(OrderValidator),
@@ -142,7 +144,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   });
 
   const handleSubmit = async (value: OrderCreationRequest) => {
-    console.log(value);
     if (!value.customerId) {
       return toast({
         variant: "destructive",

@@ -18,18 +18,18 @@ interface pageProps {
 }
 
 const page: FC<pageProps> = async ({ searchParams }) => {
-  const products = await db.storeProduct.findMany({
-    select: {
-      name: true,
-      StoreProductId: true,
-      slug: true,
-    },
-  });
-
-  console.log(products);
+  // const products = await db.storeProduct.findMany({
+  //   select: {
+  //     name: true,
+  //     StoreProductId: true,
+  //     slug: true,
+  //   },
+  // });
 
   const query = searchParams?.query || "";
+
   const currentPage = Number(searchParams?.page || 1);
+
   let product: { StoreProductId: string; name: string; slug: string }[] = [];
 
   let totalPages: number = 0;
@@ -69,7 +69,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         slug: true,
       },
       take: 10,
-      skip: (currentPage - 1) * 10,
+      skip: ((currentPage ? currentPage : 1) - 1) * 10,
       orderBy: {
         StoreProductId: "desc",
       },
@@ -110,7 +110,13 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                   </div>
                 </>
               }
-              body={<ProductTableBody product={product}></ProductTableBody>}
+              body={
+                <ProductTableBody
+                  product={product}
+                  page={searchParams?.page}
+                  search={searchParams?.query}
+                ></ProductTableBody>
+              }
             ></ProductsTable>
           </CardContent>
         </Card>

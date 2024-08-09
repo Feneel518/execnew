@@ -292,8 +292,6 @@ export const upsertProduct = async (
     }
   >
 ) => {
-  console.log({ product });
-
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
@@ -428,8 +426,6 @@ export const upsertCategory = async (
     });
     return JSON.parse(JSON.stringify(response));
   } catch (error) {
-    console.log(error);
-
     return new Response("Something went wrong.");
   }
 };
@@ -445,8 +441,6 @@ export const getCategoryDetailsBasedOnSlug = async (slug: string) => {
     });
     return JSON.parse(JSON.stringify(response));
   } catch (error) {
-    console.log(error);
-
     return new Response("Something went wrong.");
   }
 };
@@ -494,8 +488,6 @@ export const deleteCategory = async (id: string) => {
     });
     return JSON.parse(JSON.stringify(response));
   } catch (error) {
-    console.log(error);
-
     return new Response("Something went wrong.");
   }
 };
@@ -667,11 +659,6 @@ export const fetchCustomersForSelect = async () => {
 
 export const fetchProductsForSelect = async () => {
   const products = await db.product.findMany({
-    where: {
-      ProductInOrder: {
-        some: {},
-      },
-    },
     select: {
       id: true,
       name: true,
@@ -748,8 +735,6 @@ export const upsertQuotation = async (
   //   });
   // });
 
-  console.log(quotation.id);
-
   const response = await db.quotation.upsert({
     where: {
       id: quotation.id,
@@ -809,93 +794,6 @@ export const upsertQuotation = async (
             },
           };
         }),
-        // upsert: quotation.items?.map((item) => {
-        //   return {
-        //     where: {
-        //       id: item?.id,
-        //     },
-        //     update: {
-        //       product: {
-        //         connect: {
-        //           id: item?.productId,
-        //         },
-        //       },
-        //       index: item?.index,
-        //       cableEntry: item?.cableEntry,
-        //       cutoutSize: item?.cutoutSize,
-        //       earting: item?.earting,
-        //       gasket: item?.gasket,
-        //       glass: item?.glass,
-        //       hardware: item?.hardware,
-        //       HorsePower: item?.HorsePower,
-        //       hsnCode: item?.hsnCode,
-        //       kW: item?.kW,
-        //       plateSize: item?.plateSize,
-        //       mounting: item?.mounting,
-        //       poReferrence: item?.poReferrence,
-        //       rating: item?.rating,
-        //       rpm: item?.rpm,
-        //       size: item?.size,
-        //       terminals: item?.terminals,
-        //       typeNumber: item?.typeNumber,
-        //       variant: item?.variant,
-        //       wireGuard: item?.wireGuard,
-        //       price: Number(item?.price) ?? 1,
-        //       quantity: item?.quantity,
-        //       ComponentsOfProductInQuotation: {
-        //         create: item?.components.map((ite) => {
-        //           return {
-        //             componentsOfQuotation: {
-        //               create: {
-        //                 item: ite.items,
-        //               },
-        //             },
-        //           };
-        //         }),
-        //       },
-        //     },
-        //     create: {
-        // product: {
-        //   connect: {
-        //     id: item?.productId,
-        //   },
-        // },
-        // index: item?.index,
-        // cableEntry: item?.cableEntry,
-        // cutoutSize: item?.cutoutSize,
-        // earting: item?.earting,
-        // gasket: item?.gasket,
-        // glass: item?.glass,
-        // hardware: item?.hardware,
-        // HorsePower: item?.HorsePower,
-        // hsnCode: item?.hsnCode,
-        // kW: item?.kW,
-        // plateSize: item?.plateSize,
-        // mounting: item?.mounting,
-        // poReferrence: item?.poReferrence,
-        // rating: item?.rating,
-        // rpm: item?.rpm,
-        // size: item?.size,
-        // terminals: item?.terminals,
-        // typeNumber: item?.typeNumber,
-        // variant: item?.variant,
-        // wireGuard: item?.wireGuard,
-        // price: Number(item?.price) ?? 1,
-        // quantity: item?.quantity,
-        // ComponentsOfProductInQuotation: {
-        //   create: item?.components.map((ite) => {
-        //     return {
-        //       componentsOfQuotation: {
-        //         create: {
-        //           item: ite.items,
-        //         },
-        //       },
-        //     };
-        //   }),
-        // },
-        //     },
-        //   };
-        // }),
       },
     },
     create: {
@@ -1082,83 +980,250 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  const productsInOrdersDeletion = order.ProductInOrder?.map(async (item) => {
-    return await db.productInOrder.deleteMany({
-      where: {
-        orderId: order.id,
-      },
-    });
-  });
-
-  const checkingForSuppliedQty = order?.ProductInOrder?.filter(
-    (a, b) => a?.quantity === a?.supplied
-  );
-
-  const response = await db.order.upsert({
+  const ordersItemsIfAny = await db.order.findUnique({
     where: {
       id: order.id,
     },
-    create: {
-      orderNumber: order.orderNumber!,
-      customerId: order.customerId as string,
-      notes: order.notes,
-      poDate: order.poDate,
-      poNumber: order.poNumber,
-      quotationNumber: order.quotationNumber,
-      status: order.status,
-      ProductInOrder: {
-        create: order.ProductInOrder?.map((item) => {
-          return {
-            price: item?.price as number,
-            index: item?.index as number,
-            // productId: item?.productId,
-            quantity: item?.quantity as number,
-            certificateNumber: item?.certificateNumber,
-            description: item?.description,
-            supplied: item?.supplied,
-            product: {
-              connect: {
-                id: item?.productId,
-              },
-            },
-          };
-        }),
-      },
-    },
-    update: {
-      orderNumber: order.orderNumber!,
-      customerId: order.customerId as string,
-      notes: order.notes,
-      poDate: order.poDate,
-      poNumber: order.poNumber,
-      quotationNumber: order.quotationNumber,
-      status: order.status,
-      ProductInOrder: {
-        create: order.ProductInOrder?.map((item) => {
-          return {
-            price: item?.price as number,
-            index: item?.index as number,
-            // productId: item?.productId,
-            quantity: item?.quantity as number,
-            certificateNumber: item?.certificateNumber,
-            description: item?.description,
-            supplied: item?.supplied,
-
-            product: {
-              connect: {
-                id: item?.productId,
-              },
-            },
-          };
-        }),
+    include: {
+      ProductInOrder: true,
+      Invoice: {
+        include: {
+          ProductInInvoiceOfOrder: true,
+        },
       },
     },
   });
 
-  // let response = "yes";
-  if (!response)
-    return { error: "Could not create quotation, please try again later!" };
-  if (response) return { success: response };
+  if (order.ProductInOrder.length === ordersItemsIfAny?.ProductInOrder.length) {
+    if (ordersItemsIfAny) {
+      const sortedArray1 = ordersItemsIfAny.ProductInOrder.map(
+        (obj) => obj.productId
+      ).sort();
+      const sortedArray2 = order.ProductInOrder.map(
+        (obj) => obj.productId
+      ).sort();
+
+      const isSame = sortedArray1.every(
+        (value, index) => value === sortedArray2[index]
+      );
+
+      if (isSame) {
+        const response = await db.order.update({
+          where: {
+            id: order.id,
+          },
+          data: {
+            orderNumber: order.orderNumber!,
+            customerId: order.customerId as string,
+            notes: order.notes,
+            poDate: order.poDate,
+            poNumber: order.poNumber,
+            quotationNumber: order.quotationNumber,
+            status: order.status,
+            ProductInOrder: {
+              update: order.ProductInOrder?.map((item) => {
+                return {
+                  where: {
+                    id: item.id,
+                  },
+                  data: {
+                    price: item?.price as number,
+                    index: item?.index as number,
+                    // productId: item?.productId,
+                    quantity: item?.quantity as number,
+                    description: item?.description,
+                  },
+                };
+              }),
+            },
+          },
+        });
+
+        if (!response)
+          return { error: "Could not update order, please try again later!" };
+        if (response) return { success: response };
+      } else {
+        const ProductInInvoiceOfOrderDeletion = order.ProductInOrder.map(
+          async (item) => {
+            return await db.productInInvoiceOfOrder.deleteMany({
+              where: {
+                productInOrderId: item.id,
+              },
+            });
+          }
+        );
+
+        const invoiceDelete = await db.invoice.deleteMany({
+          where: {
+            orderId: order.id,
+          },
+        });
+
+        const productsInOrdersDeletion = order.ProductInOrder?.map(
+          async (item) => {
+            return await db.productInOrder.deleteMany({
+              where: {
+                orderId: order.id,
+              },
+            });
+          }
+        );
+
+        const response = await db.order.update({
+          where: {
+            id: order.id,
+          },
+          data: {
+            orderNumber: order.orderNumber!,
+            customerId: order.customerId as string,
+            notes: order.notes,
+            poDate: order.poDate,
+            poNumber: order.poNumber,
+            quotationNumber: order.quotationNumber,
+            status: "PENDING",
+            ProductInOrder: {
+              create: order.ProductInOrder?.map((item) => {
+                return {
+                  price: item?.price as number,
+                  index: item?.index as number,
+                  // productId: item?.productId,
+                  quantity: item?.quantity as number,
+                  description: item?.description,
+                  product: {
+                    connect: {
+                      id: item?.productId,
+                    },
+                  },
+                };
+              }),
+            },
+          },
+        });
+        if (!response)
+          return { error: "Could not update order, please try again later!" };
+        if (response) return { success: response };
+      }
+    }
+  } else {
+    // if (orderItemsIfAny) {
+    //   const sortedArray1 = orderItemsIfAny.ProductInOrder.map((obj) =>
+    //     JSON.stringify(obj)
+    //   ).sort();
+    //   const sortedArray2 = order.ProductInOrder.map((obj) =>
+    //     JSON.stringify(obj)
+    //   ).sort();
+
+    //   const isSame = sortedArray1.every(
+    //     (value, index) => value === sortedArray2[index]
+    //   );
+
+    //   if (isSame) {
+    //     const response = await db.order.update({
+    //       where: {
+    //         id: order.id,
+    //       },
+    //       data: {
+    //         orderNumber: order.orderNumber!,
+    //         customerId: order.customerId as string,
+    //         notes: order.notes,
+    //         poDate: order.poDate,
+    //         poNumber: order.poNumber,
+    //         quotationNumber: order.quotationNumber,
+    //         status: order.status,
+    //         ProductInOrder: {
+    //           update: order.ProductInOrder?.map((item) => {
+    //             return {
+    //               where: {
+    //                 id: item.id,
+    //               },
+    //               data: {
+    //                 price: item?.price as number,
+    //                 index: item?.index as number,
+    //                 // productId: item?.productId,
+    //                 quantity: item?.quantity as number,
+    //                 description: item?.description,
+    //               },
+    //             };
+    //           }),
+    //         },
+    //       },
+    //     });
+
+    //     if (!response)
+    //       return { error: "Could not update order, please try again later!" };
+    //     if (response) return { success: response };
+    //   }
+    // }
+
+    const productsInOrdersDeletion = order.ProductInOrder?.map(async (item) => {
+      return await db.productInOrder.deleteMany({
+        where: {
+          orderId: order.id,
+        },
+      });
+    });
+
+    const response = await db.order.upsert({
+      where: {
+        id: order.id,
+      },
+      create: {
+        orderNumber: order.orderNumber!,
+        customerId: order.customerId as string,
+        notes: order.notes,
+        poDate: order.poDate,
+        poNumber: order.poNumber,
+        quotationNumber: order.quotationNumber,
+        status: "PENDING",
+        ProductInOrder: {
+          create: order.ProductInOrder?.map((item) => {
+            return {
+              price: item?.price as number,
+              index: item?.index as number,
+              // productId: item?.productId,
+              quantity: item?.quantity as number,
+              description: item?.description,
+              product: {
+                connect: {
+                  id: item?.productId,
+                },
+              },
+            };
+          }),
+        },
+      },
+      update: {
+        orderNumber: order.orderNumber!,
+        customerId: order.customerId as string,
+        notes: order.notes,
+        poDate: order.poDate,
+        poNumber: order.poNumber,
+        quotationNumber: order.quotationNumber,
+        status: "PENDING",
+        ProductInOrder: {
+          create: order.ProductInOrder?.map((item) => {
+            return {
+              price: item?.price as number,
+              index: item?.index as number,
+              // productId: item?.productId,
+              quantity: item?.quantity as number,
+              description: item?.description,
+              product: {
+                connect: {
+                  id: item?.productId,
+                },
+              },
+            };
+          }),
+        },
+      },
+    });
+
+    // let response = "yes";
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: response };
+  }
 };
 
 export const getOrderBasedOnId = async (id: string) => {
@@ -1443,7 +1508,7 @@ export const upsertStoreProduct = async (
   storeProduct: Partial<StoreProduct>
 ) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
   const response = await db.storeProduct.upsert({
     where: {
@@ -1455,7 +1520,9 @@ export const upsertStoreProduct = async (
       StoreProductId: storeProduct.StoreProductId ?? "",
       image: storeProduct.image,
       slug: storeProduct.name
-        ? encodeURI(storeProduct.name?.toLowerCase().replace(/\//g, "-"))
+        ? encodeURIComponent(
+            storeProduct.name?.toLowerCase().replace(/\//g, "-")
+          )
         : "",
       qrCodeLink: storeProduct.qrCodeLink ?? "",
     },
@@ -1465,7 +1532,9 @@ export const upsertStoreProduct = async (
       StoreProductId: storeProduct.StoreProductId ?? "",
       image: storeProduct.image,
       slug: storeProduct.name
-        ? encodeURI(storeProduct.name?.toLowerCase().replace(/\//g, "-"))
+        ? encodeURIComponent(
+            storeProduct.name?.toLowerCase().replace(/\//g, "-")
+          )
         : "",
       qrCodeLink: storeProduct.qrCodeLink ?? "",
     },
@@ -1477,7 +1546,7 @@ export const upsertStoreProduct = async (
 
 export const getStoreProductDetailsBasedOnSlug = async (slug: string) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
   const response = await db.storeProduct.findFirst({
     where: {
@@ -1491,7 +1560,7 @@ export const getStoreProductDetailsBasedOnSlug = async (slug: string) => {
 
 export const deleteStoreProduct = async (id: string) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
   const response = await db.storeProduct.delete({
     where: {
       id,
@@ -1504,7 +1573,7 @@ export const deleteStoreProduct = async (id: string) => {
 
 export const fetchStoreProductsForSelect = async () => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
   const products = await db.storeProduct.findMany({
     select: {
       id: true,
@@ -1524,7 +1593,7 @@ export const fetchStoreProductsForSelect = async () => {
 
 export const upsertEmployee = async (employee: Partial<Employee>) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
   const response = await db.employee.upsert({
     where: {
@@ -1557,7 +1626,7 @@ export const upsertEmployee = async (employee: Partial<Employee>) => {
 
 export const getCustomerDetailsBasedOnSlug = async (slug: string) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
   const response = await db.employee.findUnique({
     where: {
       slug,
@@ -1570,7 +1639,7 @@ export const getCustomerDetailsBasedOnSlug = async (slug: string) => {
 
 export const deleteEmployee = async (id: string) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
   const response = await db.employee.delete({
     where: {
@@ -1583,11 +1652,9 @@ export const deleteEmployee = async (id: string) => {
 
 export const fetchEmployeeForSelect = async () => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
   const response = await db.employee.findMany();
-
-  console.log(response);
 
   if (!response) return { error: "No Employee Found" };
   if (response) return { success: response };
@@ -1600,13 +1667,12 @@ export const upsertInventory = async (
   }
 ) => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
-  console.log("backend", inventory.storeProductId);
   let response;
 
   // let response;
-  if (inventory.employeeId) {
+  if (inventory.employeeId !== "null") {
     response = await db.inventory.upsert({
       where: {
         id: inventory.id,
@@ -1624,7 +1690,7 @@ export const upsertInventory = async (
         storeProductId: inventory.storeProductId,
       },
     });
-  } else if (!inventory.employeeId) {
+  } else if (inventory.employeeId === "null") {
     response = await db.inventory.upsert({
       where: {
         id: inventory.id,
@@ -1707,11 +1773,25 @@ export const upsertInventory = async (
 
 export const getStockData = async () => {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role === "USER") return null;
 
-  const stockData = await db.inventory.findMany();
+  const stockData = await db.inventory.findMany({
+    select: {
+      quantity: true,
+      status: true,
+      storeProduct: {
+        select: {
+          name: true,
+          StoreProductId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-  return { stockData };
+  return { success: stockData };
 };
 
 export const getCategoriesWithProductsForCatalog = async () => {
@@ -2115,7 +2195,6 @@ export const getInvoiceDetailsBasedOnInvoiceNumber = async (
       },
     },
   });
-  console.log(response);
 
   if (!response)
     return { error: "Something went wrong, Please try again later" };
@@ -2154,6 +2233,17 @@ export const getInvoiceDetails = async (invoiceNumber: string) => {
       },
     },
   });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getStoreProductsForPrint = async () => {
+  const user = await auth();
+  if (!user || user.user.role === "USER") return null;
+
+  const response = await db.storeProduct.findMany({});
 
   if (!response)
     return { error: "Something went wrong, Please try again later" };

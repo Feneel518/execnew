@@ -37,14 +37,14 @@ const page: FC<pageProps> = async ({}) => {
 
       {/* second block*/}
 
-      <ThirdBlock></ThirdBlock> 
+      <ThirdBlock></ThirdBlock>
 
       {/* second block*/}
 
       {/* third block*/}
       <div className="bg-black/10 row-span-2 col-span-2 p-4 lg:p-8 text-woodsmoke-200 flex flex-col justify-between">
         <div className="flex items-center justify-between">
-          <div className="uppercase">total balance (BTC)</div>
+          <div className="uppercase">total Orders </div>
           <div className="flex items-center gap-4">
             <Button variant={"chart"} size={"chart"}>
               7D
@@ -60,12 +60,8 @@ const page: FC<pageProps> = async ({}) => {
             </Button>
           </div>
         </div>
-        <div className="flex items-end justify-between">
-          <h1 className="text-3xl sm:text-5xl lg:text-7xl ">1.592</h1>
-          <div className="">
-            <ChartComponent></ChartComponent>
-          </div>
-        </div>
+
+        <ChartComponent></ChartComponent>
       </div>
       {/* third block*/}
 

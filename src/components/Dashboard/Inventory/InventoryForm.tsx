@@ -68,7 +68,7 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
     );
   }
 
-  // console.log(searchParams);
+  //
 
   const [deletingQuotation, setDeletingQuotation] = useState(false);
   const [customerForm, setCustomerForm] = useState(false);
@@ -107,7 +107,7 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
       });
     }
 
-    // console.log({ value });
+    //
 
     const response = await upsertInventory({
       id: inventoryData?.id ? inventoryData.id : ObjectID().toString(),
@@ -117,10 +117,8 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
       storeProductId: value.storeProductId,
     });
     if (response?.success) {
-      console.log(response.success);
-
       toast({
-        title: "Your Quotation has been saved.",
+        title: "Your entry has been saved.",
       });
       router.push("/dashboard/inventory");
       router.refresh();
@@ -129,7 +127,7 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
       toast({
         variant: "destructive",
         title: "Oppse!",
-        description: "could not create your quotation, please try again later",
+        description: "could not create your entry, please try again later",
       });
     }
   };
@@ -158,10 +156,10 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
     <AlertDialog>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Quotation Information</CardTitle>
+          <CardTitle>Inventory Information</CardTitle>
           <CardDescription>
-            Lets create a quotation for your business. You can edit quotation
-            later from the Category settings tab.
+            Lets create a stock entry for your business. You can edit this
+            transaction later.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -192,13 +190,11 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a customer for quotation" />
+                                <SelectValue placeholder="Select a product for inventory" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {products.success.map((product) => {
-                                console.log(product.StoreProductId);
-
                                 return (
                                   <SelectItem
                                     key={product.id}
@@ -241,6 +237,11 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
+                              <SelectItem key={"null"} value={"null"}>
+                                <div className="flex items-center gap-4">
+                                  <span>{"-----null-----"}</span>
+                                </div>
+                              </SelectItem>
                               {employee.map((emplo) => {
                                 return (
                                   <SelectItem key={emplo.id} value={emplo.id}>

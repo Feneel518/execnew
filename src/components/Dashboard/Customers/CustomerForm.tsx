@@ -79,8 +79,6 @@ const CustomerForm: FC<CustomerFormProps> = ({
   const isLoading = form.formState.isSubmitting;
 
   const handleSubmit = async (value: CustomerCreationRequest) => {
-    console.log(value);
-
     const response = await upsertCustomer({
       id: data?.id ? data.id : ObjectID().toString(),
       name: value.name,

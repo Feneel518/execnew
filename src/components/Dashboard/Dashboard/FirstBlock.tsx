@@ -12,7 +12,7 @@ const FirstBlock: FC<FirstBlockProps> = async ({}) => {
       status: true,
     },
   });
-  const completedOrders = orders.filter((a) => a.status === "COMPLETED");
+  const completedOrders = orders.filter((a) => a.status !== "COMPLETED");
   return (
     <div>
       {" "}

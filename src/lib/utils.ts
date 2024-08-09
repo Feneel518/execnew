@@ -83,7 +83,7 @@ export const areQuantitiesEqual = (
     return acc;
   }, {} as Record<string, number>);
 
-  // console.log(orderQuantities);
+  //
 
   const accumulatedInvoiceQuantities = accumulateInvoiceQuantities(invoices);
 

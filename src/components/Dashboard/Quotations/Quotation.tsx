@@ -59,8 +59,6 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
     },
   ];
 
-  console.log(quotationData);
-
   const customerDetails: Partial<Customer> & {
     clientName?: string;
     quotationNumber: string;
@@ -80,17 +78,14 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
   return (
     <div className="flex flex-col gap-4 print:gap-0">
       {pages.map((group, index, list) => {
-        // console.log({ group, list, index });
+        //
 
-        // console.log(group.length);
-        // console.log(index !== 0 && list[index - 1].length + index - 1);
+        //
+        //
 
         if (group.length > 1) {
-          console.log("2 or more items");
           items = group.length - 1;
         }
-
-        console.log(items);
 
         return (
           <A4Page

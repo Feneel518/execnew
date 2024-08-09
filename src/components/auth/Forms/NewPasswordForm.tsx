@@ -40,8 +40,6 @@ const NewPasswordForm: FC<NewPasswordFormProps> = ({}) => {
   });
 
   const onSubmit = (values: NewPasswordSchemaRequest) => {
-    console.log(values);
-
     setError("");
     setSuccess("");
     startTransiton(() => {

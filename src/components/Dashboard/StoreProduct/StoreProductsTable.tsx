@@ -8,21 +8,32 @@ interface StoreProductsTableProps {
 
 const StoreProductsTable: FC<StoreProductsTableProps> = ({ product }) => {
   return (
-    <div className="grid grid-cols-2 items-center justify-center">
+    <div className="grid grid-cols-2 gap-10 items-center justify-center ">
       {product.map((prod) => {
         return (
-          <div className="flex flex-col items-center justify-center gap-6">
+          <div className="flex flex-col items-center justify-center gap-6 border">
             <Image
               alt={prod.name}
               src={prod.qrCodeLink}
-              width={300}
-              height={300}
+              width={200}
+              height={200}
             ></Image>
-            <h1 className="text-3xl">{prod.name}</h1>
+            <div className="text-center">
+              <h1 className="text-xl text-center">{prod.name}</h1>
+              {prod.description && (
+                <p className="text-sm text-center">{prod.description}</p>
+              )}
+              <p>{prod.StoreProductId}</p>
+            </div>
           </div>
         );
       })}
     </div>
+    // <div className="">
+    //   {product.map((prod) => {
+    //     return <div className="">{prod.name}</div>;
+    //   })}
+    // </div>
   );
 };
 
