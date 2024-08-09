@@ -663,3 +663,16 @@ export type InventoryTable = Prisma.InventoryGetPayload<{
     createdAt: true;
   };
 }>;
+
+export type StockData = Prisma.InventoryGetPayload<{
+  select: {
+    quantity: true;
+    status: true;
+    storeProduct: {
+      select: {
+        name: true;
+        StoreProductId: true;
+      };
+    };
+  };
+}>;

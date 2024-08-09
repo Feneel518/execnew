@@ -1,9 +1,9 @@
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
-import StockData from "@/components/Dashboard/Stock/StockData";
 import StockTableBody from "@/components/Dashboard/Stock/StockTableBody";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import { getStockData } from "@/lib/queries";
+import { StockData } from "@/lib/types";
 import { FC } from "react";
 
 interface pageProps {}
@@ -26,14 +26,15 @@ interface ProductData {
 const page: FC<pageProps> = async ({}) => {
   const data = await getStockData();
 
-  const stockData = data?.success;
+  if (!data?.success || !data) return;
+  const stockData: StockData[] = data?.success;
 
   if (!stockData) return;
 
   const productDataMap: { [key: string]: ProductData } = {};
 
   stockData.forEach((entry) => {
-    const { StoreProductId, name } = entry.storeProduct;
+    const { StoreProductId, name } = entry.storeProduct!;
     const { status, quantity } = entry;
 
     // If the product isn't already in the productData object, initialize it
