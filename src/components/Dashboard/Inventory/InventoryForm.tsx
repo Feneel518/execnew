@@ -122,8 +122,6 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
       });
     }
 
-    //
-
     const response = await upsertInventory({
       id: inventoryData?.id ? inventoryData.id : ObjectID().toString(),
       employeeId: value.employeeId ?? "",
@@ -243,7 +241,8 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                               >
                                 {field.value
                                   ? products.success.find(
-                                      (cust) => cust.id === field.value
+                                      (cust) =>
+                                        cust.StoreProductId === field.value
                                     )?.name
                                   : "Select products"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -263,7 +262,7 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                                       onSelect={() => {
                                         form.setValue(
                                           "storeProductId",
-                                          language.id
+                                          language.StoreProductId
                                         );
                                       }}
                                     >

@@ -382,8 +382,8 @@ model Inventory {
   employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @db.ObjectId
 
-  storeProduct   StoreProduct @relation(fields: [storeProductId], references: [StoreProductId])
-  storeProductId String
+  storeProduct   StoreProduct? @relation(fields: [storeProductId], references: [StoreProductId])
+  storeProductId String?
 
   status Status
 }

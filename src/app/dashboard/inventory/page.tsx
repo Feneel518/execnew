@@ -4,6 +4,7 @@ import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import { getInventoryData } from "@/lib/queries";
 import { InventoryTable } from "@/lib/types";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
@@ -74,29 +75,15 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         createdAt: "desc",
       },
     });
-  } else {
+  } else if (query === "") {
     const inventoryCount = await db.inventory.count({});
 
-    inventory = await db.inventory.findMany({
-      select: {
-        id: true,
-        employee: {
-          select: {
-            name: true,
-          },
-        },
-        quantity: true,
-        storeProduct: true,
-        status: true,
-        createdAt: true,
-      },
+    const response = await getInventoryData(currentPage);
 
-      take: 10,
-      skip: (currentPage - 1) * 10,
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    if (response?.error || !response?.success || !response) return null;
+
+    inventory = response.success;
+
     totalPages = Math.ceil(Number(inventoryCount) / 10);
   }
 

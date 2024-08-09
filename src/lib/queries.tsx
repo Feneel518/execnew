@@ -2276,3 +2276,32 @@ export const getEmployees = async () => {
     return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };
 };
+
+export const getInventoryData = async (currentPage: number) => {
+  const user = await auth();
+  if (!user || user.user.role === "USER") return null;
+  const response = await db.inventory.findMany({
+    select: {
+      id: true,
+      employee: {
+        select: {
+          name: true,
+        },
+      },
+      quantity: true,
+      storeProduct: true,
+      status: true,
+      createdAt: true,
+    },
+    take: 10,
+    skip: (currentPage - 1) * 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // const response = await db.storeProduct.findMany();
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
