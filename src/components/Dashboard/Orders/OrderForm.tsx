@@ -519,107 +519,107 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
 
                     <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 items-end  ">
                       {products?.success && (
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`ProductInOrder.${index}.productId`}
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormLabel>Product</FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select product for quotation" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {products?.success.map((product) => {
+                                      return (
+                                        <SelectItem
+                                          key={product.id}
+                                          value={product.id}
+                                        >
+                                          {product.name}
+                                        </SelectItem>
+                                      );
+                                    })}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage></FormMessage>
+                            </FormItem>
+                          )}
+                        ></FormField>
                         // <FormField
-                        //   disabled={isLoading}
                         //   control={form.control}
                         //   name={`ProductInOrder.${index}.productId`}
                         //   render={({ field }) => (
                         //     <FormItem className="col-span-2">
-                        //       <FormLabel>Product</FormLabel>
-                        //       <FormControl>
-                        //         <Select
-                        //           onValueChange={field.onChange}
-                        //           defaultValue={field.value}
-                        //         >
+                        //       <FormLabel>Products</FormLabel>
+                        //       <Popover>
+                        //         <PopoverTrigger asChild>
                         //           <FormControl>
-                        //             <SelectTrigger className="w-full">
-                        //               <SelectValue placeholder="Select product for quotation" />
-                        //             </SelectTrigger>
+                        //             <Button
+                        //               variant="outline"
+                        //               role="combobox"
+                        //               className={cn(
+                        //                 "w-full justify-between",
+                        //                 !field.value && "text-muted-foreground"
+                        //               )}
+                        //             >
+                        //               {field.value
+                        //                 ? products.success.find(
+                        //                     (cust) => cust.id === field.value
+                        //                   )?.name
+                        //                 : "Select Product"}
+                        //               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        //             </Button>
                         //           </FormControl>
-                        //           <SelectContent>
-                        //             {products?.success.map((product) => {
-                        //               return (
-                        //                 <SelectItem
-                        //                   key={product.id}
-                        //                   value={product.id}
-                        //                 >
-                        //                   {product.name}
-                        //                 </SelectItem>
-                        //               );
-                        //             })}
-                        //           </SelectContent>
-                        //         </Select>
-                        //       </FormControl>
-                        //       <FormMessage></FormMessage>
+                        //         </PopoverTrigger>
+                        //         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                        //           <Command>
+                        //             <CommandInput placeholder="Search product..." />
+                        //             <CommandList>
+                        //               <CommandEmpty>
+                        //                 No products found.
+                        //               </CommandEmpty>
+                        //               <CommandGroup>
+                        //                 {products.success.map((language) => (
+                        //                   <CommandItem
+                        //                     value={language.name}
+                        //                     key={language.name}
+                        //                     onSelect={() => {
+                        //                       form.setValue(
+                        //                         `ProductInOrder.${index}.productId`,
+                        //                         language.id
+                        //                       );
+                        //                     }}
+                        //                   >
+                        //                     <Check
+                        //                       className={cn(
+                        //                         "mr-2 h-4 w-4",
+                        //                         language.name === field.value
+                        //                           ? "opacity-100"
+                        //                           : "opacity-0"
+                        //                       )}
+                        //                     />
+                        //                     {language.name}
+                        //                   </CommandItem>
+                        //                 ))}
+                        //               </CommandGroup>
+                        //             </CommandList>
+                        //           </Command>
+                        //         </PopoverContent>
+                        //       </Popover>
+
+                        //       <FormMessage />
                         //     </FormItem>
                         //   )}
-                        // ></FormField>
-                        <FormField
-                          control={form.control}
-                          name="customerId"
-                          render={({ field }) => (
-                            <FormItem className="col-span-2">
-                              <FormLabel>Products</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant="outline"
-                                      role="combobox"
-                                      className={cn(
-                                        "w-full justify-between",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value
-                                        ? products.success.find(
-                                            (cust) => cust.id === field.value
-                                          )?.name
-                                        : "Select Product"}
-                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                                  <Command>
-                                    <CommandInput placeholder="Search product..." />
-                                    <CommandList>
-                                      <CommandEmpty>
-                                        No customers found.
-                                      </CommandEmpty>
-                                      <CommandGroup>
-                                        {products.success.map((language) => (
-                                          <CommandItem
-                                            value={language.name}
-                                            key={language.id}
-                                            onSelect={() => {
-                                              form.setValue(
-                                                `ProductInOrder.${index}.productId`,
-                                                language.id
-                                              );
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn(
-                                                "mr-2 h-4 w-4",
-                                                language.name === field.value
-                                                  ? "opacity-100"
-                                                  : "opacity-0"
-                                              )}
-                                            />
-                                            {language.name}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </PopoverContent>
-                              </Popover>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        // />
                       )}
                       <FormField
                         disabled={isLoading}
