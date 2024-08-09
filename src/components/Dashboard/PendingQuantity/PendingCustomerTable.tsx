@@ -22,9 +22,13 @@ const PendingCustomerTable: FC<PendingCustomerTableProps> = async ({ id }) => {
 
   return (
     <div className="mt-10">
-      <PendingCustomerTableData
-        order={productDetails.success}
-      ></PendingCustomerTableData>
+      {productDetails.success ? (
+        <PendingCustomerTableData
+          order={productDetails.success}
+        ></PendingCustomerTableData>
+      ) : (
+        <div className="">Loading...</div>
+      )}
     </div>
   );
 };

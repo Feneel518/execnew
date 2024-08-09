@@ -1372,7 +1372,16 @@ export const fetchPendingCustomerProductsQuantity = async (id: string) => {
 
   const response = await db.order.findMany({
     where: {
-      customerId: id,
+      AND: [
+        {
+          customerId: id,
+        },
+        {
+          status: {
+            not: "COMPLETED",
+          },
+        },
+      ],
     },
     include: {
       customer: true,
@@ -2244,6 +2253,24 @@ export const getStoreProductsForPrint = async () => {
   if (!user || user.user.role === "USER") return null;
 
   const response = await db.storeProduct.findMany({});
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getEmployees = async () => {
+  const user = await auth();
+  if (!user || user.user.role === "USER") return null;
+  const response = await db.employee.findMany({
+    select: {
+      name: true,
+      id: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
   if (!response)
     return { error: "Something went wrong, Please try again later" };

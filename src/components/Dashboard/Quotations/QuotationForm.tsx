@@ -46,7 +46,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
-import { Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import CustomerForm from "../Customers/CustomerForm";
 import clsx from "clsx";
 import {
@@ -64,6 +64,20 @@ import ObjectId from "bson-objectid";
 import { QuotationForDashboard } from "@/lib/types";
 import ObjectID from "bson-objectid";
 import QuotationComponents from "./QuotationComponents";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface QuotationFormProps {
   quotationData?: QuotationForDashboard;
@@ -279,14 +293,14 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
         title: "Your Quotation has been saved.",
       });
 
-      router.push("/dashboard/quotations");
+      router.push(`/quotation/view/${response.success.id}`);
       router.refresh();
     }
     if (response?.error) {
       toast({
         variant: "destructive",
         title: "Oppse!",
-        description: "could not create your quotation, please try again later",
+        description: "Could not create your quotation, please try again later",
       });
     }
   };
@@ -336,40 +350,69 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
               {customers?.success && (
                 <div className="flex md:flex-row gap-4 items-end">
                   <FormField
-                    disabled={isLoading}
                     control={form.control}
                     name="customerId"
                     render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Category Name</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                      <FormItem className="flex flex-col w-full">
+                        <FormLabel>Category</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a customer for quotation" />
-                              </SelectTrigger>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? customers.success.find(
+                                      (cust) => cust.id === field.value
+                                    )?.name
+                                  : "Select Customer"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
                             </FormControl>
-                            <SelectContent>
-                              {customers.success.map((customer) => {
-                                return (
-                                  <SelectItem
-                                    key={customer.id}
-                                    value={customer.id}
-                                  >
-                                    {customer.name}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage></FormMessage>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search customer..." />
+                              <CommandList>
+                                <CommandEmpty>No customers found.</CommandEmpty>
+                                <CommandGroup>
+                                  {customers.success.map((language) => (
+                                    <CommandItem
+                                      value={language.name}
+                                      key={language.id}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "customerId",
+                                          language.id
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        <FormMessage />
                       </FormItem>
                     )}
-                  ></FormField>
+                  />
                   <Button
                     type="button"
                     onClick={() => setCustomerForm(!customerForm)}
@@ -632,41 +675,108 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                       <div className="grid lg:grid-cols-8 grid-cols-2 gap-4  ">
                         {products?.success && (
                           //////////////////////////////////////////////////////////////////////// Product
+                          // <FormField
+                          //   disabled={isLoading}
+                          //   control={form.control}
+                          //   name={`items.${index}.productId`}
+                          //   render={({ field }) => (
+                          //     <FormItem className="col-span-2">
+                          //       <FormLabel>Product</FormLabel>
+                          //       <FormControl>
+                          //         <Select
+                          //           onValueChange={field.onChange}
+                          //           defaultValue={field.value}
+                          //         >
+                          //           <FormControl>
+                          //             <SelectTrigger className="w-[300px]">
+                          //               <SelectValue placeholder="Select product for quotation" />
+                          //             </SelectTrigger>
+                          //           </FormControl>
+                          //           <SelectContent>
+                          //             {products?.success.map((product) => {
+                          //               return (
+                          //                 <SelectItem
+                          //                   key={product.id}
+                          //                   value={product.id}
+                          //                 >
+                          //                   {product.name}
+                          //                 </SelectItem>
+                          //               );
+                          //             })}
+                          //           </SelectContent>
+                          //         </Select>
+                          //       </FormControl>
+                          //       <FormMessage></FormMessage>
+                          //     </FormItem>
+                          //   )}
+                          // ></FormField>
                           <FormField
-                            disabled={isLoading}
                             control={form.control}
-                            name={`items.${index}.productId`}
+                            name="customerId"
                             render={({ field }) => (
                               <FormItem className="col-span-2">
-                                <FormLabel>Product</FormLabel>
-                                <FormControl>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                  >
+                                <FormLabel>Products</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
                                     <FormControl>
-                                      <SelectTrigger className="w-[300px]">
-                                        <SelectValue placeholder="Select product for quotation" />
-                                      </SelectTrigger>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={cn(
+                                          "w-full justify-between",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value
+                                          ? products.success.find(
+                                              (cust) => cust.id === field.value
+                                            )?.name
+                                          : "Select Product"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      </Button>
                                     </FormControl>
-                                    <SelectContent>
-                                      {products?.success.map((product) => {
-                                        return (
-                                          <SelectItem
-                                            key={product.id}
-                                            value={product.id}
-                                          >
-                                            {product.name}
-                                          </SelectItem>
-                                        );
-                                      })}
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage></FormMessage>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                                    <Command>
+                                      <CommandInput placeholder="Search product..." />
+                                      <CommandList>
+                                        <CommandEmpty>
+                                          No customers found.
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                          {products.success.map((language) => (
+                                            <CommandItem
+                                              value={language.name}
+                                              key={language.id}
+                                              onSelect={() => {
+                                                form.setValue(
+                                                  `items.${index}.productId`,
+                                                  language.id
+                                                );
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  language.name === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                              />
+                                              {language.name}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+
+                                <FormMessage />
                               </FormItem>
                             )}
-                          ></FormField>
+                          />
                         )}
                         {/* //////////////////////////////////////////////////////////////////////// ratings */}
                         <FormField
@@ -1154,8 +1264,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                   <div className="">Danger Zone</div>
                 </div>
                 <div className="text-muted-foreground">
-                  Deleting your category cannot be undone. This will also make
-                  the products having these category without any category
+                  Deleting your quotation cannot be undone.
                 </div>
                 <AlertDialogTrigger
                   disabled={isLoading || deletingQuotation}
@@ -1173,7 +1282,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
               </AlertDialogTitle>
               <AlertDialogDescription className="text-left">
                 This action cannot be undone. This will permanently delete the
-                Quotation.
+                Quotation {quotationData?.quotationNumber}.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center">

@@ -33,9 +33,6 @@ const FitContent: FC<FitContentProps> = ({ children, onResize }) => {
 
         let height = element.parentElement?.scrollHeight;
 
-        console.log({ height });
-        console.log({ availableHeight });
-
         if (height && availableHeight) {
           if (height > availableHeight) {
             onResize();

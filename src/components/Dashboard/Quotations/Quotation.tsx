@@ -156,7 +156,7 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
           <div className="p-8 flex-1">
             {termsData.map((terms, index) => {
               return (
-                <div className="">
+                <div className="" key={index}>
                   <h1 className="font-bold">
                     {index + 6} {terms.section}:
                   </h1>

@@ -28,8 +28,6 @@ const ProductTableBody: FC<ProductTableBodyProps> = ({
   page,
   search,
 }) => {
-  console.log(search);
-
   const router = useRouter();
   return (
     <div>

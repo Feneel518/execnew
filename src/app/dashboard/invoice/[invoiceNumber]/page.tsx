@@ -28,8 +28,6 @@ const page: FC<pageProps> = async ({ params }) => {
     remainingInvoices
   );
 
-  console.log(invoiceDetails);
-
   return (
     <div>
       {/* <InvoiceFieldArray order={}></InvoiceFieldArray> */}

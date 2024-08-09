@@ -40,7 +40,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
 import clsx from "clsx";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { FC, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import CustomerForm from "../Customers/CustomerForm";
@@ -64,7 +64,14 @@ import { useGetProductsForSelect } from "@/data/get-products-for-select";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { upsertOrder } from "@/lib/queries";
-import SupplyForm from "./SupplyForm";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface OrderFormProps {
   orderData?: OrderForDashboard;
@@ -77,8 +84,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   const { data: orderNumber, isFetching } = useGetOrderNumber();
   const { data: customers } = useGetCustomersForSelect();
   const { data: products } = useGetProductsForSelect();
-
-  console.log(products?.success?.length);
 
   const [customerForm, setCustomerForm] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
@@ -176,7 +181,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
     });
     if (response?.success) {
       toast({
-        title: "Your Order has been created.",
+        title: "Your Order has been saved.",
       });
 
       router.push("/dashboard/orders");
@@ -186,10 +191,11 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       toast({
         variant: "destructive",
         title: "Oppse!",
-        description: "could not create your order",
+        description: "could not save your order",
       });
     }
   };
+
   return (
     <AlertDialog>
       <Card className="w-full">
@@ -215,40 +221,69 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
               {customers?.success && (
                 <div className="flex md:flex-row gap-4 items-end">
                   <FormField
-                    disabled={isLoading}
                     control={form.control}
                     name="customerId"
                     render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Category Name</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                      <FormItem className="flex flex-col w-full">
+                        <FormLabel>Category</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a customer for quotation" />
-                              </SelectTrigger>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? customers.success.find(
+                                      (cust) => cust.id === field.value
+                                    )?.name
+                                  : "Select Customer"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
                             </FormControl>
-                            <SelectContent>
-                              {customers.success.map((customer) => {
-                                return (
-                                  <SelectItem
-                                    key={customer.id}
-                                    value={customer.id}
-                                  >
-                                    {customer.name}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage></FormMessage>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search customer..." />
+                              <CommandList>
+                                <CommandEmpty>No customers found.</CommandEmpty>
+                                <CommandGroup>
+                                  {customers.success.map((language) => (
+                                    <CommandItem
+                                      value={language.name}
+                                      key={language.id}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "customerId",
+                                          language.id
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        <FormMessage />
                       </FormItem>
                     )}
-                  ></FormField>
+                  />
                   <Button
                     onClick={() => setCustomerForm(!customerForm)}
                     className="flex items-center gap-2"
@@ -484,41 +519,107 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
 
                     <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 items-end  ">
                       {products?.success && (
+                        // <FormField
+                        //   disabled={isLoading}
+                        //   control={form.control}
+                        //   name={`ProductInOrder.${index}.productId`}
+                        //   render={({ field }) => (
+                        //     <FormItem className="col-span-2">
+                        //       <FormLabel>Product</FormLabel>
+                        //       <FormControl>
+                        //         <Select
+                        //           onValueChange={field.onChange}
+                        //           defaultValue={field.value}
+                        //         >
+                        //           <FormControl>
+                        //             <SelectTrigger className="w-full">
+                        //               <SelectValue placeholder="Select product for quotation" />
+                        //             </SelectTrigger>
+                        //           </FormControl>
+                        //           <SelectContent>
+                        //             {products?.success.map((product) => {
+                        //               return (
+                        //                 <SelectItem
+                        //                   key={product.id}
+                        //                   value={product.id}
+                        //                 >
+                        //                   {product.name}
+                        //                 </SelectItem>
+                        //               );
+                        //             })}
+                        //           </SelectContent>
+                        //         </Select>
+                        //       </FormControl>
+                        //       <FormMessage></FormMessage>
+                        //     </FormItem>
+                        //   )}
+                        // ></FormField>
                         <FormField
-                          disabled={isLoading}
                           control={form.control}
-                          name={`ProductInOrder.${index}.productId`}
+                          name="customerId"
                           render={({ field }) => (
                             <FormItem className="col-span-2">
-                              <FormLabel>Product</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
+                              <FormLabel>Products</FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
                                   <FormControl>
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Select product for quotation" />
-                                    </SelectTrigger>
+                                    <Button
+                                      variant="outline"
+                                      role="combobox"
+                                      className={cn(
+                                        "w-full justify-between",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value
+                                        ? products.success.find(
+                                            (cust) => cust.id === field.value
+                                          )?.name
+                                        : "Select Product"}
+                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
                                   </FormControl>
-                                  <SelectContent>
-                                    {products?.success.map((product) => {
-                                      return (
-                                        <SelectItem
-                                          key={product.id}
-                                          value={product.id}
-                                        >
-                                          {product.name}
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage></FormMessage>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                                  <Command>
+                                    <CommandInput placeholder="Search product..." />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        No customers found.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {products.success.map((language) => (
+                                          <CommandItem
+                                            value={language.name}
+                                            key={language.id}
+                                            onSelect={() => {
+                                              form.setValue(
+                                                `ProductInOrder.${index}.productId`,
+                                                language.id
+                                              );
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                language.name === field.value
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {language.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+
+                              <FormMessage />
                             </FormItem>
                           )}
-                        ></FormField>
+                        />
                       )}
                       <FormField
                         disabled={isLoading}
@@ -674,45 +775,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
               </Button>
             </form>
           </Form>
-          {/* {orderData?.id && (
-            <>
-              <div className="flex flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
-                <div className="">
-                  <div className="">Danger Zone</div>
-                </div>
-                <div className="text-muted-foreground">
-                  Deleting your order cannot be undone.{" "}
-                </div>
-                <AlertDialogTrigger
-                  disabled={isLoading || deletingQuotation}
-                  className="text-red-600 p-2 text-center mt-2 rounded-md hover:bg-red-600 hover:text-white whitespace-nowrap"
-                >
-                  {dele ? "Deleting..." : "Delete Quotation"}
-                </AlertDialogTrigger>
-              </div>
-            </>
-          )} */}
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-left">
-                Are you absolutely sure?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-left">
-                This action cannot be undone. This will permanently delete the
-                Quotation.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex items-center">
-              <AlertDialogCancel className="mb-2">Cancel</AlertDialogCancel>
-              {/* <AlertDialogAction
-                disabled={deletingQuotation}
-                className="bg-destructive hover:bg-destructive"
-                onClick={handleDeleteQuotation}
-              >
-                Delete
-              </AlertDialogAction> */}
-            </AlertDialogFooter>
-          </AlertDialogContent>
         </CardContent>
       </Card>
     </AlertDialog>

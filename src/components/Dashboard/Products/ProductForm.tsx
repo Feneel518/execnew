@@ -51,6 +51,21 @@ import { FC, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import ObjectId from "bson-objectid";
 import { productForm } from "@/lib/types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface ProductFormProps {
   productData?: productForm;
@@ -119,6 +134,7 @@ const ProductForm: FC<ProductFormProps> = ({ productData }) => {
         description: "Please select a category to proceed.",
       });
     }
+
     const response = await upsertProduct({
       id: productData?.id ? productData.id : ObjectId().toString(),
       cableEntry: data.cableEntry,
@@ -152,16 +168,16 @@ const ProductForm: FC<ProductFormProps> = ({ productData }) => {
 
     if (response?.success) {
       toast({
-        title: "Your product has been created.",
+        title: "Your product has been saved.",
       });
-
+      router.push("/dashboard/products");
       return router.refresh();
     }
     if (response?.error)
       toast({
         variant: "destructive",
         title: "Oppse!",
-        description: "could not create your product",
+        description: "Could not save your product, please try again later.",
       });
   };
 
@@ -642,34 +658,100 @@ const ProductForm: FC<ProductFormProps> = ({ productData }) => {
               </div>
               <div className="flex flex-col  gap-4">
                 {categories?.success && (
+                  // <FormField
+                  //   control={form.control}
+                  //   name="categoryId"
+                  //   render={({ field }) => (
+                  //     <FormItem>
+                  //       <FormLabel>Category</FormLabel>
+                  //       <Select
+                  //         onValueChange={field.onChange}
+                  //         defaultValue={field.value}
+                  //       >
+                  //         <FormControl>
+                  //           <SelectTrigger>
+                  //             <SelectValue placeholder="Select a category to display" />
+                  //           </SelectTrigger>
+                  //         </FormControl>
+                  //         <SelectContent>
+                  //           {categories?.success.map((category) => {
+                  //             return (
+                  //               <SelectItem
+                  //                 key={category.id}
+                  //                 value={category.id}
+                  //               >
+                  //                 {category.name}
+                  //               </SelectItem>
+                  //             );
+                  //           })}
+                  //         </SelectContent>
+                  //       </Select>
+
+                  //       <FormMessage />
+                  //     </FormItem>
+                  //   )}
+                  // />
                   <FormField
                     control={form.control}
                     name="categoryId"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>Category</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category to display" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories?.success.map((category) => {
-                              return (
-                                <SelectItem
-                                  key={category.id}
-                                  value={category.id}
-                                >
-                                  {category.name}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? categories.success.find(
+                                      (language) => language.id === field.value
+                                    )?.name
+                                  : "Select Category"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search category..." />
+                              <CommandList>
+                                <CommandEmpty>
+                                  No categories found.
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {categories.success.map((language) => (
+                                    <CommandItem
+                                      value={language.name}
+                                      key={language.id}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "categoryId",
+                                          language.id
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
 
                         <FormMessage />
                       </FormItem>
@@ -701,18 +783,18 @@ const ProductForm: FC<ProductFormProps> = ({ productData }) => {
               </div>
             </>
           )}
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[50%]">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-left">
                 Are you absolutely sure?
               </AlertDialogTitle>
               <AlertDialogDescription className="text-left">
                 This action cannot be undone. This will permanently delete the
-                Agency account and all related sub accounts.
+                product &quot;<strong>{productData?.name}</strong>&quot;
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex items-center">
-              <AlertDialogCancel className="mb-2">Cancel</AlertDialogCancel>
+            <AlertDialogFooter className="flex items-center ">
+              <AlertDialogCancel className="">Cancel</AlertDialogCancel>
               <AlertDialogAction
                 disabled={deletingProduct}
                 className="bg-destructive hover:bg-destructive"

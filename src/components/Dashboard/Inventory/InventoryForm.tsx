@@ -48,6 +48,21 @@ import ObjectID from "bson-objectid";
 import { useGetStoreProductsForSelect } from "@/data/get-store-products-for-select";
 import { InventorySchemaRequest, InventoryValidator } from "@/lib/Validators";
 import { Status } from "@prisma/client";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface InventoryFormProps {
   inventoryData?: InventoryForDashboard | null | undefined;
@@ -163,12 +178,6 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {customerForm && (
-            <CustomerForm
-              isQuotationPage={true}
-              onSubmit={() => setCustomerForm(false)}
-            ></CustomerForm>
-          )}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
@@ -176,7 +185,7 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
             >
               {products?.success && (
                 <div className="flex md:flex-row gap-4 items-end">
-                  <FormField
+                  {/* <FormField
                     disabled={isLoading}
                     control={form.control}
                     name="storeProductId"
@@ -214,50 +223,195 @@ const InventoryForm: FC<InventoryFormProps> = ({ inventoryData, employee }) => {
                         <FormMessage></FormMessage>
                       </FormItem>
                     )}
-                  ></FormField>
+                  ></FormField> */}
+                  <FormField
+                    control={form.control}
+                    name="storeProductId"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col w-full">
+                        <FormLabel>Products</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? products.success.find(
+                                      (cust) => cust.id === field.value
+                                    )?.name
+                                  : "Select products"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search products..." />
+                              <CommandList>
+                                <CommandEmpty>No products found.</CommandEmpty>
+                                <CommandGroup>
+                                  {products.success.map((language) => (
+                                    <CommandItem
+                                      value={language.name}
+                                      key={language.id}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "storeProductId",
+                                          language.id
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex items-center gap-4">
+                                        <span>{language.StoreProductId}</span>
+                                        <span>|</span>
+                                        <span>{language.name}</span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               )}
               <div className="flex md:flex-row gap-4 items-end">
                 {employee.length > 0 && (
+                  // <FormField
+                  //   disabled={isLoading}
+                  //   control={form.control}
+                  //   name="employeeId"
+                  //   render={({ field }) => (
+                  //     <FormItem className="flex-1">
+                  //       <FormLabel>Employee</FormLabel>
+                  //       <FormControl>
+                  //         <Select
+                  //           onValueChange={field.onChange}
+                  //           defaultValue={field.value}
+                  //         >
+                  //           <FormControl>
+                  //             <SelectTrigger>
+                  //               <SelectValue placeholder="Select an employee" />
+                  //             </SelectTrigger>
+                  //           </FormControl>
+                  //           <SelectContent>
+                  //             <SelectItem key={"null"} value={"null"}>
+                  //               <div className="flex items-center gap-4">
+                  //                 <span>{"-----null-----"}</span>
+                  //               </div>
+                  //             </SelectItem>
+                  //             {employee.map((emplo) => {
+                  //               return (
+                  //                 <SelectItem key={emplo.id} value={emplo.id}>
+                  //                   <div className="flex items-center gap-4">
+                  //                     <span>{emplo.name}</span>
+                  //                   </div>
+                  //                 </SelectItem>
+                  //               );
+                  //             })}
+                  //           </SelectContent>
+                  //         </Select>
+                  //       </FormControl>
+                  //       <FormMessage></FormMessage>
+                  //     </FormItem>
+                  //   )}
+                  // ></FormField>
                   <FormField
-                    disabled={isLoading}
                     control={form.control}
                     name="employeeId"
                     render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormLabel>Employee</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select an employee" />
-                              </SelectTrigger>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? field.value === "null"
+                                    ? "-----null-----"
+                                    : employee.find(
+                                        (cust) => cust.id === field.value
+                                      )?.name
+                                  : "Select employee"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem key={"null"} value={"null"}>
-                                <div className="flex items-center gap-4">
-                                  <span>{"-----null-----"}</span>
-                                </div>
-                              </SelectItem>
-                              {employee.map((emplo) => {
-                                return (
-                                  <SelectItem key={emplo.id} value={emplo.id}>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search employees..." />
+                              <CommandList>
+                                <CommandEmpty>No employee found.</CommandEmpty>
+                                <CommandGroup>
+                                  <CommandItem
+                                    onSelect={() => {
+                                      form.setValue("employeeId", "null");
+                                    }}
+                                    key={"null"}
+                                    value={"null"}
+                                  >
                                     <div className="flex items-center gap-4">
-                                      <span>{emplo.name}</span>
+                                      <span>{"-----null-----"}</span>
                                     </div>
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage></FormMessage>
+                                  </CommandItem>
+                                  {employee.map((language) => (
+                                    <CommandItem
+                                      value={language.name}
+                                      key={language.id}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "employeeId",
+                                          language.id
+                                        );
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          language.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {language.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        <FormMessage />
                       </FormItem>
                     )}
-                  ></FormField>
+                  />
                 )}
                 <FormField
                   disabled={isLoading}

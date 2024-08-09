@@ -53,16 +53,11 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() => navigator.clipboard.writeText(quot.id)}
-                    >
-                      Copy payment ID
-                    </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => window.open(`/quotation/view/${quot.id}`)}
                     >
-                      {" "}
                       View Quotation
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -70,10 +65,10 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
                         router.push(`/dashboard/quotations/${quot.id}`)
                       }
                     >
-                      {" "}
                       Edit Quotation
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                      className="bg-red-100 hover:bg-red-200"
                       onClick={async () => {
                         await deleteQuotation(quot.id);
                         router.refresh();
