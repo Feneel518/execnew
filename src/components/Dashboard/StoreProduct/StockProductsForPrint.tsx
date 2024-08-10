@@ -5,43 +5,39 @@ import { StoreProduct } from "@prisma/client";
 import { FC, useState } from "react";
 import StoreProductsTable from "./StoreProductsTable";
 import SmallHeading from "@/components/Global/SmallHeading";
+import Image from "next/image";
 
 interface StockProductsForPrintProps {
   product: StoreProduct[];
 }
 
 const StockProductsForPrint: FC<StockProductsForPrintProps> = ({ product }) => {
-  const [perPage, setPerPage] = useState([product.length]);
-
-  let pages = perPage.map((amount, i) => {
-    let offset = perPage
-      .slice(0, i)
-      .reduce((total, amount) => total + amount, 0);
-    return product.slice(offset, offset + amount);
-  });
-
   return (
-    <div className="flex flex-col gap-4 print:gap-0">
-      {pages.map((group, index, list) => {
-        return (
-          <A4Page
-            onResize={() => {
-              setPerPage((perPage) => {
-                let clone = perPage.slice();
-                clone[index] -= 1;
-                clone[index + 1] = clone[index + 1] || 0;
-                clone[index + 1] += 1;
-
-                return clone;
-              });
-            }}
-            key={index}
-            table={<StoreProductsTable product={group}></StoreProductsTable>}
-            heading={<div className="h-2 border"></div>}
-            footer={<div className="h-0"></div>}
-          ></A4Page>
-        );
-      })}
+    <div className="w-[210mm] min-h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col">
+      <div className="flex flex-col gap-4  ">
+        <div className="grid grid-cols-2 gap-8 items-center justify-center ">
+          {product.map((prod) => {
+            return (
+              <div className="flex flex-col items-center justify-center gap-6 border">
+                <Image
+                  className="pt-4"
+                  alt={prod.name}
+                  src={prod.qrCodeLink}
+                  width={200}
+                  height={200}
+                ></Image>
+                <div className="text-center">
+                  <h1 className="text-xl text-center">{prod.name}</h1>
+                  {prod.description && (
+                    <p className="text-sm text-center">{prod.description}</p>
+                  )}
+                  <p>{prod.StoreProductId}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
