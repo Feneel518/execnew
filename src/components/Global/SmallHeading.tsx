@@ -4,9 +4,10 @@ import Logo from "../../../public/logo1.png";
 
 interface SmallHeadingProps {
   isPacking?: boolean;
+  orderNumber?: number;
 }
 
-const SmallHeading: FC<SmallHeadingProps> = ({ isPacking }) => {
+const SmallHeading: FC<SmallHeadingProps> = ({ isPacking, orderNumber }) => {
   return (
     <div>
       <div className="bg-exec w-full h-[25.4mm] flex items-center justify-center flex-col text-white ">
@@ -18,6 +19,10 @@ const SmallHeading: FC<SmallHeadingProps> = ({ isPacking }) => {
             width={200}
             height={75}
           ></Image>
+        </div>
+
+        <div className="place-self-end text-sm pr-8 -mt-4">
+          {orderNumber && `ExOr-${orderNumber}`}
         </div>
       </div>
       <div className="bg-execorange h-2 w-full"></div>

@@ -151,3 +151,16 @@ export const taxAmountCalculation = (items: ProductInInvoiceTable[]) => {
 
   return { taxAmount: abc * 0.18, totalAmount: abc * 1.18 };
 };
+
+export function assignContinuousIndices<T>(
+  ...arrays: T[][]
+): (T & { index: number })[][] {
+  let globalIndex = 0;
+
+  return arrays.map((array) =>
+    array.map((item) => ({
+      ...item,
+      index: ++globalIndex,
+    }))
+  );
+}

@@ -7,21 +7,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
 import { ProductInOrderTable } from "@/lib/types";
 
 interface OrderTableProps {
   products: ProductInOrderTable[];
-  itemsIndex: number;
   isWorkOrder?: boolean;
   remainingQuantity: { [x: string]: number };
 }
 
 const OrderTable: FC<OrderTableProps> = ({
   products,
-  itemsIndex,
   isWorkOrder,
   remainingQuantity,
 }) => {
@@ -49,9 +46,7 @@ const OrderTable: FC<OrderTableProps> = ({
             return (
               <>
                 <TableRow key={invoice.id} className="">
-                  <TableCell className="font-medium">
-                    {itemsIndex + 1 + index}
-                  </TableCell>
+                  <TableCell className="font-medium">{invoice.index}</TableCell>
                   <TableCell>
                     <div className="">{invoice.product.name}</div>
                     <div className="">{invoice.description}</div>

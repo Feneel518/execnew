@@ -29,6 +29,8 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
       return ac + item.supplidQuantity;
     }, 0);
 
+    // console.log(pro.order.customer.name, pro.ProductInInvoiceOfOrder);
+
     return {
       id: productDetails.success.id,
       clientName: pro.order.customer.name,
@@ -40,6 +42,12 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
       productDescription: pro.description,
     };
   });
+
+  const filteredPenidng = pendingData.filter(
+    (item) => Number(item.quantity) > 0
+  );
+
+  // console.log(productDetails?.success);
 
   const totalItem = productDetails?.success?.ProductInOrder.reduce((a, b) => {
     return (
@@ -54,10 +62,21 @@ const PendingQuantityTable: FC<PendingQuantityTableProps> = async ({ id }) => {
   return (
     <div className="flex flex-col">
       <div className="mt-10">
-        <h1>Completed Orders</h1>
+        <h1>Pending Orders</h1>
+        {/* {productDetails.success.ProductInOrder.map((order) => {
+          return (
+            <div className="">
+              {order.order.customer.name} {order.order.orderNumber}{" "}
+              {order.quantity}
+            </div>
+          );
+        })} */}
         <Card>
           <CardContent>
-            <DataTable columns={pendingColumns} data={pendingData}></DataTable>
+            <DataTable
+              columns={pendingColumns}
+              data={filteredPenidng}
+            ></DataTable>
           </CardContent>
         </Card>
         <Card className="mt-10">

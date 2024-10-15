@@ -8,6 +8,7 @@ import OrderTable from "./OrderTable";
 import OrderHeading from "./OrderHeading";
 import QuotationFooter from "../Quotations/QuotationFooter";
 import SmallHeading from "@/components/Global/SmallHeading";
+import { assignContinuousIndices } from "@/lib/utils";
 
 interface OrderProps {
   orderData: OrderToView;
@@ -28,6 +29,8 @@ const Order: FC<OrderProps> = ({
       .reduce((total, amount) => total + amount, 0);
     return orderData.ProductInOrder.slice(offset, offset + amount);
   });
+
+  const indexedArrays = assignContinuousIndices(...pages);
 
   const customerDetails: Partial<Customer> & {
     poNumber?: string;
@@ -50,7 +53,7 @@ const Order: FC<OrderProps> = ({
   };
   return (
     <div className="flex flex-col gap-4 print:gap-0">
-      {pages.map((group, index, list) => {
+      {indexedArrays.map((group, index, list) => {
         return (
           <A4Page
             onResize={() => {
@@ -69,9 +72,6 @@ const Order: FC<OrderProps> = ({
                 //   @ts-ignore
                 products={group}
                 isWorkOrder={isWorkOrder}
-                itemsIndex={
-                  index === 0 ? index : list[index - 1].length + index - 1
-                }
                 remainingQuantity={remainingQuantity}
               ></OrderTable>
             }
@@ -82,7 +82,9 @@ const Order: FC<OrderProps> = ({
                   customerDetails={customerDetails}
                 ></OrderHeading>
               ) : (
-                <SmallHeading></SmallHeading>
+                <SmallHeading
+                  orderNumber={orderData.orderNumber}
+                ></SmallHeading>
               )
             }
             additionalNotes={

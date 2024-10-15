@@ -340,6 +340,7 @@ export type ProductInOrderTable = Prisma.ProductInOrderGetPayload<{
     supplied: true;
     description: true;
     certificateNumber: true;
+    index: true;
     product: {
       select: {
         name: true;

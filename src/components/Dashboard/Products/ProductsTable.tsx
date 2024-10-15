@@ -4,7 +4,6 @@ import CustomPagination from "@/components/Global/Pagination";
 import Search from "@/components/Global/Search";
 import { FC, JSXElementConstructor } from "react";
 
-import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -53,7 +52,7 @@ const ProductsTable: FC<ProductsTableProps> = ({
   const searchParams = useSearchParams();
 
   const handleFilter = (filter: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
     params.set("sort", filter);
     router.replace(`${pathname}?${params.toString()}`);
   };
