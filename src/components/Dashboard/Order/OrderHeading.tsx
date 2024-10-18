@@ -11,7 +11,7 @@ interface OrderHeadingProps {
     status?: string;
     quotationNumber?: string;
     invoiceNumber?: string;
-    invoiceDate: Date;
+    invoiceDate?: Date;
   };
   isWorkOrder?: boolean;
   isInvoice?: boolean;
@@ -57,7 +57,14 @@ const OrderHeading: FC<OrderHeadingProps> = ({
             <h1 className="text-3xl uppercase tracking-tighter">
               {isInvoice ? "Invoice" : "Order"}
             </h1>
-            <h1 className="">{format(customerDetails.invoiceDate, "PP")}</h1>
+            <h1 className="">
+              {format(
+                customerDetails.invoiceDate
+                  ? customerDetails.invoiceDate
+                  : new Date(),
+                "PP"
+              )}
+            </h1>
             <div className="">
               <h3>
                 {isInvoice ? (
