@@ -38,6 +38,7 @@ const InvoicePage: FC<InvoicePageProps> = ({ invoiceData }) => {
     orderNumber: string;
     quotationNumber?: string;
     invoiceNumber: string;
+    invoiceDate: Date;
   } = {
     addressLine1: invoiceData.order.customer.addressLine1,
     GST: invoiceData.order.customer.GST,
@@ -50,6 +51,7 @@ const InvoicePage: FC<InvoicePageProps> = ({ invoiceData }) => {
     poDate: invoiceData.order.poDate ?? new Date(),
     quotationNumber: invoiceData.order.quotationNumber ?? "",
     invoiceNumber: invoiceData.invoiceNumber ?? "",
+    invoiceDate: invoiceData.invoiceDate,
   };
   return (
     <div className="flex flex-col gap-4 print:gap-0">

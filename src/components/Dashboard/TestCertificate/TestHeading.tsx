@@ -11,6 +11,7 @@ interface TestHeadingProps {
     status?: string;
     quotationNumber?: string;
     invoiceNumber?: string;
+    invoiceDate: Date;
   };
 }
 
@@ -42,7 +43,7 @@ const TestHeading: FC<TestHeadingProps> = ({ customerDetails }) => {
           <h1 className="text-3xl uppercase tracking-tighter">
             test certificate
           </h1>
-          <h1 className="">{format(new Date(), "PP")}</h1>
+          <h1 className="">{format(customerDetails.invoiceDate, "PP")}</h1>
           <div className="">
             <h3>TC no. ExTC {customerDetails.invoiceNumber}</h3>
             {customerDetails.poNumber && (

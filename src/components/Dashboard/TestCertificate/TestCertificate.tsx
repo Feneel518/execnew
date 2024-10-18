@@ -42,6 +42,7 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
     orderNumber: string;
     quotationNumber?: string;
     invoiceNumber: string;
+    invoiceDate: Date;
   } = {
     addressLine1: invoiceData.order.customer.addressLine1,
     GST: invoiceData.order.customer.GST,
@@ -54,6 +55,7 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
     poDate: invoiceData.order.poDate ?? new Date(),
     quotationNumber: invoiceData.order.quotationNumber ?? "",
     invoiceNumber: invoiceData.invoiceNumber ?? "",
+    invoiceDate: invoiceData.invoiceDate,
   };
   return (
     <div className="flex flex-col gap-4 print:gap-0">
@@ -124,7 +126,7 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
               <h1 className="text-3xl uppercase tracking-tighter">
                 test certificate
               </h1>
-              <h1 className="">{format(new Date(), "PP")}</h1>
+              <h1 className="">{format(customerDetails.invoiceDate, "PP")}</h1>
               <div className="">
                 <h3>TC no. ExTC {customerDetails.invoiceNumber}</h3>
                 {customerDetails.poNumber && (
