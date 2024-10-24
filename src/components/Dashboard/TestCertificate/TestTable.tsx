@@ -55,7 +55,7 @@ const TestTable: FC<TestTableProps> = ({ products, itemsIndex }) => {
                     <div className="">{invoice.certificateNumber}</div>
                   </TableCell>
                   <TableCell className="text-center w-[50px]">
-                    {invoice.ProductInOrder.price}
+                    {invoice.ProductInOrder.quantity}
                   </TableCell>
 
                   <TableCell className="text-center w-[50px]">
