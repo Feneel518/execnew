@@ -25,6 +25,7 @@ const page: FC<pageProps> = async ({ params }) => {
             include: {
               componentsOfQuotation: {
                 select: {
+                  id: true,
                   item: true,
                 },
               },

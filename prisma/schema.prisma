@@ -290,7 +290,7 @@ model ComponentsOfProductInQuotation {
   productInQuotation   ProductInQuotation @relation(fields: [productInQuotationId], references: [id])
 
   componentsOfQuotation   ComponentsOfQuotation @relation(fields: [componentsOfQuotationId], references: [id])
-  componentsOfQuotationId String                @db.ObjectId
+  componentsOfQuotationId String                @unique @db.ObjectId
 
   @@index([productInQuotationId, componentsOfQuotationId])
 }

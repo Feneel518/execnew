@@ -42,6 +42,15 @@ import { revalidatePath } from "next/cache";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QueryClient } from "@tanstack/react-query";
 import { areQuantitiesEqual } from "./utils";
+import "./jobs/QuotationCreationJob.ts";
+import {
+  quotationCreation,
+  quotationCreationName,
+} from "./jobs/QuotationCreationJob";
+import { QuotationCreationRequest } from "./Validators/QuotationValidator";
+import { QueueEvents } from "bullmq";
+
+const queueEvents = new QueueEvents(quotationCreationName);
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -688,178 +697,92 @@ export const fetchPreviousQuotationNumber = async () => {
   if (quotationNumber) return { success: quotationNumber };
 };
 
-export const upsertQuotation = async (
-  quotation: Partial<
-    Quotation & {
-      items: Partial<ProductInQuotation[]>;
-    }
-  >
-) => {
+export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  const componentsDeletion = await db.componentsOfProductInQuotation.deleteMany(
-    {
-      where: {
-        productInQuotation: {
-          quotationId: quotation.id,
-        },
-      },
-    }
-  );
-
-  const componentsOfQuotationDeletion =
-    await db.componentsOfQuotation.deleteMany({
-      where: {
-        ComponentsOfProductInQuotation: {
-          every: {
-            productInQuotation: {
-              quotationId: quotation.id,
+  const existingQuotation = await db.quotation.findUnique({
+    where: { id: quotation.id },
+    include: {
+      ProductInQuotation: {
+        include: {
+          product: {
+            select: {
+              name: true,
+            },
+          },
+          ComponentsOfProductInQuotation: {
+            include: {
+              componentsOfQuotation: true,
             },
           },
         },
       },
+    },
+  });
+
+  if (existingQuotation) {
+    const existingItemIds = existingQuotation?.ProductInQuotation.map(
+      (item) => item.id
+    );
+    const existingComponentIds = existingQuotation?.ProductInQuotation.flatMap(
+      (item) =>
+        item.ComponentsOfProductInQuotation?.map(
+          (component) => component.componentsOfQuotation.id
+        )
+    );
+
+    const newProductIds = quotation.items?.map((prod) => prod?.id);
+    const newComponentsIds = quotation.items?.flatMap((prod) =>
+      // @ts-ignore
+      prod?.components?.map((comp) => comp.compId)
+    );
+    const productsToDelete = existingItemIds?.filter(
+      (id) => !newProductIds?.includes(id)
+    );
+    const componentsToDelete = existingComponentIds?.filter(
+      (id) => !newComponentsIds?.includes(id)
+    );
+
+    await db.componentsOfProductInQuotation.deleteMany({
+      where: { componentsOfQuotationId: { in: componentsToDelete } },
+    });
+    const response = await db.productInQuotation.deleteMany({
+      where: { id: { in: productsToDelete } },
     });
 
-  const oldProductsInQuotation = await db.productInQuotation.deleteMany({
-    where: {
-      quotationId: quotation.id,
-    },
-  });
+    const queue = await quotationCreation.add(quotationCreationName, {
+      quotation,
+    });
 
-  // const ProductsInQuotationDeletion = quotation.items?.map(async (item) => {
-  //   return await db.productInQuotation.deleteMany({
-  //     where: {
-  //       quotationId: quotation.id,
-  //     },
-  //   });
-  // });
-
-  const response = await db.quotation.upsert({
-    where: {
-      id: quotation.id,
-    },
-    update: {
-      deliveryDate: quotation.deliveryDate ?? "",
-      gst: quotation.gst ?? "CGST_SGST_18",
-      quotationNumber: quotation.quotationNumber ?? 1,
-      additionalNotes: quotation.additionalNotes ?? "",
-      clientName: quotation.clientName ?? "",
-      customerId: quotation.customerId ?? "",
-      discount: quotation.discount ?? "",
-      packingCharges: quotation.packingCharges ?? "INCLUDED",
-      paymentTerms: quotation.paymentTerms ?? "ADVANCE",
-      transportationPayment: quotation.transportationPayment ?? "TO_PAY",
-      deliverDateNew: quotation.deliverDateNew,
-      ProductInQuotation: {
-        create: quotation.items?.map((item) => {
-          return {
-            product: {
-              connect: {
-                id: item?.productId,
-              },
-            },
-            index: item?.index,
-            cableEntry: item?.cableEntry,
-            cutoutSize: item?.cutoutSize,
-            earting: item?.earting,
-            gasket: item?.gasket,
-            glass: item?.glass,
-            hardware: item?.hardware,
-            HorsePower: item?.HorsePower,
-            hsnCode: item?.hsnCode,
-            kW: item?.kW,
-            plateSize: item?.plateSize,
-            mounting: item?.mounting,
-            poReferrence: item?.poReferrence,
-            rating: item?.rating,
-            rpm: item?.rpm,
-            size: item?.size,
-            terminals: item?.terminals,
-            typeNumber: item?.typeNumber,
-            variant: item?.variant,
-            wireGuard: item?.wireGuard,
-            price: Number(item?.price) ?? 1,
-            quantity: item?.quantity,
-            ComponentsOfProductInQuotation: {
-              create: item?.components.map((ite) => {
-                return {
-                  componentsOfQuotation: {
-                    create: {
-                      item: ite.items,
-                    },
-                  },
-                };
-              }),
-            },
-          };
-        }),
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: response };
+  } else {
+    const response = await db.quotation.create({
+      data: {
+        gst: quotation.gst,
+        quotationNumber: quotation.quotationNumber,
+        additionalNotes: quotation.additionalNotes,
+        clientName: quotation.clientName ?? "",
+        customerId: quotation.customerId ?? "",
+        deliveryDate: quotation.deliveryDate ?? new Date(),
+        deliverDateNew: quotation.deliverDateNew ?? "",
+        discount: quotation.discount,
+        packingCharges: quotation.packingCharges,
+        paymentTerms: quotation.paymentTerms,
+        transportationPayment: quotation.transportationPayment,
       },
-    },
-    create: {
-      deliveryDate: quotation.deliveryDate ?? "",
-      gst: quotation.gst ?? "CGST_SGST_18",
-      quotationNumber: quotation.quotationNumber ?? 1,
-      additionalNotes: quotation.additionalNotes ?? "",
-      clientName: quotation.clientName ?? "",
-      customerId: quotation.customerId ?? "",
-      discount: quotation.discount ?? "",
-      packingCharges: quotation.packingCharges ?? "INCLUDED",
-      paymentTerms: quotation.paymentTerms ?? "ADVANCE",
-      transportationPayment: quotation.transportationPayment ?? "TO_PAY",
-      deliverDateNew: quotation.deliverDateNew,
-      ProductInQuotation: {
-        create: quotation.items?.map((item) => {
-          return {
-            // productId: item?.productId,
-            product: {
-              connect: {
-                id: item?.productId,
-              },
-            },
-            index: item?.index,
-            cableEntry: item?.cableEntry,
-            cutoutSize: item?.cutoutSize,
-            earting: item?.earting,
-            gasket: item?.gasket,
-            glass: item?.glass,
-            hardware: item?.hardware,
-            HorsePower: item?.HorsePower,
-            hsnCode: item?.hsnCode,
-            kW: item?.kW,
-            plateSize: item?.plateSize,
-            mounting: item?.mounting,
-            poReferrence: item?.poReferrence,
-            rating: item?.rating,
-            rpm: item?.rpm,
-            size: item?.size,
-            terminals: item?.terminals,
-            typeNumber: item?.typeNumber,
-            variant: item?.variant,
-            wireGuard: item?.wireGuard,
-            price: Number(item?.price) ?? 1,
-            quantity: item?.quantity,
-            ComponentsOfProductInQuotation: {
-              create: item?.components.map((ite) => {
-                return {
-                  componentsOfQuotation: {
-                    create: {
-                      item: ite.items,
-                    },
-                  },
-                };
-              }),
-            },
-          };
-        }),
-      },
-    },
-  });
+    });
 
-  // let response = "yes";
-  if (!response)
-    return { error: "Could not create quotation, please try again later!" };
-  if (response) return { success: response };
+    const queue = await quotationCreation.add(quotationCreationName, {
+      quotation: { ...quotation, id: response.id },
+    });
+
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: response };
+  }
 };
 
 export const getQuotationBasedOnid = async (id: string) => {

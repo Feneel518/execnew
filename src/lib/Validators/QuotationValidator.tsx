@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const QuotationValidator = z.object({
+  id: z.string().optional(),
   quotationNumber: z.number(),
   additionalNotes: z.string().optional(),
   gst: z.enum([
@@ -57,6 +58,7 @@ export const QuotationValidator = z.object({
       price: z.string(),
       components: z
         .object({
+          compId: z.string().optional(),
           items: z.string(),
         })
         .array()

@@ -235,6 +235,7 @@ export type QuotationForDashboard = Prisma.QuotationGetPayload<{
           include: {
             componentsOfQuotation: {
               select: {
+                id: true;
                 item: true;
               };
             };

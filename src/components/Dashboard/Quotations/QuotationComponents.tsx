@@ -9,16 +9,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { QuotationCreationRequest } from "@/lib/Validators/QuotationValidator";
 import { FC } from "react";
-import { Control, useFieldArray } from "react-hook-form";
+import {
+  Control,
+  FieldValue,
+  FieldValues,
+  SetFieldValue,
+  useFieldArray,
+  UseFormSetValue,
+} from "react-hook-form";
 
 interface QuotationComponentsProps {
   nestIndex: number;
   control: Control<QuotationCreationRequest>;
+  setId: UseFormSetValue<QuotationCreationRequest>;
 }
 
 const QuotationComponents: FC<QuotationComponentsProps> = ({
   nestIndex,
   control,
+  setId,
 }) => {
   const { fields, remove, append } = useFieldArray({
     control,
@@ -27,6 +36,7 @@ const QuotationComponents: FC<QuotationComponentsProps> = ({
   return (
     <div>
       {fields.map((field, index) => {
+        setId(`items.${nestIndex}.components.${index}.compId`, field.compId);
         return (
           <div key={field.id} className="flex items-end gap-4">
             <FormField

@@ -72,6 +72,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import SelectProduct from "../Quotations/SelectProduct";
 
 interface OrderFormProps {
   orderData?: OrderForDashboard;
@@ -219,72 +220,17 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
               className="flex flex-col gap-4 "
             >
               {customers?.success && (
-                <div className="flex md:flex-row gap-4 items-end">
-                  <FormField
-                    control={form.control}
-                    name="customerId"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col w-full">
-                        <FormLabel>Category</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? customers.success.find(
-                                      (cust) => cust.id === field.value
-                                    )?.name
-                                  : "Select Customer"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search customer..." />
-                              <CommandList>
-                                <CommandEmpty>No customers found.</CommandEmpty>
-                                <CommandGroup>
-                                  {customers.success.map((language) => (
-                                    <CommandItem
-                                      value={language.name}
-                                      key={language.id}
-                                      onSelect={() => {
-                                        form.setValue(
-                                          "customerId",
-                                          language.id
-                                        );
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          language.name === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                      {language.name}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="flex md:flex-grow gap-4 items-end">
+                  <SelectProduct
+                    labelText={"Client"}
+                    setValueAsText="customerId"
+                    products={customers.success}
+                    productId={form.watch("customerId")}
+                    setProductId={form.setValue}
+                    className={"w-full"}
+                  ></SelectProduct>
                   <Button
+                    type="button"
                     onClick={() => setCustomerForm(!customerForm)}
                     className="flex items-center gap-2"
                   >
@@ -296,6 +242,83 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
                     {customerForm ? "Cancel" : "Customer"}
                   </Button>
                 </div>
+                // <div className="flex md:flex-row gap-4 items-end">
+                //   <FormField
+                //     control={form.control}
+                //     name="customerId"
+                //     render={({ field }) => (
+                //       <FormItem className="flex flex-col w-full">
+                //         <FormLabel>Category</FormLabel>
+                //         <Popover>
+                //           <PopoverTrigger asChild>
+                //             <FormControl>
+                //               <Button
+                //                 variant="outline"
+                //                 role="combobox"
+                //                 className={cn(
+                //                   "w-full justify-between",
+                //                   !field.value && "text-muted-foreground"
+                //                 )}
+                //               >
+                //                 {field.value
+                //                   ? customers.success.find(
+                //                       (cust) => cust.id === field.value
+                //                     )?.name
+                //                   : "Select Customer"}
+                //                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                //               </Button>
+                //             </FormControl>
+                //           </PopoverTrigger>
+                //           <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                //             <Command>
+                //               <CommandInput placeholder="Search customer..." />
+                //               <CommandList>
+                //                 <CommandEmpty>No customers found.</CommandEmpty>
+                //                 <CommandGroup>
+                //                   {customers.success.map((language) => (
+                //                     <CommandItem
+                //                       value={language.name}
+                //                       key={language.id}
+                //                       onSelect={() => {
+                //                         form.setValue(
+                //                           "customerId",
+                //                           language.id
+                //                         );
+                //                       }}
+                //                     >
+                //                       <Check
+                //                         className={cn(
+                //                           "mr-2 h-4 w-4",
+                //                           language.name === field.value
+                //                             ? "opacity-100"
+                //                             : "opacity-0"
+                //                         )}
+                //                       />
+                //                       {language.name}
+                //                     </CommandItem>
+                //                   ))}
+                //                 </CommandGroup>
+                //               </CommandList>
+                //             </Command>
+                //           </PopoverContent>
+                //         </Popover>
+
+                //         <FormMessage />
+                //       </FormItem>
+                //     )}
+                //   />
+                //   <Button
+                //     onClick={() => setCustomerForm(!customerForm)}
+                //     className="flex items-center gap-2"
+                //   >
+                //     <Plus
+                //       className={clsx("transition-all", {
+                //         "rotate-45": customerForm,
+                //       })}
+                //     ></Plus>{" "}
+                //     {customerForm ? "Cancel" : "Customer"}
+                //   </Button>
+                // </div>
               )}
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
@@ -508,6 +531,9 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
               {fields.map((field, index) => {
                 form.setValue(`ProductInOrder.${index}.index`, index + 1);
+                const productId = form.watch(
+                  `ProductInOrder.${index}.productId`
+                );
                 return (
                   <div
                     key={field.id}
@@ -519,41 +545,15 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
 
                     <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 items-end  ">
                       {products?.success && (
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`ProductInOrder.${index}.productId`}
-                          render={({ field }) => (
-                            <FormItem className="col-span-2">
-                              <FormLabel>Product</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Select product for quotation" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {products?.success.map((product) => {
-                                      return (
-                                        <SelectItem
-                                          key={product.id}
-                                          value={product.id}
-                                        >
-                                          {product.name}
-                                        </SelectItem>
-                                      );
-                                    })}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage></FormMessage>
-                            </FormItem>
-                          )}
-                        ></FormField>
+                        <div className="col-span-2">
+                          <SelectProduct
+                            labelText="Select Product"
+                            setValueAsText={`ProductInOrder.${index}.productId`}
+                            products={products.success}
+                            setProductId={form.setValue}
+                            productId={productId}
+                          ></SelectProduct>
+                        </div>
                         // <FormField
                         //   control={form.control}
                         //   name={`ProductInOrder.${index}.productId`}
