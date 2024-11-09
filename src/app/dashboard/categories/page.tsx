@@ -77,7 +77,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="">List of categories</div>
+        <div className="text-3xl">List of categories</div>
         <Link
           href={"/dashboard/categories/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}

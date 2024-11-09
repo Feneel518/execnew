@@ -60,25 +60,7 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={async () => {
-                        const response = await updateOrder(order.id);
-                        router.refresh();
 
-                        if (response?.success) {
-                          return toast({
-                            title: `Your order (${order.orderNumber}), has been updated`,
-                          });
-                        } else if (response?.error) {
-                          return toast({
-                            title: response.error,
-                          });
-                        }
-                      }}
-                    >
-                      Mark as Complete
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => window.open(`/order/view/${order.id}`)}
                     >
@@ -92,17 +74,11 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
                       Edit Order
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => router.push(`/workorders/${order.id}`)}
+                      onClick={() => window.open(`/workorders/${order.id}`)}
                     >
                       Generate Work Order
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        router.push(`/dashboard/test-certificate/${order.id}`)
-                      }
-                    >
-                      Generate Test Certificate
-                    </DropdownMenuItem>
+
                     {/* <DropdownMenuItem
               onClick={async () => {
                 await deleteQuotation(order.id);

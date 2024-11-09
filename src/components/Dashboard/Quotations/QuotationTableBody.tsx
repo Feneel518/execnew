@@ -67,15 +67,6 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
                     >
                       Edit Quotation
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="bg-red-100 hover:bg-red-200"
-                      onClick={async () => {
-                        await deleteQuotation(quot.id);
-                        router.refresh();
-                      }}
-                    >
-                      Delete Quotation
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

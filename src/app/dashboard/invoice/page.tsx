@@ -146,7 +146,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="">List of invoices</div>
+        <div className="text-3xl">List of invoices</div>
         <Link
           href={"/dashboard/invoice/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}

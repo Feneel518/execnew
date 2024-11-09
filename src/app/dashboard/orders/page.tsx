@@ -157,7 +157,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               ],
             },
             {
-              status: "PENDING" || "PARTIAL_COMPLETED",
+              status: {
+                not: "COMPLETED",
+              },
             },
           ],
         },
@@ -361,7 +363,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               ],
             },
             {
-              status: "PENDING" || "PARTIAL_COMPLETED",
+              status: {
+                not: "COMPLETED",
+              },
             },
           ],
         },
@@ -504,7 +508,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     if (sortStatus === "pending") {
       const orderCount = await db.order.count({
         where: {
-          status: "PENDING" || "PARTIAL_COMPLETED",
+          status: {
+            not: "COMPLETED",
+          },
         },
       });
 
@@ -586,7 +592,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="">List of Orders</div>
+        <div className="text-3xl">List of Orders</div>
         <Link
           href={"/dashboard/orders/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}
