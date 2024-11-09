@@ -42,7 +42,7 @@ import { revalidatePath } from "next/cache";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QueryClient } from "@tanstack/react-query";
 import { areQuantitiesEqual } from "./utils";
-import "./jobs/QuotationCreationJob.ts";
+import "./jobs/QuotationCreationJob";
 import {
   quotationCreation,
   quotationCreationName,
