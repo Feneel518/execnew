@@ -1,1 +1,1 @@
-import "./QuotationCreationJob.ts";
+import "./QuotationCreationJob";
