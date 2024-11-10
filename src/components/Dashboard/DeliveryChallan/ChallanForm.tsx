@@ -67,7 +67,7 @@ import { deleteChallan, upsertChallan } from "@/lib/queries";
 import { ChallanType } from "@/lib/types";
 
 interface ChallanFormProps {
-  challan: ChallanType;
+  challan?: ChallanType;
 }
 
 const ChallanForm: FC<ChallanFormProps> = ({ challan }) => {
@@ -88,22 +88,22 @@ const ChallanForm: FC<ChallanFormProps> = ({ challan }) => {
   const form = useForm<ChallanCreationRequest>({
     resolver: zodResolver(ChallanValidator),
     defaultValues: {
-      additionalNotes: challan.additionalNotes ?? "",
-      causeOfChallan: challan.causeOfChallan ?? "AS_PER_SAMPLE",
-      challanNumber: challan.challanNumber
+      additionalNotes: challan?.additionalNotes ?? "",
+      causeOfChallan: challan?.causeOfChallan ?? "AS_PER_SAMPLE",
+      challanNumber: challan?.challanNumber
         ? challan.challanNumber
         : challanNumber?.success
         ? Number(challanNumber.success.challanNumber + 1)
         : 1,
-      customerId: challan.customerId ?? "",
-      id: challan.id ?? ObjectID().toString(),
-      poDate: challan.poDate ?? new Date(),
-      challanDate: challan.challanDate ?? new Date(),
-      poNumber: challan.poNumber ?? "",
-      status: challan.status ?? "OPEN",
-      ProductInChallan: challan.ProductInChallan
-        ? challan.ProductInChallan.length > 0
-          ? challan.ProductInChallan.map((product) => {
+      customerId: challan?.customerId ?? "",
+      id: challan?.id ?? ObjectID().toString(),
+      poDate: challan?.poDate ?? new Date(),
+      challanDate: challan?.challanDate ?? new Date(),
+      poNumber: challan?.poNumber ?? "",
+      status: challan?.status ?? "OPEN",
+      ProductInChallan: challan?.ProductInChallan
+        ? challan?.ProductInChallan.length > 0
+          ? challan?.ProductInChallan.map((product) => {
               return {
                 description: product.description ?? "",
                 id: product.id,
@@ -142,7 +142,7 @@ const ChallanForm: FC<ChallanFormProps> = ({ challan }) => {
 
   form.setValue(
     "challanNumber",
-    challan.challanNumber
+    challan?.challanNumber
       ? challan.challanNumber
       : challanNumber?.success
       ? Number(challanNumber.success.challanNumber + 1)
@@ -172,7 +172,7 @@ const ChallanForm: FC<ChallanFormProps> = ({ challan }) => {
 
     const response = await upsertChallan({
       customerId: value.customerId,
-      id: challan.id ?? ObjectID().toString(),
+      id: challan?.id ?? ObjectID().toString(),
       additionalNotes: value.additionalNotes,
       challanNumber: value.challanNumber,
       poDate: date,
@@ -282,7 +282,7 @@ const ChallanForm: FC<ChallanFormProps> = ({ challan }) => {
                       <FormLabel>Delivery Challan Number</FormLabel>
                       <FormControl>
                         <Input
-                          disabled={!!challan.challanNumber}
+                          disabled={!!challan?.challanNumber}
                           type="number"
                           placeholder="ExCH-123"
                           {...field}
