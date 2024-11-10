@@ -162,7 +162,7 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
                   </h1>
                   {terms.points.map((point, pointIndex) => {
                     return (
-                      <p>
+                      <p key={pointIndex}>
                         {index + 6}.{pointIndex + 1} {point}
                       </p>
                     );

@@ -1,10 +1,13 @@
 import { ConnectionOptions, DefaultJobOptions } from "bullmq";
+import Redis from "ioredis";
 
-export const redisConnection: ConnectionOptions = {
-  host: process.env.REDIS_HOST,
-  port: 6379,
-};
-
+export const redisConnection: ConnectionOptions = new Redis(
+  process.env.UPSTASH_REDIS_URL!,
+  {
+    tls: { rejectUnauthorized: false }, // Necessary for Upstash Redis
+    maxRetriesPerRequest: null,
+  }
+);
 export const defaultQueueOptions: DefaultJobOptions = {
   removeOnComplete: {
     count: 10,

@@ -1,5 +1,35 @@
 "use server";
+import { auth, signIn } from "@/auth";
+import { getPasswordResetTokenByToken } from "@/data/passwordToken";
+import { getTwoFactorConfirmationByUserid } from "@/data/twoFactorConfirmation";
+import { getTwoFactorTokenByEmail } from "@/data/twoFactorToken";
 import { getUserByEmail } from "@/data/user";
+import { getVerificationTokenByToken } from "@/data/verificationToken";
+import { DEFAULT_LOGIN_REDIRECT } from "@/route";
+import {
+  Category,
+  Customer,
+  Employee,
+  Inventory,
+  Product,
+  StoreProduct,
+} from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { QueueEvents } from "bullmq";
+import { AuthError } from "next-auth";
+import { revalidatePath } from "next/cache";
+import { db } from "./db";
+import "./jobs/QuotationCreationJob";
+import {
+  quotationCreation,
+  quotationCreationName,
+} from "./jobs/QuotationCreationJob";
+import {
+  generatePasswordResetToken,
+  generateVerificationToken,
+  generatetwoFactorToken,
+} from "./tokens";
+import { areQuantitiesEqual } from "./utils";
 import {
   InvoiceCreationSchemaRequest,
   LoginSchema,
@@ -11,46 +41,8 @@ import {
   ResetSchema,
   ResetSchemaRequest,
 } from "./Validators";
-import { db } from "./db";
-import {
-  generatePasswordResetToken,
-  generateVerificationToken,
-  generatetwoFactorToken,
-} from "./tokens";
-import { getTwoFactorTokenByEmail } from "@/data/twoFactorToken";
-import { getTwoFactorConfirmationByUserid } from "@/data/twoFactorConfirmation";
-import { DEFAULT_LOGIN_REDIRECT } from "@/route";
-import { AuthError } from "next-auth";
-import { auth, signIn } from "@/auth";
-import bcrypt from "bcryptjs";
-import { getPasswordResetTokenByToken } from "@/data/passwordToken";
-import { getVerificationTokenByToken } from "@/data/verificationToken";
-import {
-  Category,
-  Customer,
-  Employee,
-  Inventory,
-  Order,
-  Product,
-  ProductComponents,
-  ProductInOrder,
-  Quotation,
-  StoreProduct,
-} from "@prisma/client";
-import { ProductInQuotation, QuotationType } from "./types";
-import { revalidatePath } from "next/cache";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
-import { QueryClient } from "@tanstack/react-query";
-import { areQuantitiesEqual } from "./utils";
-import "./jobs/QuotationCreationJob";
-import {
-  quotationCreation,
-  quotationCreationName,
-} from "./jobs/QuotationCreationJob";
 import { QuotationCreationRequest } from "./Validators/QuotationValidator";
-import { QueueEvents } from "bullmq";
-
-const queueEvents = new QueueEvents(quotationCreationName);
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
