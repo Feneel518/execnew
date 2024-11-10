@@ -1,18 +1,9 @@
 "use client";
 
 import Loading from "@/components/Global/Loading";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -30,6 +21,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,40 +34,26 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
-import clsx from "clsx";
-import { CalendarIcon, Check, ChevronsUpDown, Plus } from "lucide-react";
-import { FC, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import CustomerForm from "../Customers/CustomerForm";
+import { useGetOrderNumber } from "@/data/get-order-number";
+import { useGetProductsForSelect } from "@/data/get-products-for-select";
+import { upsertOrder } from "@/lib/queries";
+import { OrderForDashboard } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   OrderCreationRequest,
   OrderValidator,
 } from "@/lib/Validators/OrderValidator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { addDays, format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { useGetOrderNumber } from "@/data/get-order-number";
-import { OrderForDashboard } from "@/lib/types";
 import ObjectID from "bson-objectid";
-import { useGetProductsForSelect } from "@/data/get-products-for-select";
-import { toast } from "@/components/ui/use-toast";
+import clsx from "clsx";
+import { addDays, format } from "date-fns";
+import { CalendarIcon, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { upsertOrder } from "@/lib/queries";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { FC, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import CustomerForm from "../Customers/CustomerForm";
 import SelectProduct from "../Quotations/SelectProduct";
 
 interface OrderFormProps {
@@ -148,6 +130,15 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
     name: "ProductInOrder",
     control: form.control,
   });
+
+  form.setValue(
+    "orderNumber",
+    orderData?.orderNumber
+      ? orderData.orderNumber
+      : orderNumber?.success
+      ? Number(orderNumber.success.orderNumber + 1)
+      : 1
+  );
 
   const handleSubmit = async (value: OrderCreationRequest) => {
     if (!value.customerId) {
@@ -242,83 +233,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
                     {customerForm ? "Cancel" : "Customer"}
                   </Button>
                 </div>
-                // <div className="flex md:flex-row gap-4 items-end">
-                //   <FormField
-                //     control={form.control}
-                //     name="customerId"
-                //     render={({ field }) => (
-                //       <FormItem className="flex flex-col w-full">
-                //         <FormLabel>Category</FormLabel>
-                //         <Popover>
-                //           <PopoverTrigger asChild>
-                //             <FormControl>
-                //               <Button
-                //                 variant="outline"
-                //                 role="combobox"
-                //                 className={cn(
-                //                   "w-full justify-between",
-                //                   !field.value && "text-muted-foreground"
-                //                 )}
-                //               >
-                //                 {field.value
-                //                   ? customers.success.find(
-                //                       (cust) => cust.id === field.value
-                //                     )?.name
-                //                   : "Select Customer"}
-                //                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                //               </Button>
-                //             </FormControl>
-                //           </PopoverTrigger>
-                //           <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                //             <Command>
-                //               <CommandInput placeholder="Search customer..." />
-                //               <CommandList>
-                //                 <CommandEmpty>No customers found.</CommandEmpty>
-                //                 <CommandGroup>
-                //                   {customers.success.map((language) => (
-                //                     <CommandItem
-                //                       value={language.name}
-                //                       key={language.id}
-                //                       onSelect={() => {
-                //                         form.setValue(
-                //                           "customerId",
-                //                           language.id
-                //                         );
-                //                       }}
-                //                     >
-                //                       <Check
-                //                         className={cn(
-                //                           "mr-2 h-4 w-4",
-                //                           language.name === field.value
-                //                             ? "opacity-100"
-                //                             : "opacity-0"
-                //                         )}
-                //                       />
-                //                       {language.name}
-                //                     </CommandItem>
-                //                   ))}
-                //                 </CommandGroup>
-                //               </CommandList>
-                //             </Command>
-                //           </PopoverContent>
-                //         </Popover>
-
-                //         <FormMessage />
-                //       </FormItem>
-                //     )}
-                //   />
-                //   <Button
-                //     onClick={() => setCustomerForm(!customerForm)}
-                //     className="flex items-center gap-2"
-                //   >
-                //     <Plus
-                //       className={clsx("transition-all", {
-                //         "rotate-45": customerForm,
-                //       })}
-                //     ></Plus>{" "}
-                //     {customerForm ? "Cancel" : "Customer"}
-                //   </Button>
-                // </div>
               )}
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}

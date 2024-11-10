@@ -128,6 +128,7 @@ model Product {
   categoryId         String?              @db.ObjectId
   ProductInQuotation ProductInQuotation[]
   ProductInOrder     ProductInOrder[]
+  ProductInChallan   ProductInChallan[]
 
   @@index([name, slug])
 }
@@ -168,22 +169,23 @@ model Category {
 }
 
 model Customer {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  slug         String      @unique
-  GST          String?
-  email        String?
-  country      String
-  addressLine1 String
-  addressLine2 String?
-  city         String?
-  state        String
-  pincode      String?
-  phoneNumber  String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  Quotation    Quotation[]
-  Order        Order[]
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  slug            String            @unique
+  GST             String?
+  email           String?
+  country         String
+  addressLine1    String
+  addressLine2    String?
+  city            String?
+  state           String
+  pincode         String?
+  phoneNumber     String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Quotation       Quotation[]
+  Order           Order[]
+  DeliveryChallan DeliveryChallan[]
 
   @@index([name, slug])
 }
@@ -241,6 +243,48 @@ model Quotation {
   ProductInQuotation ProductInQuotation[]
 
   @@index([quotationNumber, customerId])
+}
+
+enum CauseOfChallan {
+  AS_PER_SAMPLE
+  FOR_REPLACEMENT
+  RETURNABLE
+}
+
+enum ChallanStatus {
+  OPEN
+  CLOSE
+}
+
+model DeliveryChallan {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  challanNumber    Int
+  additionalNotes  String?
+  challanDate      DateTime?
+  poNumber         String?
+  poNumberSlug     String?
+  poDate           DateTime?
+  causeOfChallan   CauseOfChallan
+  status           ChallanStatus
+  customer         Customer           @relation(fields: [customerId], references: [id])
+  customerId       String             @db.ObjectId
+  ProductInChallan ProductInChallan[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model ProductInChallan {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  index       Int?
+  quantity    String?
+  description String?
+  price       Int
+  challan     DeliveryChallan @relation(fields: [challanId], references: [id])
+  challanId   String          @db.ObjectId
+  product     Product         @relation(fields: [productId], references: [id])
+  productId   String          @db.ObjectId
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 model ProductInQuotation {

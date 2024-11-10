@@ -1,5 +1,4 @@
 "use client";
-import { FC, useEffect, useState } from "react";
 import Loading from "@/components/Global/Loading";
 import {
   AlertDialog,
@@ -37,52 +36,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { useFieldArray, useForm } from "react-hook-form";
 import {
   QuotationCreationRequest,
   QuotationValidator,
 } from "@/lib/Validators/QuotationValidator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { FC, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
-import CustomerForm from "../Customers/CustomerForm";
-import clsx from "clsx";
+import { useGetProductsForSelect } from "@/data/get-products-for-select";
+import { useGetQuotationNumber } from "@/data/get-quotation-number";
 import {
   gstOptions,
   packingCharges,
   paymentTerms,
   transportationPayment,
 } from "@/lib/data";
-import { Separator } from "@/components/ui/separator";
-import { useGetProductsForSelect } from "@/data/get-products-for-select";
-import { useGetQuotationNumber } from "@/data/get-quotation-number";
-import { Textarea } from "@/components/ui/textarea";
 import { deleteQuotation, upsertQuotation } from "@/lib/queries";
-import ObjectId from "bson-objectid";
 import { QuotationForDashboard } from "@/lib/types";
-import ObjectID from "bson-objectid";
+import { default as ObjectId, default as ObjectID } from "bson-objectid";
+import clsx from "clsx";
+import { Plus } from "lucide-react";
+import CustomerForm from "../Customers/CustomerForm";
 import QuotationComponents from "./QuotationComponents";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { fromJSON } from "postcss";
-import { QueueEvents } from "bullmq";
-import { quotationCreationName } from "@/lib/jobs/QuotationCreationJob";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
-import Rows from "@/components/Global/Rows";
 import SelectProduct from "./SelectProduct";
 
 interface QuotationFormProps {
@@ -1315,7 +1295,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
           </Form>
           {quotationData?.id && (
             <>
-              <div className="flex flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
+              <div className="flex bg-red-50 flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
                 <div className="">
                   <div className="">Danger Zone</div>
                 </div>
@@ -1331,7 +1311,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
               </div>
             </>
           )}
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[50%]">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-left">
                 Are you absolutely sure?

@@ -19,11 +19,7 @@ import { QueueEvents } from "bullmq";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { db } from "./db";
-import "./jobs/QuotationCreationJob";
-import {
-  quotationCreation,
-  quotationCreationName,
-} from "./jobs/QuotationCreationJob";
+
 import {
   generatePasswordResetToken,
   generateVerificationToken,
@@ -44,6 +40,7 @@ import {
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QuotationCreationRequest } from "./Validators/QuotationValidator";
 import ObjectID from "bson-objectid";
+import { ChallanCreationRequest } from "./Validators/ChallanValidator";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -743,10 +740,6 @@ export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
     await db.productInQuotation.deleteMany({
       where: { id: { in: productsToDelete } },
     });
-
-    await quotationCreation.add(quotationCreationName, {
-      quotation,
-    });
   }
 
   const response = await db.quotation.upsert({
@@ -1019,6 +1012,19 @@ export const fetchPreviousOrderNumber = async () => {
 
   if (!orderNumber) return { error: "No Order Number" };
   if (orderNumber) return { success: orderNumber };
+};
+export const fetchPreviousChallanNumber = async () => {
+  const response = await db.deliveryChallan.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      challanNumber: true,
+    },
+  });
+
+  if (!response) return { error: "No Order Number" };
+  if (response) return { success: response };
 };
 
 export const fetchPreviousStoreProductId = async () => {
@@ -2361,5 +2367,177 @@ export const getInventoryData = async (currentPage: number) => {
   // const response = await db.storeProduct.findMany();
   if (!response)
     return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const upsertChallan = async (challan: ChallanCreationRequest) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const existingQuotation = await db.deliveryChallan.findUnique({
+    where: { id: challan.id },
+    include: {
+      ProductInChallan: {
+        include: {
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (existingQuotation) {
+    const existingItemIds = existingQuotation?.ProductInChallan.map(
+      (item) => item.id
+    );
+
+    const newProductIds = challan.ProductInChallan?.map((prod) => prod?.id);
+
+    const productsToDelete = existingItemIds?.filter(
+      (id) => !newProductIds?.includes(id)
+    );
+    await db.productInQuotation.deleteMany({
+      where: { id: { in: productsToDelete } },
+    });
+  }
+
+  const response = await db.deliveryChallan.upsert({
+    where: {
+      id: challan.id ?? ObjectID().toString(),
+    },
+    create: {
+      challanNumber: challan.challanNumber,
+      additionalNotes: challan.additionalNotes,
+      customerId: challan.customerId ?? "",
+      causeOfChallan: challan.causeOfChallan,
+      status: challan.status,
+      challanDate: challan.challanDate ?? new Date(),
+      poDate: challan.poDate ?? new Date(),
+      poNumber: challan.poNumber ?? "",
+
+      ProductInChallan: {
+        create: challan.ProductInChallan.map((product) => {
+          return {
+            productId: product.productId,
+            index: product?.index,
+            price: Number(product?.price) ?? 1,
+            quantity: String(product?.quantity),
+            description: product.description,
+
+            // product: {
+            //   connect: {
+            //     id: product.productId,
+            //   },
+            // },
+          };
+        }),
+      },
+    },
+    update: {
+      challanNumber: challan.challanNumber,
+      additionalNotes: challan.additionalNotes,
+      customerId: challan.customerId ?? "",
+      causeOfChallan: challan.causeOfChallan,
+      status: challan.status,
+      challanDate: challan.challanDate ?? new Date(),
+      poDate: challan.poDate,
+      poNumber: challan.poNumber ?? "",
+      ProductInChallan: {
+        upsert: challan.ProductInChallan.map((product) => {
+          return {
+            where: {
+              id: product.id ?? ObjectID().toString(),
+            },
+            create: {
+              productId: product.productId,
+              index: product?.index,
+              price: Number(product?.price) ?? 1,
+              quantity: String(product?.quantity),
+              description: product.description,
+            },
+            update: {
+              productId: product.productId,
+              index: product?.index,
+              price: Number(product?.price) ?? 1,
+              quantity: String(product?.quantity),
+              description: product.description,
+            },
+          };
+        }),
+      },
+    },
+  });
+
+  // let response = "yes";
+
+  if (!response)
+    return { error: "Could not create quotation, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const updateChallanStatusToClose = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.deliveryChallan.update({
+    where: {
+      id,
+    },
+    data: {
+      status: "CLOSE",
+    },
+  });
+  if (!response)
+    return { error: "Could not create quotation, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const deleteChallan = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  await db.productInChallan.deleteMany({
+    where: {
+      challanId: id,
+    },
+  });
+
+  const response = await db.deliveryChallan.delete({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!response)
+    return { error: "Could not delete challan, please try again later!" };
+  if (response) return { success: "Challan has been deleted." };
+};
+
+export const getChallanDetailsBasedOnId = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  const response = await db.deliveryChallan.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      customer: true,
+      ProductInChallan: {
+        include: {
+          product: {
+            select: {
+              name: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find challan, please try again later!" };
   if (response) return { success: response };
 };

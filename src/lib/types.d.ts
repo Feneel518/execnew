@@ -450,6 +450,32 @@ export type OrderTable = Prisma.OrderGetPayload<{
   };
 }>;
 
+export type challanTable = Prisma.DeliveryChallanGetPayload<{
+  select: {
+    id: true;
+    createdAt: true;
+    causeOfChallan: true;
+    status: true;
+    customer: {
+      select: {
+        name: true;
+      };
+    };
+    challanNumber: true;
+    ProductInChallan: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;
+
+export type ChallanType = Prisma.DeliveryChallanGetPayload<{
+  include: {
+    ProductInChallan: true;
+  };
+}>;
+
 export type Quotationtable = Prisma.QuotationGetPayload<{
   select: {
     id: true;
@@ -462,6 +488,33 @@ export type Quotationtable = Prisma.QuotationGetPayload<{
     quotationNumber: true;
     ProductInQuotation: {
       select: {
+        id: true;
+      };
+    };
+  };
+}>;
+
+export type ChallanTypeForDisplay = Prisma.DeliveryChallanGetPayload<{
+  include: {
+    customer: true;
+    ProductInChallan: {
+      include: {
+        product: {
+          select: {
+            name: true;
+            id: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type ProductInChallanTable = Prisma.ProductInChallanGetPayload<{
+  include: {
+    product: {
+      select: {
+        name: true;
         id: true;
       };
     };
