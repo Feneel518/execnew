@@ -2,7 +2,7 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
-import { Menu } from "lucide-react";
+import { BadgeIndianRupee, Menu } from "lucide-react";
 import clsx from "clsx";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
@@ -165,6 +165,14 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                   >
                     <FaFileInvoiceDollar />
                     Invoice
+                  </Link>
+                  <Link
+                    href={"/dashboard/perfoma"}
+                    draggable={false}
+                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                  >
+                    <BadgeIndianRupee size={20} />
+                    Peroma Invoice
                   </Link>
                   <Link
                     href={"/dashboard/delivery-challan"}

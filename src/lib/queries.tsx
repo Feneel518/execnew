@@ -32,6 +32,7 @@ import {
   LoginSchemaRequest,
   NewPasswordSchema,
   NewPasswordSchemaRequest,
+  PerfomaInvoiceCreationSchemaRequest,
   RegisterSchema,
   RegisterSchemaRequest,
   ResetSchema,
@@ -2539,5 +2540,173 @@ export const getChallanDetailsBasedOnId = async (id: string) => {
 
   if (!response)
     return { error: "Could not find challan, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const fetchPreviousPerfomaNumber = async () => {
+  const response = await db.perfomaInvoice.findFirst({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      perfomaInvoiceNumber: true,
+    },
+  });
+
+  if (!response) return { error: "No Perfoma Invoice Number" };
+  if (response) return { success: response };
+};
+
+export const upsertPerfomaInvoice = async (
+  value: PerfomaInvoiceCreationSchemaRequest
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const order = await db.order.findUnique({
+    where: {
+      id: value.orderId,
+    },
+    include: {
+      ProductInOrder: true,
+    },
+  });
+
+  if (!order) return;
+
+  const response = await db.perfomaInvoice.upsert({
+    where: {
+      id: value.id,
+    },
+    create: {
+      perfomaInvoiceNumber: value.perfomaInvoiceNumber,
+      perfomaInvoiceDate: value.perfomaInvoiceDate,
+      paymentStatus: value.paymentStatus,
+      additionalNotes: value.additionalNotes,
+      orderId: value.orderId!,
+      shippingCharges: value.shippingCharges,
+      ProductInPerfomaInvoiceOfOrder: {
+        create: value.ProductInPerfomaInvoiceOfOrder.map((product) => {
+          return {
+            productInOrderId: product.orderProductInOrderId,
+            supplidQuantity: product.suppliedQuantity,
+          };
+        }),
+      },
+    },
+    update: {
+      perfomaInvoiceNumber: value.perfomaInvoiceNumber,
+      perfomaInvoiceDate: value.perfomaInvoiceDate,
+      paymentStatus: value.paymentStatus,
+      additionalNotes: value.additionalNotes,
+      orderId: value.orderId!,
+      shippingCharges: value.shippingCharges,
+      ProductInPerfomaInvoiceOfOrder: {
+        create: value.ProductInPerfomaInvoiceOfOrder.map((product) => {
+          return {
+            productInOrderId: product.orderProductInOrderId,
+            supplidQuantity: product.suppliedQuantity,
+          };
+        }),
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getPerfomaInvoiceDetailsBasedOnIPerfomanvoiceNumber = async (
+  id: string
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.perfomaInvoice.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      order: {
+        select: {
+          orderNumber: true,
+          poNumber: true,
+          poDate: true,
+          customer: {
+            select: {
+              name: true,
+              addressLine1: true,
+              GST: true,
+              pincode: true,
+              state: true,
+            },
+          },
+        },
+      },
+      ProductInPerfomaInvoiceOfOrder: {
+        include: {
+          ProductInOrder: {
+            select: {
+              id: true,
+              // index: true,
+              index: true,
+              price: true,
+              quantity: true,
+              supplied: true,
+              description: true,
+              product: {
+                select: {
+                  name: true,
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const updatePaymentStatusOfPerfomaInvoice = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.perfomaInvoice.update({
+    where: {
+      id,
+    },
+    data: {
+      paymentStatus: "RECEIVED",
+    },
+  });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const deletePerfoma = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  await db.productInPerfomaInvoiceOfOrder.deleteMany({
+    where: {
+      perfomaInvoiceId: id,
+    },
+  });
+
+  const response = await db.perfomaInvoice.delete({
+    where: {
+      id,
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };
 };

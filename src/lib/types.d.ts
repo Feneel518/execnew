@@ -614,6 +614,67 @@ export type InvoiceTable = Prisma.InvoiceGetPayload<{
   };
 }>;
 
+export type PerfomaInvoiceTable = Prisma.PerfomaInvoiceGetPayload<{
+  include: {
+    order: {
+      include: {
+        customer: true;
+      };
+    };
+    ProductInPerfomaInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          include: {
+            product: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type perfomaInvoiceForDisplay = Prisma.PerfomaInvoiceGetPayload<{
+  include: {
+    order: {
+      select: {
+        orderNumber: true;
+        poNumber: true;
+        poDate: true;
+        customer: {
+          select: {
+            name: true;
+            addressLine1: true;
+            GST: true;
+            pincode: true;
+            state: true;
+          };
+        };
+      };
+    };
+    ProductInPerfomaInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          select: {
+            id: true;
+            // index: true,
+            index: true;
+            price: true;
+            quantity: true;
+            supplied: true;
+            description: true;
+            product: {
+              select: {
+                name: true;
+                id: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
 export type InvoicePageType = Prisma.InvoiceGetPayload<{
   include: {
     order: {
@@ -731,3 +792,29 @@ export type StockData = Prisma.InventoryGetPayload<{
     };
   };
 }>;
+
+export type ProductInPerfomaInvoiceTable =
+  Prisma.ProductInPerfomaInvoiceOfOrderGetPayload<{
+    include: {
+      ProductInOrder: {
+        select: {
+          id: true;
+          // index: true,
+          index: true;
+          price: true;
+          quantity: true;
+          supplied: true;
+          description: true;
+          product: {
+            select: {
+              name: true;
+              typeNumber: true;
+              protection: true;
+              gasGroup: true;
+              type: true;
+            };
+          };
+        };
+      };
+    };
+  }>;

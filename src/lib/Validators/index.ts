@@ -142,3 +142,33 @@ export const InvoiceCreationSchema = z.object({
 export type InvoiceCreationSchemaRequest = z.infer<
   typeof InvoiceCreationSchema
 >;
+export const PerfomaInvoiceCreationSchema = z.object({
+  id: z.string().optional(),
+  perfomaInvoiceNumber: z.coerce.number(),
+  perfomaInvoiceDate: z.date(),
+  additionalNotes: z.string().optional(),
+  shippingCharges: z.coerce.number().optional(),
+  paymentStatus: z
+    .enum(["PENDING", "RECEIVED", "CANCELLED"])
+    .default("PENDING"),
+  orderId: z.string().optional(),
+  ProductInPerfomaInvoiceOfOrder: z.array(
+    z
+      .object({
+        id: z.string().optional(),
+        orderProductName: z.string(),
+        orderProductDescription: z.string().optional(),
+        suppliedQuantity: z.coerce.number(),
+        orderProductInOrderId: z.string(),
+        pendingQuantity: z.coerce.number(),
+      })
+      .refine((data) => data.suppliedQuantity <= data.pendingQuantity, {
+        path: ["suppliedQuantity"],
+        message: "Supplied quantity cannot be larger than pending quantity",
+      })
+  ),
+});
+
+export type PerfomaInvoiceCreationSchemaRequest = z.infer<
+  typeof PerfomaInvoiceCreationSchema
+>;

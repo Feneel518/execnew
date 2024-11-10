@@ -4,16 +4,20 @@ import InvoiceFieldArray from "./InvoiceFieldArray";
 
 interface InvoiceFormProps {
   id: string;
+  isInvoice?: boolean;
 }
 
-const InvoiceForm: FC<InvoiceFormProps> = async ({ id }) => {
+const InvoiceForm: FC<InvoiceFormProps> = async ({ id, isInvoice }) => {
   const orderDetails = await getOrderDetailsForInvoice(id);
 
   if (!orderDetails?.success || orderDetails.error) return;
 
   return (
     <div className="">
-      <InvoiceFieldArray order={orderDetails?.success}></InvoiceFieldArray>
+      <InvoiceFieldArray
+        order={orderDetails?.success}
+        isInvoice={isInvoice}
+      ></InvoiceFieldArray>
     </div>
   );
 };

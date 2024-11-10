@@ -14,11 +14,16 @@ import {
   areQuantitiesEqual,
   calculateRemainingQuantities,
 } from "@/lib/utils";
+import PerfomaProductForm from "../Perfoma/PerfomaProductForm";
 interface InvoiceFieldArrayProps {
   order: OrderInvoice;
+  isInvoice?: boolean;
 }
 
-const InvoiceFieldArray: FC<InvoiceFieldArrayProps> = ({ order }) => {
+const InvoiceFieldArray: FC<InvoiceFieldArrayProps> = ({
+  order,
+  isInvoice,
+}) => {
   const [checked, setChecked] = useState<string[]>([]);
 
   const acc = calculateRemainingQuantities(order, order.Invoice);
@@ -27,14 +32,16 @@ const InvoiceFieldArray: FC<InvoiceFieldArrayProps> = ({ order }) => {
     (product) => acc[product.id] > 0
   );
 
-  const abc = areQuantitiesEqual(order, order.Invoice);
+  // const abc = areQuantitiesEqual(order, order.Invoice);
 
   return (
     <div>
       <Card className="p-4">
         <CardContent className="flex lg:flex-row flex-col w-full gap-8 justify-between">
           <div className="flex flex-col gap-2">
-            <Label className="">Select Product for Invoice</Label>
+            <Label className="">
+              Select Product for {isInvoice ? "Invoice" : "Perfoma Invoice"}{" "}
+            </Label>
             <Separator className="mb-4"></Separator>
             <div className=" grid-cols-4 ml-6 lg:grid hidden">
               <div className="">Product Name</div>
@@ -76,13 +83,20 @@ const InvoiceFieldArray: FC<InvoiceFieldArrayProps> = ({ order }) => {
           </div>
         </CardContent>
       </Card>
-      {checked.length > 0 && (
-        <InvoiceProductForm
-          id={checked}
-          order={order}
-          remainingQuantity={acc}
-        ></InvoiceProductForm>
-      )}
+      {checked.length > 0 &&
+        (isInvoice ? (
+          <InvoiceProductForm
+            id={checked}
+            order={order}
+            remainingQuantity={acc}
+          ></InvoiceProductForm>
+        ) : (
+          <PerfomaProductForm
+            id={checked}
+            order={order}
+            remainingQuantity={acc}
+          ></PerfomaProductForm>
+        ))}
     </div>
   );
 };

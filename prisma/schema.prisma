@@ -371,6 +371,7 @@ model Order {
   ProductInOrder  ProductInOrder[]
   // TestCertificate TestCertificate?
   Invoice         Invoice[]
+  PerfomaInvoice  PerfomaInvoice[]
 }
 
 model ProductInOrder {
@@ -387,9 +388,10 @@ model ProductInOrder {
   order   Order  @relation(fields: [orderId], references: [id])
   orderId String @db.ObjectId
 
-  product                 Product                   @relation(fields: [productId], references: [id])
-  productId               String                    @db.ObjectId
-  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+  product                        Product                          @relation(fields: [productId], references: [id])
+  productId                      String                           @db.ObjectId
+  ProductInInvoiceOfOrder        ProductInInvoiceOfOrder[]
+  ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
 }
 
 model StoreProduct {
@@ -474,6 +476,38 @@ model ProductInInvoiceOfOrder {
 
   Invoice   Invoice @relation(fields: [invoiceId], references: [id])
   invoiceId String  @db.ObjectId
+
+  ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
+  productInOrderId String         @db.ObjectId
+}
+
+enum PaymentStatus {
+  RECEIVED
+  PENDING
+  CANCELLED
+}
+
+model PerfomaInvoice {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  perfomaInvoiceNumber Int           @unique
+  perfomaInvoiceDate   DateTime
+  additionalNotes      String?
+  paymentStatus        PaymentStatus
+  shippingCharges      Int?
+  order                Order         @relation(fields: [orderId], references: [id])
+  orderId              String        @db.ObjectId
+
+  createdAt                      DateTime                         @default(now())
+  updatedAt                      DateTime                         @updatedAt
+  ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
+}
+
+model ProductInPerfomaInvoiceOfOrder {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  supplidQuantity Int
+
+  perfomaInvoice   PerfomaInvoice @relation(fields: [perfomaInvoiceId], references: [id])
+  perfomaInvoiceId String         @db.ObjectId
 
   ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
   productInOrderId String         @db.ObjectId
