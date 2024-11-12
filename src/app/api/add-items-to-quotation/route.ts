@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import ObjectID from "bson-objectid";
 import { NextApiRequest, NextApiResponse } from "next";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 interface QuotationItems {
   id?: string;
@@ -65,8 +66,9 @@ export async function POST(req: Request, res: Response) {
         id: quotationId,
       },
     });
-    if (!quotation)
+    if (!quotation) {
       return new Response("Quotation id is not provided", { status: 402 });
+    }
 
     const response = await db.quotation.upsert({
       where: {
@@ -235,8 +237,13 @@ export async function POST(req: Request, res: Response) {
     });
 
     return new Response("Ok");
-  } catch (error: any) {
-    console.error("Error adding items:", error);
-    return new Response(error.message, { status: 500 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return new Response(error.message, { status: 422 });
+    }
+    return new Response(
+      "Could not create a quotation, please try again later",
+      { status: 500 }
+    );
   }
 }
