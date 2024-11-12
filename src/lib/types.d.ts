@@ -818,3 +818,22 @@ export type ProductInPerfomaInvoiceTable =
       };
     };
   }>;
+
+export type PerfomaDetailsType = Prisma.PerfomaInvoiceGetPayload<{
+  include: {
+    ProductInPerfomaInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          include: {
+            product: {
+              select: {
+                id: true;
+                name: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;

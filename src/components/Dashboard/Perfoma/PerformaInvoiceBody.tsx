@@ -87,7 +87,9 @@ const PerformaInvoiceBody: FC<PerformaInvoiceBodyProps> = ({ invoice }) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/perfoma/${invo.id}`)
+                        router.push(
+                          `/dashboard/perfoma/${invo.id}?orderId=${invo.orderId}`
+                        )
                       }
                     >
                       Edit Perfoma Invoice

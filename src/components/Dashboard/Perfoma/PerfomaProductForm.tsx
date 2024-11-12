@@ -85,7 +85,7 @@ const PerfomaProductForm: FC<PerfomaProductFormProps> = ({
 
   form.setValue(
     "perfomaInvoiceNumber",
-    perfomaNumber?.success ? perfomaNumber.success.perfomaInvoiceNumber : 1
+    perfomaNumber?.success ? perfomaNumber.success.perfomaInvoiceNumber + 1 : 1
   );
   const isLoading = form.formState.isLoading;
 
@@ -93,22 +93,24 @@ const PerfomaProductForm: FC<PerfomaProductFormProps> = ({
     values.id = ObjectID().toString();
     values.orderId = order.id;
 
-    const response = await upsertPerfomaInvoice(values);
+    console.log(values);
 
-    if (response?.success) {
-      toast({
-        title: "Your Perfoma Invoice has been created.",
-      });
+    // const response = await upsertPerfomaInvoice(values);
 
-      router.push("/dashboard/perfoma");
-      router.refresh();
-    } else if (response?.error) {
-      toast({
-        variant: "destructive",
-        title: "Oppse!",
-        description: "could not create your perfoma Invoice",
-      });
-    }
+    // if (response?.success) {
+    //   toast({
+    //     title: "Your Perfoma Invoice has been created.",
+    //   });
+
+    //   router.push("/dashboard/perfoma");
+    //   router.refresh();
+    // } else if (response?.error) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Oppse!",
+    //     description: "could not create your perfoma Invoice",
+    //   });
+    // }
   };
   return (
     <div className="mt-10">

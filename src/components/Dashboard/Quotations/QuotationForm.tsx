@@ -64,6 +64,7 @@ import { Plus } from "lucide-react";
 import CustomerForm from "../Customers/CustomerForm";
 import QuotationComponents from "./QuotationComponents";
 import SelectProduct from "./SelectProduct";
+import axios from "axios";
 
 interface QuotationFormProps {
   quotationData?: QuotationForDashboard;
@@ -281,17 +282,22 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
       deliverDateNew: value.deliverDateNew,
     });
 
-    // quotationQueueEvents.on("completed", async ({ jobId, returnvalue }) => {
-    //   console.log(returnvalue);
-    // });
-
     if (response?.success) {
       toast({
         title: "Your Quotation has been saved.",
       });
 
-      router.push(`/dashboard/quotations`);
-      router.refresh();
+      const axiosResponse = await axios.post("/api/add-items-to-quotation", {
+        data: {
+          quotationId: response.success.id,
+          items: value.items,
+        },
+      });
+
+      if (axiosResponse) {
+        router.push(`/dashboard/quotations`);
+        router.refresh();
+      }
     }
     if (response?.error) {
       toast({

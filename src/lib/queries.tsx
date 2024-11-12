@@ -738,180 +738,204 @@ export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
     await db.componentsOfProductInQuotation.deleteMany({
       where: { componentsOfQuotationId: { in: componentsToDelete } },
     });
-    await db.productInQuotation.deleteMany({
+    const response = await db.productInQuotation.deleteMany({
       where: { id: { in: productsToDelete } },
     });
+
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: { id: existingQuotation.id } };
+  } else if (!existingQuotation) {
+    const response = await db.quotation.create({
+      data: {
+        gst: quotation.gst,
+        quotationNumber: quotation.quotationNumber,
+        additionalNotes: quotation.additionalNotes,
+        clientName: quotation.clientName ?? "",
+        customerId: quotation.customerId ?? "",
+        deliveryDate: quotation.deliveryDate ?? new Date(),
+        deliverDateNew: quotation.deliverDateNew ?? "",
+        discount: quotation.discount,
+        packingCharges: quotation.packingCharges,
+        paymentTerms: quotation.paymentTerms,
+        transportationPayment: quotation.transportationPayment,
+      },
+    });
+
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: response };
   }
 
-  const response = await db.quotation.upsert({
-    where: {
-      id: quotation.id ?? ObjectID().toString(),
-    },
-    create: {
-      gst: quotation.gst,
-      quotationNumber: quotation.quotationNumber,
-      additionalNotes: quotation.additionalNotes,
-      clientName: quotation.clientName ?? "",
-      customerId: quotation.customerId ?? "",
-      deliveryDate: quotation.deliveryDate ?? new Date(),
-      deliverDateNew: quotation.deliverDateNew ?? "",
-      discount: quotation.discount,
-      packingCharges: quotation.packingCharges,
-      paymentTerms: quotation.paymentTerms,
-      transportationPayment: quotation.transportationPayment,
-      ProductInQuotation: {
-        create: quotation.items.map((product) => {
-          return {
-            productId: product.productId,
-            index: product?.index,
-            cableEntry: product?.cableEntry,
-            cutoutSize: product?.cutoutSize,
-            earting: product?.earting,
-            gasket: product?.gasket,
-            glass: product?.glass,
-            hardware: product?.hardware,
-            HorsePower: product?.HorsePower,
-            hsnCode: product?.hsnCode,
-            kW: product?.kW,
-            plateSize: product?.plateSize,
-            mounting: product?.mounting,
-            poReferrence: product?.poReferrence,
-            rating: product?.rating,
-            rpm: product?.rpm,
-            size: product?.size,
-            terminals: product?.terminals,
-            typeNumber: product?.typeNumber,
-            variant: product?.variant,
-            wireGuard: product?.wireGuard,
-            price: Number(product?.price) ?? 1,
-            quantity: product?.quantity,
-            ComponentsOfProductInQuotation: {
-              create: product.components?.map((comp) => {
-                return {
-                  componentsOfQuotation: {
-                    create: {
-                      item: comp.items,
-                    },
-                  },
-                };
-              }),
-            },
-          };
-        }),
-      },
-    },
-    update: {
-      gst: quotation.gst,
-      quotationNumber: quotation.quotationNumber,
-      additionalNotes: quotation.additionalNotes,
-      clientName: quotation.clientName ?? "",
-      customerId: quotation.customerId ?? "",
-      deliveryDate: quotation.deliveryDate ?? new Date(),
-      deliverDateNew: quotation.deliverDateNew ?? "",
-      discount: quotation.discount,
-      packingCharges: quotation.packingCharges,
-      paymentTerms: quotation.paymentTerms,
-      transportationPayment: quotation.transportationPayment,
-      ProductInQuotation: {
-        upsert: quotation.items.map((product) => {
-          return {
-            where: {
-              id: product.id ?? ObjectID().toString(),
-            },
-            create: {
-              productId: product.productId,
-              index: product?.index,
-              cableEntry: product?.cableEntry,
-              cutoutSize: product?.cutoutSize,
-              earting: product?.earting,
-              gasket: product?.gasket,
-              glass: product?.glass,
-              hardware: product?.hardware,
-              HorsePower: product?.HorsePower,
-              hsnCode: product?.hsnCode,
-              kW: product?.kW,
-              plateSize: product?.plateSize,
-              mounting: product?.mounting,
-              poReferrence: product?.poReferrence,
-              rating: product?.rating,
-              rpm: product?.rpm,
-              size: product?.size,
-              terminals: product?.terminals,
-              typeNumber: product?.typeNumber,
-              variant: product?.variant,
-              wireGuard: product?.wireGuard,
-              price: Number(product?.price) ?? 1,
-              quantity: product?.quantity,
-              ComponentsOfProductInQuotation: {
-                create: product.components?.map((comp) => {
-                  return {
-                    componentsOfQuotation: {
-                      create: {
-                        item: comp.items ?? "",
-                      },
-                    },
-                  };
-                }),
-              },
-            },
-            update: {
-              productId: product.productId,
-              index: product?.index,
-              cableEntry: product?.cableEntry,
-              cutoutSize: product?.cutoutSize,
-              earting: product?.earting,
-              gasket: product?.gasket,
-              glass: product?.glass,
-              hardware: product?.hardware,
-              HorsePower: product?.HorsePower,
-              hsnCode: product?.hsnCode,
-              kW: product?.kW,
-              plateSize: product?.plateSize,
-              mounting: product?.mounting,
-              poReferrence: product?.poReferrence,
-              rating: product?.rating,
-              rpm: product?.rpm,
-              size: product?.size,
-              terminals: product?.terminals,
-              typeNumber: product?.typeNumber,
-              variant: product?.variant,
-              wireGuard: product?.wireGuard,
-              price: Number(product?.price) ?? 1,
-              quantity: product?.quantity,
-              ComponentsOfProductInQuotation: {
-                upsert: product.components?.map((comp) => {
-                  return {
-                    where: {
-                      componentsOfQuotationId:
-                        comp.compId ?? ObjectID().toString(),
-                    },
-                    create: {
-                      componentsOfQuotation: {
-                        create: {
-                          item: comp.items,
-                        },
-                      },
-                    },
-                    update: {
-                      componentsOfQuotation: {
-                        create: {
-                          item: comp.items,
-                        },
-                      },
-                    },
-                  };
-                }),
-              },
-            },
-          };
-        }),
-      },
-    },
-  });
+  // const response = await db.quotation.upsert({
+  //   where: {
+  //     id: quotation.id ?? ObjectID().toString(),
+  //   },
+  //   create: {
+  //     gst: quotation.gst,
+  //     quotationNumber: quotation.quotationNumber,
+  //     additionalNotes: quotation.additionalNotes,
+  //     clientName: quotation.clientName ?? "",
+  //     customerId: quotation.customerId ?? "",
+  //     deliveryDate: quotation.deliveryDate ?? new Date(),
+  //     deliverDateNew: quotation.deliverDateNew ?? "",
+  //     discount: quotation.discount,
+  //     packingCharges: quotation.packingCharges,
+  //     paymentTerms: quotation.paymentTerms,
+  //     transportationPayment: quotation.transportationPayment,
+  //     ProductInQuotation: {
+  //       create: quotation.items.map((product) => {
+  //         return {
+  //           productId: product.productId,
+  //           index: product?.index,
+  //           cableEntry: product?.cableEntry,
+  //           cutoutSize: product?.cutoutSize,
+  //           earting: product?.earting,
+  //           gasket: product?.gasket,
+  //           glass: product?.glass,
+  //           hardware: product?.hardware,
+  //           HorsePower: product?.HorsePower,
+  //           hsnCode: product?.hsnCode,
+  //           kW: product?.kW,
+  //           plateSize: product?.plateSize,
+  //           mounting: product?.mounting,
+  //           poReferrence: product?.poReferrence,
+  //           rating: product?.rating,
+  //           rpm: product?.rpm,
+  //           size: product?.size,
+  //           terminals: product?.terminals,
+  //           typeNumber: product?.typeNumber,
+  //           variant: product?.variant,
+  //           wireGuard: product?.wireGuard,
+  //           price: Number(product?.price) ?? 1,
+  //           quantity: product?.quantity,
+  //           ComponentsOfProductInQuotation: {
+  //             create: product.components?.map((comp) => {
+  //               return {
+  //                 componentsOfQuotation: {
+  //                   create: {
+  //                     item: comp.items,
+  //                   },
+  //                 },
+  //               };
+  //             }),
+  //           },
+  //         };
+  //       }),
+  //     },
+  //   },
+  //   update: {
+  //     gst: quotation.gst,
+  //     quotationNumber: quotation.quotationNumber,
+  //     additionalNotes: quotation.additionalNotes,
+  //     clientName: quotation.clientName ?? "",
+  //     customerId: quotation.customerId ?? "",
+  //     deliveryDate: quotation.deliveryDate ?? new Date(),
+  //     deliverDateNew: quotation.deliverDateNew ?? "",
+  //     discount: quotation.discount,
+  //     packingCharges: quotation.packingCharges,
+  //     paymentTerms: quotation.paymentTerms,
+  //     transportationPayment: quotation.transportationPayment,
+  //     ProductInQuotation: {
+  //       upsert: quotation.items.map((product) => {
+  //         return {
+  //           where: {
+  //             id: product.id ?? ObjectID().toString(),
+  //           },
+  //           create: {
+  //             productId: product.productId,
+  //             index: product?.index,
+  //             cableEntry: product?.cableEntry,
+  //             cutoutSize: product?.cutoutSize,
+  //             earting: product?.earting,
+  //             gasket: product?.gasket,
+  //             glass: product?.glass,
+  //             hardware: product?.hardware,
+  //             HorsePower: product?.HorsePower,
+  //             hsnCode: product?.hsnCode,
+  //             kW: product?.kW,
+  //             plateSize: product?.plateSize,
+  //             mounting: product?.mounting,
+  //             poReferrence: product?.poReferrence,
+  //             rating: product?.rating,
+  //             rpm: product?.rpm,
+  //             size: product?.size,
+  //             terminals: product?.terminals,
+  //             typeNumber: product?.typeNumber,
+  //             variant: product?.variant,
+  //             wireGuard: product?.wireGuard,
+  //             price: Number(product?.price) ?? 1,
+  //             quantity: product?.quantity,
+  //             ComponentsOfProductInQuotation: {
+  //               create: product.components?.map((comp) => {
+  //                 return {
+  //                   componentsOfQuotation: {
+  //                     create: {
+  //                       item: comp.items ?? "",
+  //                     },
+  //                   },
+  //                 };
+  //               }),
+  //             },
+  //           },
+  //           update: {
+  //             productId: product.productId,
+  //             index: product?.index,
+  //             cableEntry: product?.cableEntry,
+  //             cutoutSize: product?.cutoutSize,
+  //             earting: product?.earting,
+  //             gasket: product?.gasket,
+  //             glass: product?.glass,
+  //             hardware: product?.hardware,
+  //             HorsePower: product?.HorsePower,
+  //             hsnCode: product?.hsnCode,
+  //             kW: product?.kW,
+  //             plateSize: product?.plateSize,
+  //             mounting: product?.mounting,
+  //             poReferrence: product?.poReferrence,
+  //             rating: product?.rating,
+  //             rpm: product?.rpm,
+  //             size: product?.size,
+  //             terminals: product?.terminals,
+  //             typeNumber: product?.typeNumber,
+  //             variant: product?.variant,
+  //             wireGuard: product?.wireGuard,
+  //             price: Number(product?.price) ?? 1,
+  //             quantity: product?.quantity,
+  //             ComponentsOfProductInQuotation: {
+  //               upsert: product.components?.map((comp) => {
+  //                 return {
+  //                   where: {
+  //                     componentsOfQuotationId:
+  //                       comp.compId ?? ObjectID().toString(),
+  //                   },
+  //                   create: {
+  //                     componentsOfQuotation: {
+  //                       create: {
+  //                         item: comp.items,
+  //                       },
+  //                     },
+  //                   },
+  //                   update: {
+  //                     componentsOfQuotation: {
+  //                       create: {
+  //                         item: comp.items,
+  //                       },
+  //                     },
+  //                   },
+  //                 };
+  //               }),
+  //             },
+  //           },
+  //         };
+  //       }),
+  //     },
+  //   },
+  // });
 
-  if (!response)
-    return { error: "Could not create quotation, please try again later!" };
-  if (response) return { success: response };
+  // if (!response)
+  //   return { error: "Could not create quotation, please try again later!" };
+  // if (response) return { success: response };
 };
 
 export const getQuotationBasedOnid = async (id: string) => {
@@ -1014,6 +1038,7 @@ export const fetchPreviousOrderNumber = async () => {
   if (!orderNumber) return { error: "No Order Number" };
   if (orderNumber) return { success: orderNumber };
 };
+
 export const fetchPreviousChallanNumber = async () => {
   const response = await db.deliveryChallan.findFirst({
     orderBy: {
@@ -2703,6 +2728,37 @@ export const deletePerfoma = async (id: string) => {
   const response = await db.perfomaInvoice.delete({
     where: {
       id,
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getPerfomaInvoiceDetails = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.perfomaInvoice.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      ProductInPerfomaInvoiceOfOrder: {
+        include: {
+          ProductInOrder: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
