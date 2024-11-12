@@ -38,16 +38,10 @@ interface QuotationItems {
   ];
 }
 
-interface AddItemsRequest extends NextApiRequest {
-  body: {
-    quotationId: string;
-    items: QuotationItems[];
-  };
-}
-
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const user = await auth();
-  if (!user || user.user.role !== "ADMIN") return null;
+  if (!user || user.user.role !== "ADMIN")
+    return new Response("Unauthorize", { status: 401 });
 
   try {
     const {
