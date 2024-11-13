@@ -11,6 +11,7 @@ import ChartComponent from "@/components/Dashboard/ChartComponent";
 import FirstBlock from "@/components/Dashboard/Dashboard/FirstBlock";
 import SecondBlock from "@/components/Dashboard/Dashboard/SecondBlock";
 import ThirdBlock from "@/components/Dashboard/Dashboard/ThirdBlock";
+import TodoList from "@/components/Dashboard/TodoList";
 
 interface pageProps {}
 
@@ -68,41 +69,7 @@ const page: FC<pageProps> = async ({}) => {
       {/* <div className="bg-black/10"></div> */}
       {/* fourth block*/}
       <div className="bg-black/10 row-span-3 p-4 lg:p-8 text-woodsmoke-200">
-        <div className="flex flex-col items-start justify-between h-full w-full">
-          <div className="flex items-center justify-between w-full">
-            <div className="uppercase whitespace-nowrap">Inventory</div>
-            <div className="border rounded-full p-1 bg-woodsmoke-200 text-elbg-black/10 hover:scale-110 transition-all ease-in-out duration-100 cursor-pointer max-md:-mr-4">
-              <ArrowUpRight />
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col gap-2">
-            <div className="flex items-end justify-between ">
-              <div className="">
-                <h1 className="text-3xl sm:text-5xl lg:text-7xl">6.9</h1>
-              </div>
-              <div className="text-sm lg:text-lg">/ 15H</div>
-            </div>
-            <div className=" h-[1px] bg-white/50 w-full"></div>
-            <div className="">
-              <div className="uppercase mb-2">mj fast hours</div>
-              <div className="grid grid-cols-3  items-center justify-center lg:gap-4 gap-1">
-                {/* {Images.map((image) => {
-              return (
-                <div className=" h-24 relative">
-                  <Image
-                    className="object-contain bg-woodsmoke-200"
-                    src={image}
-                    alt="avatar"
-                    fill
-                  ></Image>
-                </div>
-              );
-            })} */}
-              </div>
-            </div>
-          </div>
-        </div>
+        <TodoList></TodoList>
       </div>
       {/* fourth block*/}
 

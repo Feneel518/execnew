@@ -31,6 +31,7 @@ model User {
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
+  Todo                  Todo[]
 }
 
 model Account {
@@ -511,4 +512,22 @@ model ProductInPerfomaInvoiceOfOrder {
 
   ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
   productInOrderId String         @db.ObjectId
+}
+
+enum TODO_PRIORITY {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Todo {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  priority  TODO_PRIORITY @default(MEDIUM)
+  dueDate   DateTime?
+  completed Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  userId    String        @db.ObjectId
+  user      User          @relation(fields: [userId], references: [id])
 }

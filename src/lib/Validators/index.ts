@@ -172,3 +172,12 @@ export const PerfomaInvoiceCreationSchema = z.object({
 export type PerfomaInvoiceCreationSchemaRequest = z.infer<
   typeof PerfomaInvoiceCreationSchema
 >;
+
+export const TaskValidator = z.object({
+  id: z.string().optional(),
+  task: z.string(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("LOW"),
+  dueDate: z.date().optional(),
+});
+
+export type TaskCreationRequest = z.infer<typeof TaskValidator>;

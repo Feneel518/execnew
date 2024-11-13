@@ -15,11 +15,11 @@ import {
   StoreProduct,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { QueueEvents } from "bullmq";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { db } from "./db";
 
+import ObjectID from "bson-objectid";
 import {
   generatePasswordResetToken,
   generateVerificationToken,
@@ -37,11 +37,11 @@ import {
   RegisterSchemaRequest,
   ResetSchema,
   ResetSchemaRequest,
+  TaskCreationRequest,
 } from "./Validators";
+import { ChallanCreationRequest } from "./Validators/ChallanValidator";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QuotationCreationRequest } from "./Validators/QuotationValidator";
-import ObjectID from "bson-objectid";
-import { ChallanCreationRequest } from "./Validators/ChallanValidator";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -2762,6 +2762,109 @@ export const getPerfomaInvoiceDetails = async (id: string) => {
     },
   });
 
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const getTodos = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const response = await db.todo.findMany({
+    where: {
+      OR: [
+        { completed: false }, // All pending todos
+        {
+          AND: [
+            { completed: true }, // Completed todos
+            {
+              updatedAt: {
+                gte: today,
+                lt: tomorrow,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    orderBy: [
+      {
+        dueDate: "asc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const upsertTodo = async (values: TaskCreationRequest) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.todo.upsert({
+    where: {
+      id: values.id,
+    },
+    create: {
+      text: values.task,
+      completed: false,
+      dueDate: values.dueDate,
+      priority: values.priority,
+      userId: user.user.id,
+    },
+    update: {
+      text: values.task,
+      completed: false,
+      dueDate: values.dueDate,
+      priority: values.priority,
+      userId: user.user.id,
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const updateTodo = async (id: string, status: boolean) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.todo.update({
+    where: {
+      id,
+    },
+    data: {
+      completed: status ? false : true,
+      updatedAt: new Date(),
+    },
+  });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const todoDelete = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.todo.delete({
+    where: {
+      id,
+    },
+  });
   if (!response)
     return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };
