@@ -68,7 +68,7 @@ const page: FC<pageProps> = async ({}) => {
 
       {/* <div className="bg-black/10"></div> */}
       {/* fourth block*/}
-      <div className="bg-black/10 row-span-3 p-4 lg:p-8 text-woodsmoke-200">
+      <div className="bg-black/10 row-span-3 p-4 lg:p-8 text-woodsmoke-200 min-h-[300px]">
         <TodoList></TodoList>
       </div>
       {/* fourth block*/}

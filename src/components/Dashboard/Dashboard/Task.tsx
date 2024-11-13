@@ -80,7 +80,7 @@ const Task: FC<TaskProps> = ({ todo }) => {
           onCheckedChange={() => {
             handleCheckUnCheck(todo.id, todo.completed);
           }}
-          className={cn(`rounded-full size-6`, {
+          className={cn(`rounded-full md:size-6`, {
             "data-[state=checked]:bg-bamboo-500  border-gray-300":
               todo.completed,
           })}
@@ -93,7 +93,7 @@ const Task: FC<TaskProps> = ({ todo }) => {
               <label
                 htmlFor="terms"
                 className={cn(
-                  `text-[16px] font-light leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70 `,
+                  `md:text-[16px] text-sm font-light leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70 `,
                   {
                     "line-through text-bamboo-500/50": todo.completed,
                   }
@@ -104,7 +104,7 @@ const Task: FC<TaskProps> = ({ todo }) => {
               <div
                 className={`${getPriorityColor(
                   todo.priority
-                )} w-2 h-2 rounded-full`}
+                )} size-2 rounded-full`}
               ></div>
             </div>
             <div
