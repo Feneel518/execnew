@@ -170,23 +170,25 @@ model Category {
 }
 
 model Customer {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  slug            String            @unique
-  GST             String?
-  email           String?
-  country         String
-  addressLine1    String
-  addressLine2    String?
-  city            String?
-  state           String
-  pincode         String?
-  phoneNumber     String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  Quotation       Quotation[]
-  Order           Order[]
-  DeliveryChallan DeliveryChallan[]
+  id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  slug                  String                 @unique
+  GST                   String?
+  email                 String?
+  country               String
+  addressLine1          String
+  addressLine2          String?
+  city                  String?
+  state                 String
+  pincode               String?
+  phoneNumber           String?
+  paymentTerms          PaymentTerms?          @default(ADVANCE)
+  transportationPayment TransportationPayment? @default(TO_PAY)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  Quotation             Quotation[]
+  Order                 Order[]
+  DeliveryChallan       DeliveryChallan[]
 
   @@index([name, slug])
 }
@@ -237,6 +239,7 @@ model Quotation {
   discount              String?
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
+  orderNumber           Int?
 
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
@@ -439,16 +442,6 @@ enum Status {
   IN
   OUT
 }
-
-// model TestCertificate {
-//   id String @id @default(auto()) @map("_id") @db.ObjectId
-
-//   order   Order  @relation(fields: [orderId], references: [id])
-//   orderId String @unique @db.ObjectId
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
 
 model Invoice {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId

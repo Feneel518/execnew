@@ -42,7 +42,7 @@ import {
 } from "@/lib/Validators/QuotationValidator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 import { Separator } from "@/components/ui/separator";
@@ -244,8 +244,6 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
       name: "items",
     });
 
-  //
-
   const handleSubmit = async (value: QuotationCreationRequest) => {
     if (!value.customerId) {
       return toast({
@@ -285,6 +283,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
     if (response?.success) {
       toast({
         title: "Your Quotation has been saved.",
+        duration: 1000,
       });
 
       const axiosResponse = await axios.post("/api/add-items-to-quotation", {
@@ -304,6 +303,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
         variant: "destructive",
         title: "Oppse!",
         description: "Could not create your quotation, please try again later",
+        duration: 1000,
       });
     }
   };
@@ -318,6 +318,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
       router.refresh();
       return toast({
         title: "Your Quotation has been deleted.",
+        duration: 1000,
       });
     }
     if (response?.error) {
@@ -325,6 +326,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
         variant: "destructive",
         title: "Oppse!",
         description: "could not delete your quotation",
+        duration: 1000,
       });
     }
   };
@@ -373,85 +375,6 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                     {customerForm ? "Cancel" : "Customer"}
                   </Button>
                 </div>
-
-                // <div className="flex md:flex-row gap-4 items-end">
-                //   <FormField
-                //     control={form.control}
-                //     name="customerId"
-                //     render={({ field }) => (
-                //       <FormItem className="flex flex-col w-full">
-                //         <FormLabel>Client</FormLabel>
-                //         <Popover>
-                //           <PopoverTrigger asChild>
-                //             <FormControl>
-                //               <Button
-                //                 variant="outline"
-                //                 role="combobox"
-                //                 className={cn(
-                //                   "w-full justify-between",
-                //                   !field.value && "text-muted-foreground"
-                //                 )}
-                //               >
-                //                 {field.value
-                //                   ? customers.success.find(
-                //                       (cust) => cust.id === field.value
-                //                     )?.name
-                //                   : "Select Customer"}
-                //                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                //               </Button>
-                //             </FormControl>
-                //           </PopoverTrigger>
-                //           <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                //             <Command>
-                //               <CommandInput placeholder="Search customer..." />
-                //               <CommandList>
-                //                 <CommandEmpty>No customers found.</CommandEmpty>
-                //                 <CommandGroup>
-                //                   {customers.success.map((language) => (
-                //                     <CommandItem
-                //                       value={language.name}
-                //                       key={language.id}
-                //                       onSelect={() => {
-                //                         form.setValue(
-                //                           "customerId",
-                //                           language.id
-                //                         );
-                //                       }}
-                //                     >
-                //                       <Check
-                //                         className={cn(
-                //                           "mr-2 h-4 w-4",
-                //                           language.name === field.value
-                //                             ? "opacity-100"
-                //                             : "opacity-0"
-                //                         )}
-                //                       />
-                //                       {language.name}
-                //                     </CommandItem>
-                //                   ))}
-                //                 </CommandGroup>
-                //               </CommandList>
-                //             </Command>
-                //           </PopoverContent>
-                //         </Popover>
-
-                //         <FormMessage />
-                //       </FormItem>
-                //     )}
-                //   />
-                //   <Button
-                //     type="button"
-                //     onClick={() => setCustomerForm(!customerForm)}
-                //     className="flex items-center gap-2"
-                //   >
-                //     <Plus
-                //       className={clsx("transition-all", {
-                //         "rotate-45": customerForm,
-                //       })}
-                //     ></Plus>{" "}
-                //     {customerForm ? "Cancel" : "Customer"}
-                //   </Button>
-                // </div>
               )}
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
@@ -581,8 +504,12 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                       <FormLabel>Payment Terms</FormLabel>
                       <FormControl>
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={(v) => {
+                            field.onChange(v);
+                          }}
+                          value={field.value}
                           defaultValue={field.value}
+                          disabled={field.disabled}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -632,8 +559,12 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                       <FormLabel>Transportation Payment</FormLabel>
                       <FormControl>
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={(v) => {
+                            field.onChange(v);
+                          }}
+                          value={field.value}
                           defaultValue={field.value}
+                          disabled={field.disabled}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -689,8 +620,6 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                 <h1>Quotation Items</h1>
 
                 {fields.map((field, index) => {
-                  console.log(field);
-
                   form.setValue(`items.${index}.index`, index + 1);
                   const productId = form.watch(`items.${index}.productId`);
                   return (
@@ -702,123 +631,17 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
                         Product {index + 1}
                       </h2>
                       <div className="grid lg:grid-cols-8 grid-cols-2 gap-4  ">
-                        {
-                          products?.success && (
-                            <div className="col-span-2">
-                              <SelectProduct
-                                labelText="Select Product"
-                                setValueAsText={`items.${index}.productId`}
-                                products={products.success}
-                                setProductId={form.setValue}
-                                productId={productId}
-                              ></SelectProduct>
-                            </div>
-                          )
-
-                          //////////////////////////////////////////////////////////////////////// Product
-                          // <FormField
-                          //   disabled={isLoading}
-                          //   control={form.control}
-                          //   name={`items.${index}.productId`}
-                          //   render={({ field }) => (
-                          //     <FormItem className="col-span-2">
-                          //       <FormLabel>Product</FormLabel>
-                          //       <FormControl>
-                          //         <Select
-                          //           onValueChange={field.onChange}
-                          //           defaultValue={field.value}
-                          //         >
-                          //           <FormControl>
-                          //             <SelectTrigger className="w-[300px]">
-                          //               <SelectValue placeholder="Select product for quotation" />
-                          //             </SelectTrigger>
-                          //           </FormControl>
-                          //           <SelectContent>
-                          //             {products?.success.map((product) => {
-                          //               return (
-                          //                 <SelectItem
-                          //                   key={product.id}
-                          //                   value={product.id}
-                          //                 >
-                          //                   {product.name}
-                          //                 </SelectItem>
-                          //               );
-                          //             })}
-                          //           </SelectContent>
-                          //         </Select>
-                          //       </FormControl>
-                          //       <FormMessage></FormMessage>
-                          //     </FormItem>
-                          //   )}
-                          // ></FormField>
-                          // <FormField
-                          //   control={form.control}
-                          //   name="customerId"
-                          //   render={({ field }) => (
-                          //     <FormItem className="col-span-2">
-                          //       <FormLabel>Products</FormLabel>
-                          //       <Popover>
-                          //         <PopoverTrigger asChild>
-                          //           <FormControl>
-                          //             <Button
-                          //               variant="outline"
-                          //               role="combobox"
-                          //               className={cn(
-                          //                 "w-full justify-between",
-                          //                 !field.value &&
-                          //                   "text-muted-foreground"
-                          //               )}
-                          //             >
-                          //               {field.value
-                          //                 ? products.success.find(
-                          //                     (cust) => cust.id === field.value
-                          //                   )?.name
-                          //                 : "Select Product"}
-                          //               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          //             </Button>
-                          //           </FormControl>
-                          //         </PopoverTrigger>
-                          //         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                          //           <Command>
-                          //             <CommandInput placeholder="Search product..." />
-                          //             <CommandList>
-                          //               <CommandEmpty>
-                          //                 No customers found.
-                          //               </CommandEmpty>
-                          //               <CommandGroup>
-                          //                 {products.success.map((language) => (
-                          //                   <CommandItem
-                          //                     value={language.name}
-                          //                     key={language.id}
-                          //                     onSelect={() => {
-                          //                       form.setValue(
-                          //                         `items.${index}.productId`,
-                          //                         language.id
-                          //                       );
-                          //                     }}
-                          //                   >
-                          //                     <Check
-                          //                       className={cn(
-                          //                         "mr-2 h-4 w-4",
-                          //                         language.name === field.value
-                          //                           ? "opacity-100"
-                          //                           : "opacity-0"
-                          //                       )}
-                          //                     />
-                          //                     {language.name}
-                          //                   </CommandItem>
-                          //                 ))}
-                          //               </CommandGroup>
-                          //             </CommandList>
-                          //           </Command>
-                          //         </PopoverContent>
-                          //       </Popover>
-
-                          //       <FormMessage />
-                          //     </FormItem>
-                          //   )}
-                          // />
-                        }
+                        {products?.success && (
+                          <div className="col-span-2">
+                            <SelectProduct
+                              labelText="Select Product"
+                              setValueAsText={`items.${index}.productId`}
+                              products={products.success}
+                              setProductId={form.setValue}
+                              productId={productId}
+                            ></SelectProduct>
+                          </div>
+                        )}
                         {/* //////////////////////////////////////////////////////////////////////// ratings */}
                         <FormField
                           disabled={isLoading}

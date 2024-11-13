@@ -486,6 +486,8 @@ export type Quotationtable = Prisma.QuotationGetPayload<{
       };
     };
     quotationNumber: true;
+    orderNumber: true;
+
     ProductInQuotation: {
       select: {
         id: true;

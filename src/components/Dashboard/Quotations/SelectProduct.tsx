@@ -19,16 +19,26 @@ import {
 } from "@/components/ui/popover";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { QuotationCreationRequest } from "@/lib/Validators/QuotationValidator";
+import { PaymentTerms, TransportationPayment } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { FC, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FC, useEffect, useState } from "react";
+import { UseFormSetValue } from "react-hook-form";
 
 interface SelectProductProps {
   setValueAsText: any;
-  products: { name: string; id: string }[];
+  products: {
+    name: string;
+    id: string;
+    paymentTerms?: PaymentTerms | null;
+    transportationPayment?: TransportationPayment | null;
+  }[];
   setProductId: any;
   productId: string;
   labelText: string;
   className?: string;
+  setTerms?: UseFormSetValue<QuotationCreationRequest>;
 }
 
 const SelectProduct: FC<SelectProductProps> = ({
@@ -38,13 +48,16 @@ const SelectProduct: FC<SelectProductProps> = ({
   productId,
   labelText,
   className,
+  setTerms,
 }) => {
+  const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(productId);
 
   const selectedProduct = products?.find((product) => product.id === value);
+
   return (
     <div className={className}>
       {isDesktop ? (
@@ -94,6 +107,22 @@ const SelectProduct: FC<SelectProductProps> = ({
                               setProductId(setValueAsText, product.id);
                               setValue(product.id);
                               setOpen((prev) => !prev);
+
+                              if (labelText === "Client") {
+                                setProductId(
+                                  "paymentTerms",
+                                  product?.paymentTerms
+                                    ? product.paymentTerms
+                                    : "ADVANCE"
+                                );
+
+                                setProductId(
+                                  "transportationPayment",
+                                  product?.transportationPayment
+                                    ? product.transportationPayment
+                                    : "TO_PAY"
+                                );
+                              }
                             }}
                           >
                             <Rows item={product.name}></Rows>

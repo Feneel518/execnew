@@ -647,6 +647,8 @@ export const fetchCustomersForSelect = async () => {
     select: {
       id: true,
       name: true,
+      paymentTerms: true,
+      transportationPayment: true,
     },
     orderBy: {
       name: "asc",
@@ -711,6 +713,28 @@ export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
       },
     },
   });
+
+  const client = await db.customer.findUnique({
+    where: {
+      id: quotation.customerId,
+    },
+  });
+
+  const terms =
+    client?.paymentTerms === quotation.paymentTerms &&
+    client.transportationPayment === quotation.transportationPayment;
+
+  if (!terms) {
+    await db.customer.update({
+      where: {
+        id: quotation.customerId,
+      },
+      data: {
+        paymentTerms: quotation.paymentTerms,
+        transportationPayment: quotation.transportationPayment,
+      },
+    });
+  }
 
   if (existingQuotation) {
     const existingItemIds = existingQuotation?.ProductInQuotation.map(
@@ -1069,6 +1093,17 @@ export const fetchPreviousStoreProductId = async () => {
 export const upsertOrder = async (order: OrderCreationRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
+
+  if (order.quotationNumber) {
+    await db.quotation.update({
+      where: {
+        quotationNumber: Number(order.quotationNumber),
+      },
+      data: {
+        orderNumber: order.orderNumber,
+      },
+    });
+  }
 
   const ordersItemsIfAny = await db.order.findUnique({
     where: {
@@ -2865,6 +2900,74 @@ export const todoDelete = async (id: string) => {
       id,
     },
   });
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+export const deleteOrder = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  await db.productInInvoiceOfOrder.deleteMany({
+    where: {
+      ProductInOrder: {
+        orderId: id,
+      },
+    },
+  });
+
+  await db.invoice.deleteMany({
+    where: {
+      orderId: id,
+    },
+  });
+  await db.perfomaInvoice.deleteMany({
+    where: {
+      orderId: id,
+    },
+  });
+
+  await db.productInPerfomaInvoiceOfOrder.deleteMany({
+    where: {
+      ProductInOrder: {
+        orderId: id,
+      },
+    },
+  });
+
+  await db.productInOrder.deleteMany({
+    where: {
+      orderId: id,
+    },
+  });
+
+  const order = await db.order.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      quotationNumber: true,
+    },
+  });
+
+  if (order?.quotationNumber) {
+    await db.quotation.update({
+      where: {
+        quotationNumber: Number(order.quotationNumber),
+      },
+      data: {
+        orderNumber: null,
+      },
+    });
+  }
+
+  const response = await db.order.delete({
+    where: {
+      id: id,
+    },
+  });
+
   if (!response)
     return { error: "Something went wrong, Please try again later" };
   if (response) return { success: response };

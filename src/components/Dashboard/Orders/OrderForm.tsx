@@ -1,7 +1,17 @@
 "use client";
 
 import Loading from "@/components/Global/Loading";
-import { AlertDialog } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -38,7 +48,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useGetCustomersForSelect } from "@/data/get-customers-for-select";
 import { useGetOrderNumber } from "@/data/get-order-number";
 import { useGetProductsForSelect } from "@/data/get-products-for-select";
-import { upsertOrder } from "@/lib/queries";
+import { deleteOrder, upsertOrder } from "@/lib/queries";
 import { OrderForDashboard } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -67,6 +77,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   const { data: orderNumber, isFetching } = useGetOrderNumber();
   const { data: customers } = useGetCustomersForSelect();
   const { data: products } = useGetProductsForSelect();
+  const [deletingOrder, setDeletingOrder] = useState(false);
 
   const [customerForm, setCustomerForm] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
@@ -184,6 +195,29 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
         variant: "destructive",
         title: "Oppse!",
         description: "could not save your order",
+      });
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    setDeletingOrder(true);
+    if (!orderData?.id) return;
+    const response = await deleteOrder(orderData?.id);
+    setDeletingOrder(false);
+    if (response?.success) {
+      router.push("/dashboard/orders");
+      router.refresh();
+      return toast({
+        title: "Your Order has been deleted.",
+        duration: 1000,
+      });
+    }
+    if (response?.error) {
+      return toast({
+        variant: "destructive",
+        title: "Oppse!",
+        description: "could not delete your order",
+        duration: 1000,
       });
     }
   };
@@ -468,72 +502,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
                             productId={productId}
                           ></SelectProduct>
                         </div>
-                        // <FormField
-                        //   control={form.control}
-                        //   name={`ProductInOrder.${index}.productId`}
-                        //   render={({ field }) => (
-                        //     <FormItem className="col-span-2">
-                        //       <FormLabel>Products</FormLabel>
-                        //       <Popover>
-                        //         <PopoverTrigger asChild>
-                        //           <FormControl>
-                        //             <Button
-                        //               variant="outline"
-                        //               role="combobox"
-                        //               className={cn(
-                        //                 "w-full justify-between",
-                        //                 !field.value && "text-muted-foreground"
-                        //               )}
-                        //             >
-                        //               {field.value
-                        //                 ? products.success.find(
-                        //                     (cust) => cust.id === field.value
-                        //                   )?.name
-                        //                 : "Select Product"}
-                        //               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        //             </Button>
-                        //           </FormControl>
-                        //         </PopoverTrigger>
-                        //         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        //           <Command>
-                        //             <CommandInput placeholder="Search product..." />
-                        //             <CommandList>
-                        //               <CommandEmpty>
-                        //                 No products found.
-                        //               </CommandEmpty>
-                        //               <CommandGroup>
-                        //                 {products.success.map((language) => (
-                        //                   <CommandItem
-                        //                     value={language.name}
-                        //                     key={language.name}
-                        //                     onSelect={() => {
-                        //                       form.setValue(
-                        //                         `ProductInOrder.${index}.productId`,
-                        //                         language.id
-                        //                       );
-                        //                     }}
-                        //                   >
-                        //                     <Check
-                        //                       className={cn(
-                        //                         "mr-2 h-4 w-4",
-                        //                         language.name === field.value
-                        //                           ? "opacity-100"
-                        //                           : "opacity-0"
-                        //                       )}
-                        //                     />
-                        //                     {language.name}
-                        //                   </CommandItem>
-                        //                 ))}
-                        //               </CommandGroup>
-                        //             </CommandList>
-                        //           </Command>
-                        //         </PopoverContent>
-                        //       </Popover>
-
-                        //       <FormMessage />
-                        //     </FormItem>
-                        //   )}
-                        // />
                       )}
                       <FormField
                         disabled={isLoading}
@@ -616,41 +584,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
                         )}
                       ></FormField>
 
-                      {/* <SupplyForm
-                        field={field}
-                        productName={
-                          products?.success?.filter(
-                            (id) => id.id === field.productId
-                          )[0].name as string
-                        }
-                      ></SupplyForm> */}
-
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-                      {/* /////////////////////////////////////////////////////////////////////////////////// */}
-
-                      {/* <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`ProductInOrder.${index}.supplied`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormLabel>Supplied</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="Supplied"
-                                {...field}
-                              ></Input>
-                            </FormControl>
-                            <FormMessage></FormMessage>
-                          </FormItem>
-                        )}
-                      ></FormField> */}
                       <div className="flex items-center gap-2 col-span-2">
                         <Button
                           type="button"
@@ -689,6 +622,45 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
               </Button>
             </form>
           </Form>
+          {orderData?.id && (
+            <>
+              <div className="flex bg-red-50 flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
+                <div className="">
+                  <div className="">Danger Zone</div>
+                </div>
+                <div className="text-muted-foreground">
+                  Deleting your Order cannot be undone.
+                </div>
+                <AlertDialogTrigger
+                  disabled={isLoading || deletingOrder}
+                  className="text-red-600 p-2 text-center mt-2 rounded-md hover:bg-red-600 hover:text-white whitespace-nowrap"
+                >
+                  {deletingOrder ? "Deleting..." : "Delete Order"}
+                </AlertDialogTrigger>
+              </div>
+            </>
+          )}
+          <AlertDialogContent className="w-[50%]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-left">
+                Are you absolutely sure?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-left">
+                This action cannot be undone. This will permanently delete the
+                Order {orderData?.orderNumber}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex items-center">
+              <AlertDialogCancel className="mb-2">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={deletingOrder}
+                className="bg-destructive hover:bg-destructive"
+                onClick={handleDeleteOrder}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
         </CardContent>
       </Card>
     </AlertDialog>

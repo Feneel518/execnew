@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { Quotationtable } from "@/lib/types";
 import { format } from "date-fns";
 import { deleteQuotation } from "@/lib/queries";
+import { cn } from "@/lib/utils";
 
 interface QuotationTableBodyProps {
   quotation: Quotationtable[];
@@ -30,12 +31,24 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
             key={quot.id}
             className="border-b transition-colors hover:bg-muted/50 "
           >
-            <div className="px-4 text-left align-middle font-medium flex items-center     ">
+            <div
+              className={cn(
+                `px-4 text-left align-middle font-medium flex items-center transition-colors duration-200 ease-in-out`,
+                {
+                  "bg-green-200 hover:bg-green-100": quot.orderNumber,
+                }
+              )}
+            >
               <div className="p-4 align-middle text-sm font-normal w-32">
                 {quot.quotationNumber}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {quot.customer.name}
+              </div>
+              <div className="p-4 align-middle text-sm font-normal lg:w-40 lg:flex">
+                {quot.orderNumber && (
+                  <div className="">ExOR - {quot.orderNumber}</div>
+                )}
               </div>
               <div className="p-4 align-middle text-sm font-normal lg:w-40 lg:flex hidden">
                 {format(quot.createdAt, "PP")}
@@ -67,6 +80,20 @@ const QuotationTableBody: FC<QuotationTableBodyProps> = ({ quotation }) => {
                     >
                       Edit Quotation
                     </DropdownMenuItem>
+                    {!quot.orderNumber && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/quotations/convert-to-order/${quot.id}`
+                            )
+                          }
+                        >
+                          Convert to order
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

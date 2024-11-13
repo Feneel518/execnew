@@ -67,6 +67,8 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             name: true,
           },
         },
+        orderNumber: true,
+
         quotationNumber: true,
         ProductInQuotation: {
           select: {
@@ -110,6 +112,8 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             name: true,
           },
         },
+        orderNumber: true,
+
         quotationNumber: true,
         ProductInQuotation: {
           select: {
@@ -125,6 +129,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
     quotation = await db.quotation.findMany({
       select: {
+        orderNumber: true,
         id: true,
         createdAt: true,
         customer: {
@@ -172,6 +177,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       Client
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex ">
+                      Order Number
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
                       Date

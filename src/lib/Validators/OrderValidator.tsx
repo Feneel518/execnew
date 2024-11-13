@@ -16,7 +16,9 @@ export const OrderValidator = z.object({
       id: z.string().optional(),
       index: z.number(),
       price: z.coerce.number(),
-      quantity: z.coerce.number(),
+      quantity: z.coerce
+        .number()
+        .min(1, { message: "Quantity should be greater than 0" }),
       description: z.string().optional(),
       certificateNumber: z.string().optional(),
       supplied: z.coerce.number(),
