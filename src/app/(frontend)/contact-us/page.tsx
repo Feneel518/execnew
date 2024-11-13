@@ -40,7 +40,7 @@ const page: FC<pageProps> = ({}) => {
 
   const handleSubmit = () => {};
   return (
-    <div className="max-2xl:mx-10 mt-8 md:mt-14 relative">
+    <div className="max-2xl:mx-10 max-md:mx-2 mt-8 md:mt-14 relative">
       <h1 className={`${bebas.className} text-6xl max-md:text-5xl`}>
         Contact Us
       </h1>
@@ -51,7 +51,7 @@ const page: FC<pageProps> = ({}) => {
       <div className="flex max-lg:flex-col max-md:items-center  border-color mt-11 border-r-0 border-l-0">
         <div className="border-color border-bottom lg:border-r  flex-1 max-md:border-r-0 flex items-center justify-center">
           <iframe
-            className="h-full w-full p-8 max-lg:h-[500px]"
+            className="h-full w-full p-8 max-md:px-2 max-lg:h-[500px]"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.511658615236!2d72.94117221545774!3d20.361783115586455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0ce5f1cf2266f%3A0x6ddcf3a18391fc44!2sExplosion%20proof%20electrical%20control!5e0!3m2!1sen!2sin!4v1677835028303!5m2!1sen!2sin"
             loading="lazy"
           ></iframe>

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const page: FC<pageProps> = ({}) => {
   return (
     <div>
-      <div className="max-2xl:mx-10 mt-8 md:mt-14 relative">
+      <div className="max-2xl:mx-10 max-md:mx-2 mt-8 md:mt-14 relative">
         <h1 className={`${bebas.className} text-5xl md:text-7xl`}>About Us</h1>
 
         {/* separator */}
@@ -23,7 +23,7 @@ const page: FC<pageProps> = ({}) => {
         <div className="flex max-lg:flex-col max-md:items-center  border-color mt-11 border-r-0 border-l-0">
           <div className="border-color border-right flex-1 max-lg:border-r-0 text-justify p-4 ">
             <h1
-              className={`${bebas.className} text-5xl text-center mt-6 md:mt-10  lg:mt-12 xl:text-5xl`}
+              className={`${bebas.className} text-5xl text-center mt-6 md:mt-10  lg:mt-12 xl:text-5xl max-md:hidden`}
             >
               ABOUT US
               <div className="h-1 w-12  bg-white rounded-lg relative left-2/4 -translate-x-2/4 mt-2 mb-4"></div>

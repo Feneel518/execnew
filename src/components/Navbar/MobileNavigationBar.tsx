@@ -23,11 +23,12 @@ const links = [
   { id: 1, name: "HOME", link: "/" },
   { id: 2, name: "GALLERY", link: "/gallery" },
   { id: 3, name: "OUR STORY", link: "/about-us" },
-  { id: 4, name: "CONTACT", link: "/contact" },
+  { id: 4, name: "CONTACT", link: "/contact-us" },
 ];
 
 const MobileNavigationBar: FC<MobileNavigationBarProps> = ({}) => {
   const [menu, setMenu] = useState(false);
+  const [open, setOpen] = useState(false);
   return (
     <div className="lg:hidden border-b my-2 py-4 flex items-center justify-between print:!hidden">
       <div className=" flex-1 flex justify-start">
@@ -78,17 +79,19 @@ const MobileNavigationBar: FC<MobileNavigationBarProps> = ({}) => {
                 {links.map((link) => {
                   const isActive = false;
                   return (
-                    <Link
-                      href={`${link.link}`}
-                      className={`${
-                        isActive
-                          ? "font-bold  underline underline-offset-4"
-                          : ""
-                      }`}
-                      key={link.id}
-                    >
-                      {link.name}
-                    </Link>
+                    <SheetClose asChild>
+                      <Link
+                        href={`${link.link}`}
+                        className={`${
+                          isActive
+                            ? "font-bold  underline underline-offset-4"
+                            : ""
+                        }`}
+                        key={link.id}
+                      >
+                        {link.name}
+                      </Link>
+                    </SheetClose>
                   );
                 })}
               </div>

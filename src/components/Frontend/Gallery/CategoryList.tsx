@@ -11,8 +11,8 @@ interface CategoryListProps {
 
 const CategoryList: FC<CategoryListProps> = ({ category, index }) => {
   return (
-    <div className="max-2xl:mx-10 mt-8 md:mt-20 relative">
-      <div className=" grid grid-cols-3">
+    <div className="max-2xl:mx-10 max-md:mx-2 mt-8 md:mt-20 relative">
+      <div className=" grid grid-cols-3 max-md:grid-cols-1">
         <div className="border-color border-l-0 border-r-0 flex items-start justify-center">
           {(index + 2) % 2 === 0 ? (
             <div className="w-full h-full flex items-center justify-center">
