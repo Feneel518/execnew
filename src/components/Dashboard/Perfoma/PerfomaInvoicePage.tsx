@@ -167,8 +167,8 @@ const PerfomaInvoicePage: FC<PerfomaInvoicePageProps> = ({ invoiceData }) => {
             </div>
           </div>
           <QuotationFooter
-            pageIndex={invoiceData.ProductInPerfomaInvoiceOfOrder.length}
-            totalLength={invoiceData.ProductInPerfomaInvoiceOfOrder.length}
+            pageIndex={invoiceData.ProductInPerfomaInvoiceOfOrder.length + 1}
+            totalLength={invoiceData.ProductInPerfomaInvoiceOfOrder.length + 1}
           ></QuotationFooter>
         </div>
       </div>

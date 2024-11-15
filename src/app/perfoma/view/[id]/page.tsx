@@ -1,4 +1,5 @@
 import PerfomaInvoicePage from "@/components/Dashboard/Perfoma/PerfomaInvoicePage";
+import DownloadButton from "@/components/Global/DownloadButton";
 import { getPerfomaInvoiceDetailsBasedOnIPerfomanvoiceNumber } from "@/lib/queries";
 import { Lora } from "next/font/google";
 import { FC } from "react";
@@ -25,6 +26,11 @@ const page: FC<pageProps> = async ({ params }) => {
       <div
         className={` ${lora.className} flex flex-col items-center justify-center gap-4 print:gap-0 my-20 print:my-0`}
       >
+        <DownloadButton
+          quotationNumber={invoiceData.success.perfomaInvoiceNumber}
+          clientName={invoiceData.success.order.customer.name}
+          isPerfoma={true}
+        ></DownloadButton>
         <PerfomaInvoicePage
           invoiceData={invoiceData.success}
         ></PerfomaInvoicePage>

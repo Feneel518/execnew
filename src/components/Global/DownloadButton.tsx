@@ -7,12 +7,14 @@ interface DownloadButtonProps {
   quotationNumber?: number;
   clientName?: string;
   isOrder?: boolean;
+  isPerfoma?: boolean;
 }
 
 const DownloadButton: FC<DownloadButtonProps> = ({
   quotationNumber,
   clientName,
   isOrder,
+  isPerfoma,
 }) => {
   return (
     <div>
@@ -20,6 +22,8 @@ const DownloadButton: FC<DownloadButtonProps> = ({
         onClick={() => {
           document.title = isOrder
             ? `ExOr=${quotationNumber} - ${clientName}`
+            : isPerfoma
+            ? `ExPI-${quotationNumber} - ${clientName}`
             : `ExQn-${quotationNumber} - ${clientName}`;
           window.print();
         }}
