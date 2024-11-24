@@ -23,7 +23,7 @@ const A4Page: FC<A4PageProps> = ({
   return (
     <div
       className={cn(
-        "w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col",
+        "md:w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col scale-[60%] sm:scale-75 md:scale-100",
         className
       )}
     >

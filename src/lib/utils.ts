@@ -8,29 +8,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatPrice = (price: number) => {
-  if (price >= 10000000) {
-    return (
-      new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 2,
-      }).format(price / 10000000) + "Cr"
-    );
-  } else if (price >= 100000) {
-    return (
-      new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 2,
-      }).format(price / 100000) + "L"
-    );
-  } else {
+export const formatPrice = (price: number, long?: boolean) => {
+  if (long) {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 2,
     }).format(price);
+  } else {
+    if (price >= 10000000) {
+      return (
+        new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }).format(price / 10000000) + "Cr"
+      );
+    } else if (price >= 100000) {
+      return (
+        new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }).format(price / 100000) + "L"
+      );
+    } else {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2,
+      }).format(price);
+    }
   }
 };
 

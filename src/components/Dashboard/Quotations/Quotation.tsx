@@ -76,7 +76,7 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
   let items = 0;
   let indexes = 0;
   return (
-    <div className="flex flex-col gap-4 print:gap-0">
+    <div className="flex flex-col md:gap-4 print:gap-0 relative">
       {pages.map((group, index, list) => {
         //
 
@@ -133,7 +133,7 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
           ></A4Page>
         );
       })}
-      <div className="w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col">
+      <div className="w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col scale-[60%] sm:scale-75 md:scale-100">
         <SmallHeading></SmallHeading>
         <QuotationTermsShort
           gst={quotationData.gst}
@@ -150,7 +150,7 @@ const Quotation: FC<QuotationProps> = ({ quotationData }) => {
           }
         ></QuotationTermsShort>
       </div>
-      <div className="w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col">
+      <div className="w-[210mm] h-[297mm] print:size-[A4] bg-white text-black shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] flex flex-col scale-[60%] sm:scale-75 md:scale-100">
         <SmallHeading></SmallHeading>
         <div className="flex flex-col h-full">
           <div className="p-8 flex-1">

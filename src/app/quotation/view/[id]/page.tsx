@@ -5,6 +5,9 @@ import { Lora } from "next/font/google";
 import { FC } from "react";
 import axios from "axios";
 import DownloadButton from "@/components/Global/DownloadButton";
+import { formatPrice } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import ShowCalculation from "@/components/Dashboard/Quotations/ShowCalculation";
 
 interface pageProps {
   params: {
@@ -21,6 +24,16 @@ const page: FC<pageProps> = async ({ params }) => {
 
   if (!quotationData?.success) return;
 
+  const quotationTotal = quotationData.success.ProductInQuotation.reduce(
+    (acc, total) => {
+      return (
+        acc +
+        (total.quantity === "UR" ? 1 : Number(total.quantity)) * total.price
+      );
+    },
+    0
+  );
+
   return (
     <div
       className={` ${lora.className} flex flex-col items-center justify-center gap-4 print:gap-0 my-20 print:my-0`}
@@ -29,6 +42,7 @@ const page: FC<pageProps> = async ({ params }) => {
         quotationNumber={quotationData.success.quotationNumber}
         clientName={quotationData.success.customer.name}
       ></DownloadButton>
+      <ShowCalculation quotationTotal={quotationTotal}></ShowCalculation>
 
       <Quotation quotationData={quotationData?.success}></Quotation>
     </div>
