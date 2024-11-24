@@ -30,16 +30,102 @@ interface MenuOptionsProps {
 }
 
 const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
-  const openState = useMemo(() => (defaultOpen ? { open: true } : {}), []);
+  // const openState = useMemo(() => (defaultOpen ? { open: true } : {}), []);
+  const [open, setOpen] = useState(defaultOpen ? defaultOpen : false);
 
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const ADMINROLEMASTER = [
+    {
+      id: 0,
+      icon: <FaLightbulb />,
+      label: "Products",
+      link: "/dashboard/products",
+    },
+    {
+      id: 1,
+      icon: <TbCategoryFilled />,
+      label: "Categories",
+      link: "/dashboard/categories",
+    },
+    {
+      id: 2,
+      icon: <IoPeopleSharp />,
+      label: "Customers",
+      link: "/dashboard/customers",
+    },
+    {
+      id: 3,
+      icon: <FaLightbulb />,
+      label: "Store Products",
+      link: "/dashboard/store-products",
+    },
+    {
+      id: 4,
+      icon: <IoPeopleSharp />,
+      label: "Employees",
+      link: "/dashboard/employees",
+    },
+  ];
+  const ADMINROLESTOCK = [
+    {
+      id: 0,
+      icon: <IoPeopleSharp />,
+      label: "Pending Items Quantity",
+      link: "/dashboard/pending-quantity",
+    },
+    {
+      id: 1,
+      icon: <IoDocumentText />,
+      label: "Inventory",
+      link: "/dashboard/Inventory",
+    },
+    {
+      id: 2,
+      icon: <IoDocumentText />,
+      label: "Stock",
+      link: "/dashboard/stock",
+    },
+  ];
+  const ADMINROLEITEMS = [
+    {
+      id: 0,
+      icon: <IoDocumentText />,
+      label: "Quotations",
+      link: "/dashboard/quotations",
+    },
+    {
+      id: 1,
+      icon: <FaShoppingCart />,
+      label: "Orders",
+      link: "/dashboard/orders",
+    },
+    {
+      id: 2,
+      icon: <FaFileInvoiceDollar />,
+      label: "Invoice",
+      link: "/dashboard/invoice",
+    },
+    {
+      id: 3,
+      icon: <BadgeIndianRupee size={20} />,
+      label: "Peroma Invoice",
+      link: "/dashboard/perfoma",
+    },
+    {
+      id: 4,
+      icon: <FaFileInvoiceDollar />,
+      label: "Delivery Challan",
+      link: "/dashboard/delivery-challan",
+    },
+  ];
   if (!isMounted) return;
   return (
-    <Sheet modal={false} {...openState}>
+    <Sheet modal={false} onOpenChange={setOpen} open={open}>
       <SheetTrigger
         asChild
         className="absolute left-4 top-4 z-[100] lg:!hidden flex print:hidden"
@@ -84,73 +170,67 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                 <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
                   Master
                 </AccordionTrigger>
-                {session.role === "ADMIN" && (
+                {session.role === "ADMIN" ? (
+                  <>
+                    {ADMINROLEMASTER.map((link) => {
+                      return (
+                        <AccordionContent>
+                          <Link
+                            onClick={() => setOpen(!open)}
+                            href={link.link}
+                            draggable={false}
+                            className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                          >
+                            {link.icon}
+                            {link.label}
+                          </Link>
+                        </AccordionContent>
+                      );
+                    })}
+                  </>
+                ) : (
                   <>
                     <AccordionContent>
                       <Link
-                        href={"/dashboard/products"}
+                        href={"/dashboard/store-products"}
                         draggable={false}
                         className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
                       >
                         <FaLightbulb />
-                        Products
+                        Store Products
                       </Link>
                     </AccordionContent>
                     <AccordionContent>
                       <Link
-                        href={"/dashboard/categories"}
-                        draggable={false}
-                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                      >
-                        <TbCategoryFilled />
-                        Categories
-                      </Link>
-                    </AccordionContent>
-                    <AccordionContent>
-                      <Link
-                        href={"/dashboard/customers"}
+                        href={"/dashboard/employees"}
                         draggable={false}
                         className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
                       >
                         <IoPeopleSharp />
-                        Customers
+                        Employees
                       </Link>
                     </AccordionContent>
                   </>
                 )}
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/store-products"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaLightbulb />
-                    Store Products
-                  </Link>
-                </AccordionContent>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/employees"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoPeopleSharp />
-                    Employees
-                  </Link>
-                </AccordionContent>
               </AccordionItem>
               <Separator className="bg-white/40"></Separator>
               {session.role === "ADMIN" && (
                 <div className="flex flex-col my-4">
-                  <Link
-                    href={"/dashboard/quotations"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoDocumentText />
-                    Quotations
-                  </Link>
-                  <Link
+                  {ADMINROLEITEMS.map((link) => {
+                    return (
+                      <Link
+                        onClick={() => setOpen(!open)}
+                        key={link.id}
+                        href={link.link}
+                        draggable={false}
+                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                      >
+                        {link.icon}
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                  {/* <Link
                     href={"/dashboard/orders"}
                     draggable={false}
                     className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
@@ -181,7 +261,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                   >
                     <FaFileInvoiceDollar />
                     Delivery Challan
-                  </Link>
+                  </Link> */}
                 </div>
               )}
               <AccordionItem
@@ -191,38 +271,21 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                 <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
                   Stock
                 </AccordionTrigger>
-                {session.role === "ADMIN" && (
-                  <AccordionContent>
-                    <Link
-                      href={"/dashboard/pending-quantity"}
-                      draggable={false}
-                      className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                    >
-                      <IoPeopleSharp />
-                      Pending Items Quantity
-                    </Link>
-                  </AccordionContent>
-                )}
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/inventory"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoDocumentText />
-                    Inventory
-                  </Link>
-                </AccordionContent>
-                <AccordionContent>
-                  <Link
-                    href={"/dashboard/stock"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <IoDocumentText />
-                    Stock
-                  </Link>
-                </AccordionContent>
+                {ADMINROLESTOCK.map((link) => {
+                  return (
+                    <AccordionContent key={link.id}>
+                      <Link
+                        onClick={() => setOpen(!open)}
+                        href={link.link}
+                        draggable={false}
+                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                      >
+                        {link.icon}
+                        {link.label}
+                      </Link>
+                    </AccordionContent>
+                  );
+                })}
               </AccordionItem>
             </Accordion>
           </div>
