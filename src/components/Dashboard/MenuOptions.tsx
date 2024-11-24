@@ -30,8 +30,14 @@ interface MenuOptionsProps {
 }
 
 const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
-  // const openState = useMemo(() => (defaultOpen ? { open: true } : {}), []);
-  const [open, setOpen] = useState(defaultOpen ? defaultOpen : false);
+  const [openSheet, setOpenSheet] = useState(false);
+  // const openState = useMemo(
+  //   () =>
+  //     defaultOpen ? { open: true } : { open: openSheet, setOpen: setOpenSheet },
+  //   []
+  // );
+
+  // console.log({ openState });
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -125,7 +131,11 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
   ];
   if (!isMounted) return;
   return (
-    <Sheet modal={false} onOpenChange={setOpen} open={open}>
+    <Sheet
+      modal={false}
+      open={defaultOpen ? true : openSheet}
+      onOpenChange={setOpenSheet}
+    >
       <SheetTrigger
         asChild
         className="absolute left-4 top-4 z-[100] lg:!hidden flex print:hidden"
@@ -176,7 +186,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                       return (
                         <AccordionContent>
                           <Link
-                            onClick={() => setOpen(!open)}
+                            onClick={() => setOpenSheet(!open)}
                             href={link.link}
                             draggable={false}
                             className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
@@ -219,7 +229,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                   {ADMINROLEITEMS.map((link) => {
                     return (
                       <Link
-                        onClick={() => setOpen(!open)}
+                        onClick={() => !defaultOpen && setOpenSheet(!open)}
                         key={link.id}
                         href={link.link}
                         draggable={false}
@@ -275,7 +285,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
                   return (
                     <AccordionContent key={link.id}>
                       <Link
-                        onClick={() => setOpen(!open)}
+                        onClick={() => !defaultOpen && setOpenSheet(!open)}
                         href={link.link}
                         draggable={false}
                         className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"

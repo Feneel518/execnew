@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { Quotationtable } from "@/lib/types";
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import QuotationTableBody from "@/components/Dashboard/Quotations/QuotationTableBody";
+import TableToDisplay from "@/components/Global/TableToDisplay";
 
 interface pageProps {
   searchParams?: {
@@ -167,7 +168,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       <div className="mt-4">
         <Card>
           <CardContent>
-            <ProductsTable
+            {/* <ProductsTable
               totalPages={totalPages}
               columns={
                 <>
@@ -197,7 +198,37 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               body={
                 <QuotationTableBody quotation={quotation}></QuotationTableBody>
               }
-            ></ProductsTable>
+            ></ProductsTable> */}
+            <TableToDisplay
+              columns={
+                <div className="">
+                  <div className="flex items-center border-b  p-4 max-lg:hidden">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-32">
+                      Quotation Number
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
+                      Client
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex ">
+                      Order Number
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40 lg:flex hidden">
+                      Date
+                    </h1>
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-20 lg:flex hidden">
+                      No. Of Items
+                    </h1>
+
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground lg:w-40">
+                      Actions
+                    </h1>
+                  </div>
+                </div>
+              }
+              body={
+                <QuotationTableBody quotation={quotation}></QuotationTableBody>
+              }
+            ></TableToDisplay>
           </CardContent>
         </Card>
       </div>
