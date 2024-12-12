@@ -200,6 +200,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               }
             ></ProductsTable> */}
             <TableToDisplay
+              totalPages={totalPages}
               columns={
                 <div className="">
                   <div className="flex items-center border-b  p-4 max-lg:hidden">

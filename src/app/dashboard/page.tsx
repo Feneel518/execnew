@@ -1,17 +1,13 @@
-import { auth } from "@/auth";
-import Unauthorized from "@/components/Global/Unauthorized";
-import { Progress } from "@/components/ui/progress";
-import { ArrowUpRight } from "lucide-react";
-import { Metadata } from "next";
-import Image from "next/image";
-import { FC } from "react";
-import { Button } from "@/components/ui/button";
-import { HiDotsVertical } from "react-icons/hi";
 import ChartComponent from "@/components/Dashboard/ChartComponent";
 import FirstBlock from "@/components/Dashboard/Dashboard/FirstBlock";
 import SecondBlock from "@/components/Dashboard/Dashboard/SecondBlock";
 import ThirdBlock from "@/components/Dashboard/Dashboard/ThirdBlock";
 import TodoList from "@/components/Dashboard/TodoList";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ArrowUpRight } from "lucide-react";
+import { FC } from "react";
+import { HiDotsVertical } from "react-icons/hi";
 
 interface pageProps {}
 
@@ -23,7 +19,7 @@ interface pageProps {}
 
 const page: FC<pageProps> = async ({}) => {
   return (
-    <div className="  grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-5 gap-4 overflow-hidden text-woodsmoke-200">
+    <div className="  grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-5 gap-4 overflow-hidden text-woodsmoke-200 ">
       {/* <div className="border">Helo</div>
   <div className="border">Helo</div>
   <div className="border">Helo</div>

@@ -2071,6 +2071,8 @@ export const upsertInvoice = async (value: InvoiceCreationSchemaRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
+  console.log(value);
+
   const order = await db.order.findUnique({
     where: {
       id: value.orderId,
@@ -2082,109 +2084,217 @@ export const upsertInvoice = async (value: InvoiceCreationSchemaRequest) => {
 
   if (!order) return;
 
-  const response = await db.invoice.upsert({
-    where: {
-      id: value.id,
-    },
-    create: {
-      invoiceDate: value.invoiceDate,
-      invoiceNumber: value.invoiceNumber.trim(),
-      invoiceNumberSlug: encodeURI(
-        value.invoiceNumber.trim().replace(/\//g, "%")
-      ),
-      LrNumber: value.LrNumber,
-      LrUrl: value.LrUrl,
-      transportName: value.transportName,
-      order: {
-        connect: {
-          id: value.orderId,
-        },
-      },
-      ProductInInvoiceOfOrder: {
-        create: value.items.map((product) => {
-          return {
-            certificateNumber: product.certificateNumber ?? "",
-            ProductInOrder: {
-              connect: {
-                id: product.orderProductInOrderId,
-              },
-            },
-            supplidQuantity: product.suppliedQuantity,
-            typeNumber: product.typeNumber ?? "",
-            numberOfBoxes: product.numberOfBoxes ?? 0,
-          };
-        }),
-      },
-    },
-    update: {
-      invoiceDate: value.invoiceDate,
-      invoiceNumber: value.invoiceNumber.trim(),
-      invoiceNumberSlug: encodeURI(
-        value.invoiceNumber.trim().replace(/\//g, "%")
-      ),
-      LrNumber: value.LrNumber,
-      LrUrl: value.LrUrl,
-      transportName: value.transportName,
-      order: {
-        connect: {
-          id: value.orderId,
-        },
-      },
-      ProductInInvoiceOfOrder: {
-        create: value.items.map((product) => {
-          return {
-            certificateNumber: product.certificateNumber ?? "",
-            ProductInOrder: {
-              connect: {
-                id: product.orderProductInOrderId,
-              },
-            },
-            supplidQuantity: product.suppliedQuantity,
-            typeNumber: product.typeNumber ?? "",
-            numberOfBoxes: product.numberOfBoxes ?? 0,
-          };
-        }),
-      },
-    },
+  const existingInvoice = await db.invoice.findUnique({
+    where: { id: value.id },
     include: {
-      ProductInInvoiceOfOrder: true,
+      ProductInInvoiceOfOrder: {
+        include: {
+          ProductInOrder: {
+            select: {
+              id: true,
+              product: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
-  const invoices = await db.invoice.findMany({
-    where: {
-      orderId: value.orderId,
-    },
-    include: {
-      ProductInInvoiceOfOrder: true,
-    },
-  });
+  if (existingInvoice) {
+    const existingItemIds = existingInvoice?.ProductInInvoiceOfOrder.map(
+      (item) => item.id
+    );
 
-  const productLengthCheck = areQuantitiesEqual(order, invoices);
+    const newProductIds = value.items?.map((prod) => prod?.id);
+    const productsToDelete = existingItemIds?.filter(
+      (id) => !newProductIds?.includes(id)
+    );
 
-  if (productLengthCheck) {
-    await db.order.update({
+    await db.productInInvoiceOfOrder.deleteMany({
+      where: { id: { in: productsToDelete } },
+    });
+
+    const response = await db.invoice.upsert({
       where: {
-        id: value.orderId,
+        id: value.id,
       },
-      data: {
-        status: "COMPLETED",
+      create: {
+        invoiceDate: value.invoiceDate,
+        invoiceNumber: value.invoiceNumber.trim(),
+        invoiceNumberSlug: encodeURI(
+          value.invoiceNumber.trim().replace(/\//g, "%")
+        ),
+        LrNumber: value.LrNumber,
+        LrUrl: value.LrUrl,
+        transportName: value.transportName,
+        order: {
+          connect: {
+            id: value.orderId,
+          },
+        },
+        ProductInInvoiceOfOrder: {
+          create: value.items.map((product) => {
+            return {
+              certificateNumber: product.certificateNumber ?? "",
+              supplidQuantity: product.suppliedQuantity,
+              typeNumber: product.typeNumber ?? "",
+              numberOfBoxes: product.numberOfBoxes ?? 0,
+              productInOrderId: product.orderProductInOrderId,
+            };
+          }),
+        },
+      },
+      update: {
+        invoiceDate: value.invoiceDate,
+        invoiceNumber: value.invoiceNumber.trim(),
+        invoiceNumberSlug: encodeURI(
+          value.invoiceNumber.trim().replace(/\//g, "%")
+        ),
+        LrNumber: value.LrNumber,
+        LrUrl: value.LrUrl,
+        transportName: value.transportName,
+        order: {
+          connect: {
+            id: value.orderId,
+          },
+        },
+        ProductInInvoiceOfOrder: {
+          upsert: value.items.map((product) => {
+            return {
+              where: {
+                id: product.id,
+              },
+              create: {
+                certificateNumber: product.certificateNumber ?? "",
+                productInOrderId: product.orderProductInOrderId,
+                supplidQuantity: product.suppliedQuantity,
+                typeNumber: product.typeNumber ?? "",
+                numberOfBoxes: product.numberOfBoxes ?? 0,
+              },
+              update: {
+                certificateNumber: product.certificateNumber ?? "",
+                productInOrderId: product.orderProductInOrderId,
+                supplidQuantity: product.suppliedQuantity,
+                typeNumber: product.typeNumber ?? "",
+                numberOfBoxes: product.numberOfBoxes ?? 0,
+              },
+            };
+          }),
+        },
       },
     });
+
+    const invoices = await db.invoice.findMany({
+      where: {
+        orderId: value.orderId,
+      },
+      include: {
+        ProductInInvoiceOfOrder: true,
+      },
+    });
+
+    const productLengthCheck = areQuantitiesEqual(order, invoices);
+
+    if (productLengthCheck) {
+      await db.order.update({
+        where: {
+          id: value.orderId,
+        },
+        data: {
+          status: "COMPLETED",
+        },
+      });
+    } else {
+      await db.order.update({
+        where: {
+          id: value.orderId,
+        },
+        data: {
+          status: "PARTIAL_COMPLETED",
+        },
+      });
+    }
+
+    if (!response)
+      return { error: "Could not create quotation, please try again later!" };
+    if (response) return { success: { id: existingInvoice.id } };
   } else {
-    await db.order.update({
-      where: {
-        id: value.orderId,
-      },
+    const response = await db.invoice.create({
       data: {
-        status: "PARTIAL_COMPLETED",
+        invoiceDate: value.invoiceDate,
+        invoiceNumber: value.invoiceNumber.trim(),
+        invoiceNumberSlug: encodeURI(
+          value.invoiceNumber.trim().replace(/\//g, "%")
+        ),
+        LrNumber: value.LrNumber,
+        LrUrl: value.LrUrl,
+        transportName: value.transportName,
+        order: {
+          connect: {
+            id: value.orderId,
+          },
+        },
+        ProductInInvoiceOfOrder: {
+          create: value.items.map((product) => {
+            return {
+              certificateNumber: product.certificateNumber ?? "",
+              ProductInOrder: {
+                connect: {
+                  id: product.orderProductInOrderId,
+                },
+              },
+              supplidQuantity: product.suppliedQuantity,
+              typeNumber: product.typeNumber ?? "",
+              numberOfBoxes: product.numberOfBoxes ?? 0,
+            };
+          }),
+        },
+      },
+
+      include: {
+        ProductInInvoiceOfOrder: true,
       },
     });
-  }
 
-  if (!response)
-    return { error: "Something went wrong, Please try again later" };
-  if (response) return { success: response };
+    const invoices = await db.invoice.findMany({
+      where: {
+        orderId: value.orderId,
+      },
+      include: {
+        ProductInInvoiceOfOrder: true,
+      },
+    });
+
+    const productLengthCheck = areQuantitiesEqual(order, invoices);
+
+    if (productLengthCheck) {
+      await db.order.update({
+        where: {
+          id: value.orderId,
+        },
+        data: {
+          status: "COMPLETED",
+        },
+      });
+    } else {
+      await db.order.update({
+        where: {
+          id: value.orderId,
+        },
+        data: {
+          status: "PARTIAL_COMPLETED",
+        },
+      });
+    }
+    // let response = "yes";
+    if (!response)
+      return { error: "Something went wrong, Please try again later" };
+    if (response) return { success: response };
+  }
 };
 
 export const editInvoice = async (value: InvoiceCreationSchemaRequest) => {

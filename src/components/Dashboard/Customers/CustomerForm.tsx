@@ -47,12 +47,14 @@ interface CustomerFormProps {
   data?: Customer;
   isQuotationPage?: boolean;
   onSubmit?: () => void;
+  setValue: any;
 }
 
 const CustomerForm: FC<CustomerFormProps> = ({
   data,
   isQuotationPage,
   onSubmit,
+  setValue,
 }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -95,6 +97,7 @@ const CustomerForm: FC<CustomerFormProps> = ({
     });
 
     if (response?.success) {
+      setValue("customerId", response.success.id);
       toast({
         title: "Your Customer has been created.",
       });

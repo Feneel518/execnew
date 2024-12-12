@@ -345,6 +345,7 @@ const QuotationForm: FC<QuotationFormProps> = ({ quotationData }) => {
             <CustomerForm
               isQuotationPage={true}
               onSubmit={() => setCustomerForm(false)}
+              setValue={form.setValue}
             ></CustomerForm>
           )}
           <Form {...form}>

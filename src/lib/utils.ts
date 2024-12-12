@@ -111,9 +111,13 @@ export const accumulateInvoiceQuantities = (
     include: {
       ProductInInvoiceOfOrder: true;
     };
-  }>[]
+  }>[],
+  excludeInvoiceId?: string // Optional parameter to exclude a specific invoice
 ) => {
   return invoices.reduce((acc, invoice) => {
+    if (invoice.id === excludeInvoiceId) {
+      return acc; // Skip this invoice
+    }
     for (const product of invoice.ProductInInvoiceOfOrder) {
       if (!acc[product.productInOrderId]) {
         acc[product.productInOrderId] = 0;
@@ -134,14 +138,17 @@ export const calculateRemainingQuantities = (
     include: {
       ProductInInvoiceOfOrder: true;
     };
-  }>[]
+  }>[],
+  excludeInvoiceId?: string // Optional parameter to exclude a specific invoice
 ) => {
+  console.log({ excludeInvoiceId });
+
   const orderQuantities = order.ProductInOrder.reduce((acc, product) => {
     acc[product.id] = product.quantity;
     return acc;
   }, {} as Record<string, number>);
 
-  const acc = accumulateInvoiceQuantities(invoices);
+  const acc = accumulateInvoiceQuantities(invoices, excludeInvoiceId);
   const remainingQuantities = { ...orderQuantities };
 
   for (const productId in acc) {

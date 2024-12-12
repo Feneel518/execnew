@@ -42,7 +42,7 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
                 {order.poNumber}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-40 lg:flex hidden">
-                {format(order.poDate as Date, "PP")}
+                {order.poDate && format(order.poDate as Date, "PP")}
               </div>
               <div className="p-4 align-middle text-sm font-normal w-40 lg:flex hidden">
                 {order.status}

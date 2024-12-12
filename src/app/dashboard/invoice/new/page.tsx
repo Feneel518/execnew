@@ -1,4 +1,5 @@
 import InvoiceForm from "@/components/Dashboard/Invoice/InvoiceForm";
+import NewInvoiceForm from "@/components/Dashboard/Invoice/NewInvoiceForm";
 import SelectClientForInvoice from "@/components/Dashboard/Order/SelectClientForInvoice";
 import POSelection from "@/components/Dashboard/Orders/POSelection";
 import { FC } from "react";
@@ -19,7 +20,8 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           <POSelection id={searchParams.client}></POSelection>
         )}
         {searchParams.orderId && (
-          <InvoiceForm id={searchParams.orderId} isInvoice={true}></InvoiceForm>
+          // <InvoiceForm id={searchParams.orderId} isInvoice={true}></InvoiceForm>
+          <NewInvoiceForm orderId={searchParams.orderId}></NewInvoiceForm>
         )}
       </div>
     </div>

@@ -84,6 +84,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         invoiceDate: true,
         order: {
           select: {
+            id: true,
             poNumber: true,
             poDate: true,
             orderNumber: true,
@@ -117,6 +118,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         invoiceDate: true,
         order: {
           select: {
+            id: true,
             poNumber: true,
             poDate: true,
             orderNumber: true,

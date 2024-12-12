@@ -88,7 +88,7 @@ const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
                         router.push(
                           `/dashboard/invoice/${encodeURI(
                             invo.invoiceNumber.replace(/\//g, "%")
-                          )}`
+                          )}?orderId=${invo.order.id}`
                         )
                       }
                     >

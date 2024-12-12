@@ -597,6 +597,7 @@ export type InvoiceTable = Prisma.InvoiceGetPayload<{
     invoiceDate: true;
     order: {
       select: {
+        id: true;
         poNumber: true;
         poDate: true;
         orderNumber: true;
@@ -611,6 +612,31 @@ export type InvoiceTable = Prisma.InvoiceGetPayload<{
       select: {
         id: true;
         certificateNumber: true;
+      };
+    };
+  };
+}>;
+export type InvoiceEditType = Prisma.InvoiceGetPayload<{
+  include: {
+    order: {
+      include: {
+        ProductInOrder: true;
+        customer: true;
+      };
+    };
+    ProductInInvoiceOfOrder: {
+      include: {
+        ProductInOrder: {
+          select: {
+            product: {
+              select: {
+                name: true;
+              };
+            };
+            description: true;
+            quantity: true;
+          };
+        };
       };
     };
   };
