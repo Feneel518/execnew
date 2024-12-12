@@ -47,7 +47,7 @@ interface CustomerFormProps {
   data?: Customer;
   isQuotationPage?: boolean;
   onSubmit?: () => void;
-  setValue: any;
+  setValue?: any;
 }
 
 const CustomerForm: FC<CustomerFormProps> = ({
