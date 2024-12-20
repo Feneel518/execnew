@@ -23,6 +23,7 @@ const page: FC<pageProps> = async ({ params }) => {
     poNumber: "",
     poDate: new Date(),
     quotationNumber: String(quotationDetails.success.quotationNumber),
+    orderPDFFile: "",
     status: "PENDING",
     ProductInOrder: quotationDetails.success.ProductInQuotation.map(
       (product, index) => {
