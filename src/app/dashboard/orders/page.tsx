@@ -2,6 +2,7 @@ import { DataTable } from "@/components/Dashboard/Customers/data-table";
 import OrderTableBody from "@/components/Dashboard/Orders/OrderTableBody";
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import NoResults from "@/components/Global/NoResults";
+import TableToDisplay from "@/components/Global/TableToDisplay";
 import { ordersColumns } from "@/components/columns/ordersColumns";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -613,12 +614,12 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       <div className="mt-4">
         <Card>
           <CardContent>
-            <ProductsTable
+            <TableToDisplay
               totalPages={totalPages}
               sort={true}
               columns={
                 <>
-                  <div className="flex items-center border-b  p-4 justify-between">
+                  <div className="flex items-center border-b  p-4 justify-between max-lg:hidden">
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground w-32">
                       Order Number
                     </h1>
@@ -650,7 +651,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                   <NoResults></NoResults>
                 )
               }
-            ></ProductsTable>
+            ></TableToDisplay>
           </CardContent>
         </Card>
       </div>

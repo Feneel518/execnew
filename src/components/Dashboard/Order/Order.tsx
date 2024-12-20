@@ -61,7 +61,7 @@ const Order: FC<OrderProps> = ({
           href={orderData.orderPDFFile ?? ""}
           className={cn(
             buttonVariants({ variant: "secondary" }),
-            "w-40 mx-auto"
+            "w-40 mx-auto print:hidden"
           )}
         >
           View PDF

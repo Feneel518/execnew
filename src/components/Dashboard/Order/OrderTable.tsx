@@ -22,9 +22,11 @@ const OrderTable: FC<OrderTableProps> = ({
   isWorkOrder,
   remainingQuantity,
 }) => {
+  console.log(remainingQuantity);
+
   return (
     <div>
-      <Table>
+      <Table className="md:inline-block hidden">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[50px]">#</TableHead>
@@ -72,6 +74,26 @@ const OrderTable: FC<OrderTableProps> = ({
           })}
         </TableBody>
       </Table>
+      <div className="md:hidden flex flex-col gap-8">
+        {products.map((invoice, index) => {
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="">
+                {index + 1} {invoice.product.name}
+              </div>
+              <div className="">{invoice.description}</div>
+              <div className="flex gap-4">
+                Quantity: {invoice.quantity}
+                {!isWorkOrder && (
+                  <div className=""> Price : {formatPrice(invoice.price)}</div>
+                )}
+                Pending Quantity: {remainingQuantity[invoice.id]}
+              </div>
+              <Separator></Separator>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
