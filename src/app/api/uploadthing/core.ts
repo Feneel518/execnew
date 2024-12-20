@@ -7,6 +7,12 @@ export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } }).onUploadComplete(
     async ({ metadata, file }) => {}
   ),
+  orderPDFUploader: f({ pdf: { maxFileSize: "8MB" } }).onUploadComplete(
+    async ({ metadata, file }) => {
+      const fileName = file.key;
+      console.log(file);
+    }
+  ),
   LrUpload: f({ image: { maxFileSize: "4MB" } }).onUploadComplete(
     async ({ metadata, file }) => {}
   ),

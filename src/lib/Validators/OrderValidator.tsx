@@ -11,6 +11,7 @@ export const OrderValidator = z.object({
     .default("PENDING"),
   notes: z.string().optional(),
   quotationNumber: z.string().optional(),
+  orderPDFFile: z.string().optional(),
   ProductInOrder: z
     .object({
       id: z.string().optional(),

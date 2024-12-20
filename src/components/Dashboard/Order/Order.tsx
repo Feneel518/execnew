@@ -8,7 +8,9 @@ import OrderTable from "./OrderTable";
 import OrderHeading from "./OrderHeading";
 import QuotationFooter from "../Quotations/QuotationFooter";
 import SmallHeading from "@/components/Global/SmallHeading";
-import { assignContinuousIndices } from "@/lib/utils";
+import { assignContinuousIndices, cn } from "@/lib/utils";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 interface OrderProps {
   orderData: OrderToView;
@@ -53,6 +55,18 @@ const Order: FC<OrderProps> = ({
   };
   return (
     <div className="flex flex-col gap-4 print:gap-0">
+      {orderData.orderPDFFile && (
+        <Link
+          target="_blank"
+          href={orderData.orderPDFFile ?? ""}
+          className={cn(
+            buttonVariants({ variant: "secondary" }),
+            "w-40 mx-auto"
+          )}
+        >
+          View PDF
+        </Link>
+      )}
       {indexedArrays.map((group, index, list) => {
         return (
           <A4Page

@@ -76,10 +76,10 @@ const MobileNavigationBar: FC<MobileNavigationBarProps> = ({}) => {
             </SheetHeader>
             <div className="grid gap-4 py-4 flex-1">
               <div className="flex flex-col items-center justify-start font-thin h-full gap-2">
-                {links.map((link) => {
+                {links.map((link, index) => {
                   const isActive = false;
                   return (
-                    <SheetClose asChild>
+                    <SheetClose asChild key={index}>
                       <Link
                         href={`${link.link}`}
                         className={`${

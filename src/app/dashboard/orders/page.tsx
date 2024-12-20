@@ -81,6 +81,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           poNumber: true,
           poDate: true,
           status: true,
+          orderPDFFile: true,
           customer: {
             select: {
               name: true,
@@ -169,6 +170,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           poNumber: true,
           poDate: true,
           status: true,
+          orderPDFFile: true,
           customer: {
             select: {
               name: true,
@@ -260,6 +262,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           poNumber: true,
           poDate: true,
           status: true,
+          orderPDFFile: true,
           customer: {
             select: {
               name: true,
@@ -308,6 +311,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           orderNumber: true,
           poNumber: true,
           poDate: true,
+          orderPDFFile: true,
           status: true,
           customer: {
             select: {
@@ -374,6 +378,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           orderNumber: true,
           poNumber: true,
           poDate: true,
+          orderPDFFile: true,
           status: true,
           customer: {
             select: {
@@ -454,6 +459,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           orderNumber: true,
           poNumber: true,
           poDate: true,
+          orderPDFFile: true,
           status: true,
           customer: {
             select: {
@@ -482,6 +488,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           id: true,
           orderNumber: true,
           poNumber: true,
+          orderPDFFile: true,
           poDate: true,
           status: true,
           customer: {
@@ -525,6 +532,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           orderNumber: true,
           poNumber: true,
           poDate: true,
+          orderPDFFile: true,
           status: true,
           customer: {
             select: {
@@ -565,6 +573,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           orderNumber: true,
           poNumber: true,
           poDate: true,
+          orderPDFFile: true,
           status: true,
           customer: {
             select: {

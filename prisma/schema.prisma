@@ -373,6 +373,7 @@ model Order {
   updatedAt       DateTime         @updatedAt
   quotationNumber String?
   ProductInOrder  ProductInOrder[]
+  orderPDFFile    String?
   // TestCertificate TestCertificate?
   Invoice         Invoice[]
   PerfomaInvoice  PerfomaInvoice[]

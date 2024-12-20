@@ -256,6 +256,7 @@ export type OrderForDashboard = Prisma.OrderGetPayload<{
     poDate: true;
     quotationNumber: true;
     status: true;
+    orderPDFFile: true;
     ProductInOrder: {
       select: {
         // index: true,
@@ -300,6 +301,7 @@ export type OrderToView = Prisma.OrderGetPayload<{
     notes: true;
     status: true;
     orderNumber: true;
+    orderPDFFile: true;
     customer: {
       select: {
         name: true;

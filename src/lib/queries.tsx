@@ -1145,6 +1145,7 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
             poNumber: order.poNumber,
             quotationNumber: order.quotationNumber,
             status: order.status,
+            orderPDFFile: order.orderPDFFile,
             ProductInOrder: {
               update: order.ProductInOrder?.map((item) => {
                 return {
@@ -1206,6 +1207,7 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
             poNumber: order.poNumber,
             quotationNumber: order.quotationNumber,
             status: "PENDING",
+            orderPDFFile: order.orderPDFFile,
             ProductInOrder: {
               create: order.ProductInOrder?.map((item) => {
                 return {
@@ -1299,6 +1301,7 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
         poDate: order.poDate,
         poNumber: order.poNumber,
         quotationNumber: order.quotationNumber,
+        orderPDFFile: order.orderPDFFile,
         status: "PENDING",
         ProductInOrder: {
           create: order.ProductInOrder?.map((item) => {
@@ -1324,6 +1327,7 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
         poDate: order.poDate,
         poNumber: order.poNumber,
         quotationNumber: order.quotationNumber,
+        orderPDFFile: order.orderPDFFile,
         status: "PENDING",
         ProductInOrder: {
           create: order.ProductInOrder?.map((item) => {
@@ -1367,6 +1371,7 @@ export const getOrderBasedOnId = async (id: string) => {
       poNumber: true,
       poDate: true,
       quotationNumber: true,
+      orderPDFFile: true,
       status: true,
       ProductInOrder: {
         select: {
@@ -1407,6 +1412,7 @@ export const getOrderDetailsBasedOnId = async (id: string) => {
       notes: true,
       status: true,
       orderNumber: true,
+      orderPDFFile: true,
       customer: {
         select: {
           name: true,

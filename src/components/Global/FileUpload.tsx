@@ -7,12 +7,18 @@ import { Button } from "../ui/button";
 import { UploadDropzone } from "@/lib/uploadthing";
 
 interface FileUploadProps {
-  apiEndPoint: "imageUploader" | "LrUpload";
+  apiEndPoint: "imageUploader" | "LrUpload" | "orderPDFUploader";
   onChange: (url?: string) => void;
   value?: string;
+  orderPDF?: string;
 }
 
-const FileUpload: FC<FileUploadProps> = ({ apiEndPoint, onChange, value }) => {
+const FileUpload: FC<FileUploadProps> = ({
+  apiEndPoint,
+  onChange,
+  value,
+  orderPDF,
+}) => {
   const type = value?.split(".").pop();
 
   if (value) {
@@ -36,7 +42,7 @@ const FileUpload: FC<FileUploadProps> = ({ apiEndPoint, onChange, value }) => {
               rel="noopener_noreferrer"
               className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline"
             >
-              View PDF
+              {orderPDF ? orderPDF : "View PDF"}
             </a>
           </div>
         )}
@@ -46,7 +52,8 @@ const FileUpload: FC<FileUploadProps> = ({ apiEndPoint, onChange, value }) => {
           className=""
           onClick={() => onChange("")}
         >
-          <X className="h-4 w-4"></X> Remove image
+          <X className="h-4 w-4"></X>{" "}
+          {apiEndPoint === "orderPDFUploader" ? "Remove PDF" : "Remove image"}
         </Button>
       </div>
     );
@@ -57,6 +64,7 @@ const FileUpload: FC<FileUploadProps> = ({ apiEndPoint, onChange, value }) => {
         endpoint={apiEndPoint}
         onClientUploadComplete={(res) => {
           onChange(res?.[0].url);
+          console.log({ res });
         }}
         onUploadError={(error: Error) => {}}
       ></UploadDropzone>

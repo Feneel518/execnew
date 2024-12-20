@@ -65,6 +65,7 @@ import { FC, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import CustomerForm from "../Customers/CustomerForm";
 import SelectProduct from "../Quotations/SelectProduct";
+import FileUpload from "@/components/Global/FileUpload";
 
 interface OrderFormProps {
   orderData?: OrderForDashboard;
@@ -84,6 +85,8 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
     orderData?.poDate ? orderData.poDate : new Date()
   );
 
+  console.log(orderData?.orderPDFFile);
+
   //
 
   const form = useForm<OrderCreationRequest>({
@@ -99,6 +102,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
         : 1,
       poDate: orderData?.poDate ? orderData.poDate : new Date(),
       poNumber: orderData?.poNumber ? orderData.poNumber : "",
+      orderPDFFile: orderData?.orderPDFFile ? orderData.orderPDFFile : "",
       ProductInOrder:
         orderData?.ProductInOrder && orderData.ProductInOrder.length > 0
           ? orderData.ProductInOrder.sort((a, b) =>
@@ -179,6 +183,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       poNumber: value.poNumber,
       quotationNumber: value.quotationNumber,
       status: value.status,
+      orderPDFFile: value.orderPDFFile,
       // @ts-ignore
       ProductInOrder: value.ProductInOrder,
     });
@@ -221,6 +226,10 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       });
     }
   };
+
+  const clientId = form.watch("customerId");
+  const clientName = customers?.success?.find((id) => id.id === clientId)?.name;
+  const PONumber = form.watch("poNumber");
 
   return (
     <AlertDialog>
@@ -468,6 +477,27 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
                   )}
                 ></FormField>
               </div>
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="orderPDFFile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order PDF File</FormLabel>
+                    <FormControl className="">
+                      <FileUpload
+                        apiEndPoint="orderPDFUploader"
+                        onChange={field.onChange}
+                        value={field.value}
+                        orderPDF={`${clientName} ${
+                          PONumber ? `| ${PONumber}` : ""
+                        }`}
+                      ></FileUpload>
+                    </FormControl>
+                    <FormMessage></FormMessage>
+                  </FormItem>
+                )}
+              ></FormField>
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
 
