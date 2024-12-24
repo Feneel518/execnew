@@ -867,3 +867,5 @@ export type PerfomaDetailsType = Prisma.PerfomaInvoiceGetPayload<{
     };
   };
 }>;
+
+// /////////////////////////////////////////////

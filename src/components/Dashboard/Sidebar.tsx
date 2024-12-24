@@ -6,13 +6,18 @@ interface SidebarProps {
   session: User & {
     role: string;
   };
+  aluminum: boolean;
 }
 
-const Sidebar: FC<SidebarProps> = ({ session }) => {
+const Sidebar: FC<SidebarProps> = ({ session, aluminum = false }) => {
   return (
     <div className="pint:hidden">
-      <MenuOptions defaultOpen={true} session={session}></MenuOptions>
-      <MenuOptions session={session}></MenuOptions>
+      <MenuOptions
+        defaultOpen={true}
+        session={session}
+        aluminum={aluminum}
+      ></MenuOptions>
+      <MenuOptions session={session} aluminum={aluminum}></MenuOptions>
     </div>
   );
 };

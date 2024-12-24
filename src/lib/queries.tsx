@@ -42,6 +42,7 @@ import {
 import { ChallanCreationRequest } from "./Validators/ChallanValidator";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QuotationCreationRequest } from "./Validators/QuotationValidator";
+import { AluminumClientCreationRequest } from "./Validators/AllAluminumValidators";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -3086,5 +3087,56 @@ export const deleteOrder = async (id: string) => {
 
   if (!response)
     return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};
+
+// //////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
+
+export const upsertAluminumClient = async (
+  value: AluminumClientCreationRequest
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.aluminumClient.upsert({
+    where: {
+      id: value.id,
+    },
+    create: {
+      name: value.name,
+      addressLine1: value.address ?? "",
+      GST: value.GST?.toUpperCase() ?? "",
+      phoneNumber: value.phoneNumber ?? "",
+      type: value.type,
+      slug: value.slug ?? "",
+    },
+    update: {
+      name: value.name,
+      addressLine1: value.address ?? "",
+      GST: value.GST?.toUpperCase() ?? "",
+      phoneNumber: value.phoneNumber ?? "",
+      type: value.type,
+      updatedAt: new Date(),
+      slug: value.slug ?? "",
+    },
+  });
+
+  if (!response)
+    return { error: "Could not create customer, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const getAluminumClientDetailsBasedOnId = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.aluminumClient.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (!response)
+    return { error: "Could not create customer, please try again later!" };
   if (response) return { success: response };
 };

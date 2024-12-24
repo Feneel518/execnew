@@ -39,7 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Customer } from "@prisma/client";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import ObjectID from "bson-objectid";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -58,6 +58,7 @@ const CustomerForm: FC<CustomerFormProps> = ({
 }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const pathName = usePathname();
 
   const [deletingCustomer, setDeletingCustomer] = useState(false);
 
@@ -97,13 +98,17 @@ const CustomerForm: FC<CustomerFormProps> = ({
     });
 
     if (response?.success) {
-      setValue("customerId", response.success.id);
       toast({
         title: "Your Customer has been created.",
       });
-      if (!isQuotationPage) {
-        router.push("/dashboard/customers");
-      }
+      if (
+        pathName.includes("customers")
+          ? null
+          : setValue("customerId", response.success.id)
+      )
+        if (!isQuotationPage) {
+          router.push("/dashboard/customers");
+        }
       if (isQuotationPage && onSubmit) {
         queryClient.invalidateQueries({ queryKey: ["customersForSelect"] });
         router.refresh();

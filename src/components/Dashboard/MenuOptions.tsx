@@ -27,9 +27,14 @@ interface MenuOptionsProps {
   session: User & {
     role: string;
   };
+  aluminum: boolean;
 }
 
-const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
+const MenuOptions: FC<MenuOptionsProps> = ({
+  defaultOpen,
+  session,
+  aluminum,
+}) => {
   const [openSheet, setOpenSheet] = useState(false);
   // const openState = useMemo(
   //   () =>
@@ -129,6 +134,38 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
       link: "/dashboard/delivery-challan",
     },
   ];
+  const ALUMINUMITEMS = [
+    {
+      id: 0,
+      icon: <IoDocumentText />,
+      label: "Clients",
+      link: "/aluminum/clients",
+    },
+    {
+      id: 1,
+      icon: <FaFileInvoiceDollar />,
+      label: "Transactions",
+      link: "/aluminum/transactions",
+    },
+    {
+      id: 2,
+      icon: <FaFileInvoiceDollar />,
+      label: "Invoice",
+      link: "/dashboard/invoice",
+    },
+    {
+      id: 3,
+      icon: <BadgeIndianRupee size={20} />,
+      label: "Peroma Invoice",
+      link: "/dashboard/perfoma",
+    },
+    {
+      id: 4,
+      icon: <FaFileInvoiceDollar />,
+      label: "Delivery Challan",
+      link: "/dashboard/delivery-challan",
+    },
+  ];
   if (!isMounted) return;
   return (
     <Sheet
@@ -172,132 +209,123 @@ const MenuOptions: FC<MenuOptionsProps> = ({ defaultOpen, session }) => {
             draggable={false}
             className="text-white my-10 flex flex-col justify-center gap-2"
           >
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem
-                className="border-none text-white  flex flex-col "
-                value="item-1"
-              >
-                <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
-                  Master
-                </AccordionTrigger>
-                {session.role === "ADMIN" ? (
-                  <>
-                    {ADMINROLEMASTER.map((link) => {
+            {!aluminum ? (
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem
+                  className="border-none text-white  flex flex-col "
+                  value="item-1"
+                >
+                  <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
+                    Master
+                  </AccordionTrigger>
+                  {session.role === "ADMIN" ? (
+                    <>
+                      {ADMINROLEMASTER.map((link) => {
+                        return (
+                          <AccordionContent>
+                            <Link
+                              onClick={() => setOpenSheet(!open)}
+                              href={link.link}
+                              draggable={false}
+                              className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                            >
+                              {link.icon}
+                              {link.label}
+                            </Link>
+                          </AccordionContent>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      <AccordionContent>
+                        <Link
+                          href={"/dashboard/store-products"}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          <FaLightbulb />
+                          Store Products
+                        </Link>
+                      </AccordionContent>
+                      <AccordionContent>
+                        <Link
+                          href={"/dashboard/employees"}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          <IoPeopleSharp />
+                          Employees
+                        </Link>
+                      </AccordionContent>
+                    </>
+                  )}
+                </AccordionItem>
+                <Separator className="bg-white/40"></Separator>
+                {session.role === "ADMIN" && (
+                  <div className="flex flex-col my-4">
+                    {ADMINROLEITEMS.map((link) => {
                       return (
-                        <AccordionContent>
-                          <Link
-                            onClick={() => setOpenSheet(!open)}
-                            href={link.link}
-                            draggable={false}
-                            className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                          >
-                            {link.icon}
-                            {link.label}
-                          </Link>
-                        </AccordionContent>
+                        <Link
+                          onClick={() => !defaultOpen && setOpenSheet(!open)}
+                          key={link.id}
+                          href={link.link}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          {link.icon}
+                          {link.label}
+                        </Link>
                       );
                     })}
-                  </>
-                ) : (
-                  <>
-                    <AccordionContent>
-                      <Link
-                        href={"/dashboard/store-products"}
-                        draggable={false}
-                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                      >
-                        <FaLightbulb />
-                        Store Products
-                      </Link>
-                    </AccordionContent>
-                    <AccordionContent>
-                      <Link
-                        href={"/dashboard/employees"}
-                        draggable={false}
-                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                      >
-                        <IoPeopleSharp />
-                        Employees
-                      </Link>
-                    </AccordionContent>
-                  </>
+                  </div>
                 )}
-              </AccordionItem>
-              <Separator className="bg-white/40"></Separator>
-              {session.role === "ADMIN" && (
-                <div className="flex flex-col my-4">
-                  {ADMINROLEITEMS.map((link) => {
+                <AccordionItem
+                  className="border-none text-white  flex flex-col "
+                  value="item-2"
+                >
+                  <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
+                    Stock
+                  </AccordionTrigger>
+                  {ADMINROLESTOCK.map((link) => {
                     return (
-                      <Link
-                        onClick={() => !defaultOpen && setOpenSheet(!open)}
-                        key={link.id}
-                        href={link.link}
-                        draggable={false}
-                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                      >
-                        {link.icon}
-                        {link.label}
-                      </Link>
+                      <AccordionContent key={link.id}>
+                        <Link
+                          onClick={() => !defaultOpen && setOpenSheet(!open)}
+                          href={link.link}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          {link.icon}
+                          {link.label}
+                        </Link>
+                      </AccordionContent>
                     );
                   })}
-                  {/* <Link
-                    href={"/dashboard/orders"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaShoppingCart />
-                    Orders
-                  </Link>
-                  <Link
-                    href={"/dashboard/invoice"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaFileInvoiceDollar />
-                    Invoice
-                  </Link>
-                  <Link
-                    href={"/dashboard/perfoma"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <BadgeIndianRupee size={20} />
-                    Peroma Invoice
-                  </Link>
-                  <Link
-                    href={"/dashboard/delivery-challan"}
-                    draggable={false}
-                    className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                  >
-                    <FaFileInvoiceDollar />
-                    Delivery Challan
-                  </Link> */}
-                </div>
-              )}
-              <AccordionItem
-                className="border-none text-white  flex flex-col "
-                value="item-2"
-              >
-                <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
-                  Stock
-                </AccordionTrigger>
-                {ADMINROLESTOCK.map((link) => {
-                  return (
-                    <AccordionContent key={link.id}>
-                      <Link
-                        onClick={() => !defaultOpen && setOpenSheet(!open)}
-                        href={link.link}
-                        draggable={false}
-                        className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
-                      >
-                        {link.icon}
-                        {link.label}
-                      </Link>
-                    </AccordionContent>
-                  );
-                })}
-              </AccordionItem>
-            </Accordion>
+                </AccordionItem>
+              </Accordion>
+            ) : (
+              <div className="">
+                {session.role === "ADMIN" && (
+                  <div className="flex flex-col my-4">
+                    {ALUMINUMITEMS.map((link) => {
+                      return (
+                        <Link
+                          onClick={() => !defaultOpen && setOpenSheet(!open)}
+                          key={link.id}
+                          href={link.link}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          {link.icon}
+                          {link.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </SheetContent>

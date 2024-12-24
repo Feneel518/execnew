@@ -525,3 +525,26 @@ model Todo {
   userId    String        @db.ObjectId
   user      User          @relation(fields: [userId], references: [id])
 }
+
+// ///////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////
+enum ALUMINUMCLIENTTYPE {
+  USER
+  SUPPLIER
+  BOTH
+}
+
+model AluminumClient {
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  slug         String
+  GST          String?
+  addressLine1 String?
+  phoneNumber  String?
+  type         ALUMINUMCLIENTTYPE @default(USER)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([name, id])
+}
