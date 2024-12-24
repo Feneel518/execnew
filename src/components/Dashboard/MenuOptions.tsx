@@ -93,7 +93,7 @@ const MenuOptions: FC<MenuOptionsProps> = ({
       id: 1,
       icon: <IoDocumentText />,
       label: "Inventory",
-      link: "/dashboard/Inventory",
+      link: "/dashboard/inventory",
     },
     {
       id: 2,
