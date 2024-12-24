@@ -6,7 +6,7 @@ interface SidebarProps {
   session: User & {
     role: string;
   };
-  aluminum: boolean;
+  aluminum?: boolean;
 }
 
 const Sidebar: FC<SidebarProps> = ({ session, aluminum = false }) => {
