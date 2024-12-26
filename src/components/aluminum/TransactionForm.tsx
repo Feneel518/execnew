@@ -1,7 +1,17 @@
 "use client";
 
 import { FC, useCallback, useEffect, useState } from "react";
-import { AlertDialog } from "../ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import {
   Card,
   CardContent,
@@ -47,7 +57,7 @@ import {
 } from "@/lib/Validators/AllAluminumValidators";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "../ui/use-toast";
-import { upserAluminumTransaction } from "@/lib/queries";
+import { deleteTransaction, upserAluminumTransaction } from "@/lib/queries";
 import ObjectID from "bson-objectid";
 import { useRouter } from "next/navigation";
 import { TransactionType } from "@/lib/types";
@@ -70,6 +80,9 @@ const TransactionForm: FC<TransactionFormProps> = ({
   const [date, setDate] = useState<Date | undefined>(
     transaction?.docketDate ? transaction.docketDate : new Date()
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [deletingTransaction, setDeletingTransaction] = useState(false);
+
   const [suppId, setSuppId] = useState<string | undefined>(undefined);
   const form = useForm<AluminumTransactionCreationRequest>({
     resolver: zodResolver(AluminumTransactionValidator),
@@ -103,7 +116,6 @@ const TransactionForm: FC<TransactionFormProps> = ({
           : [],
     },
   });
-  const isLoading = form.formState.isLoading;
 
   const { append, fields, remove } = useFieldArray({
     name: "TransactionCalculation",
@@ -151,12 +163,16 @@ const TransactionForm: FC<TransactionFormProps> = ({
     values.docketDate = date;
     values.quantityType = values.aluminumType === "SCRAP" ? "Bags" : "Slabs";
 
+    setIsLoading(true);
+
     const response = await upserAluminumTransaction(values);
 
     if (response?.success) {
       toast({
         title: "Your Transacrion has been saved.",
       });
+
+      setIsLoading(false);
 
       router.push("/aluminum/transactions");
       router.refresh();
@@ -166,6 +182,30 @@ const TransactionForm: FC<TransactionFormProps> = ({
         variant: "destructive",
         title: "Oppse!",
         description: "could not save your transaction",
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handleTransaction = async () => {
+    setDeletingTransaction(true);
+    if (!transaction?.id) return;
+    const response = await deleteTransaction(transaction?.id);
+    setDeletingTransaction(false);
+    if (response?.success) {
+      router.push("/aluminum/transactions");
+      router.refresh();
+      return toast({
+        title: "Your Transaction has been deleted.",
+        duration: 1000,
+      });
+    }
+    if (response?.error) {
+      return toast({
+        variant: "destructive",
+        title: "Oppse!",
+        description: "could not delete your transaction",
+        duration: 1000,
       });
     }
   };
@@ -1090,46 +1130,46 @@ const TransactionForm: FC<TransactionFormProps> = ({
               </Button>
             </form>
           </Form>
-          {/* {inventoryData?.id && (
-        <>
-          <div className="flex flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
-            <div className="">
-              <div className="">Danger Zone</div>
-            </div>
-            <div className="text-muted-foreground">
-              Deleting your category cannot be undone. This will also make
-              the inventory
-            </div>
-            <AlertDialogTrigger
-              disabled={isLoading || deletingQuotation}
-              className="text-red-600 p-2 text-center mt-2 rounded-md hover:bg-red-600 hover:text-white whitespace-nowrap"
-            >
-              {deletingQuotation ? "Deleting..." : "Delete Inventory"}
-            </AlertDialogTrigger>
-          </div>
-        </>
-      )} */}
-          {/* <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-left">
-            Are you absolutely sure?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-left">
-            This action cannot be undone. This will permanently delete the
-            Quotation.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="flex items-center">
-          <AlertDialogCancel className="mb-2">Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={deletingQuotation}
-            className="bg-destructive hover:bg-destructive"
-            onClick={handleDeleteQuotation}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent> */}
+          {transaction?.id && (
+            <>
+              <div className="flex flex-row items-center justify-between rounded-lg border border-destructive gap-4 p-4 mt-4">
+                <div className="">
+                  <div className="">Danger Zone</div>
+                </div>
+                <div className="text-muted-foreground">
+                  Deleting your category cannot be undone. This will also make
+                  the inventory
+                </div>
+                <AlertDialogTrigger
+                  disabled={isLoading || deletingTransaction}
+                  className="text-red-600 p-2 text-center mt-2 rounded-md hover:bg-red-600 hover:text-white whitespace-nowrap"
+                >
+                  {deletingTransaction ? "Deleting..." : "Delete Transaction"}
+                </AlertDialogTrigger>
+              </div>
+            </>
+          )}
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-left">
+                Are you absolutely sure?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-left">
+                This action cannot be undone. This will permanently delete the
+                Quotation.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex items-center">
+              <AlertDialogCancel className="mb-2">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={deletingTransaction}
+                className="bg-destructive hover:bg-destructive"
+                onClick={handleTransaction}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
         </CardContent>
       </Card>
     </AlertDialog>

@@ -3354,3 +3354,24 @@ export const upsertCasting = async (values: CastingProdcutsCreationRequest) => {
     return { error: "Could not find transaction, please try again later!" };
   if (response) return { success: response };
 };
+
+export const deleteTransaction = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  await db.transactionCalculation.deleteMany({
+    where: {
+      aluminumTransactionId: id,
+    },
+  });
+
+  const response = await db.aluminumTransaction.delete({
+    where: {
+      id,
+    },
+  });
+
+  if (!response)
+    return { error: "Could not delete transaction, please try again later!" };
+  if (response) return { success: response };
+};

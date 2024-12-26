@@ -581,7 +581,7 @@ model AluminumTransaction {
   supplierId   String         @db.ObjectId
   docketNumber String
   docketDate   DateTime
-  weight       Int
+  weight       Float
   quantity     Int?
   quantityType String?
   price        Int?
@@ -602,7 +602,7 @@ model TransactionCalculation {
   aluminumTransactionId String              @db.ObjectId
 
   index        Int
-  weight       Int
+  weight       Float
   quantity     Int?
   quantityType String?
 }
