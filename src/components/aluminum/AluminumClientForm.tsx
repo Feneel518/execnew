@@ -79,7 +79,7 @@ const AluminumClientForm: FC<AluminumClientFormProps> = ({ data }) => {
       toast({
         title: "Your Client has been created.",
       });
-
+      router.refresh();
       router.push("/aluminum/clients");
     }
     if (response?.error) {

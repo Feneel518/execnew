@@ -869,3 +869,42 @@ export type PerfomaDetailsType = Prisma.PerfomaInvoiceGetPayload<{
 }>;
 
 // /////////////////////////////////////////////
+
+export type TransactionTable = Prisma.AluminumTransactionGetPayload<{
+  select: {
+    id: true;
+    inwardType: true;
+
+    createdAt: true;
+    supplier: {
+      select: {
+        name: true;
+      };
+    };
+    user: {
+      select: {
+        name: true;
+      };
+    };
+    weight: true;
+    status: true;
+  };
+}>;
+
+export type TransactionType = Prisma.AluminumTransactionGetPayload<{
+  include: {
+    TransactionCalculation: true;
+    supplier: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+    user: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+  };
+}>;

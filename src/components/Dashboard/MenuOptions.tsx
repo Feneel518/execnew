@@ -149,9 +149,9 @@ const MenuOptions: FC<MenuOptionsProps> = ({
     },
     {
       id: 2,
-      icon: <FaFileInvoiceDollar />,
-      label: "Invoice",
-      link: "/dashboard/invoice",
+      icon: <FaLightbulb />,
+      label: "Products",
+      link: "/aluminum/products",
     },
     {
       id: 3,

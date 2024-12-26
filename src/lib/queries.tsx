@@ -42,7 +42,11 @@ import {
 import { ChallanCreationRequest } from "./Validators/ChallanValidator";
 import { OrderCreationRequest } from "./Validators/OrderValidator";
 import { QuotationCreationRequest } from "./Validators/QuotationValidator";
-import { AluminumClientCreationRequest } from "./Validators/AllAluminumValidators";
+import {
+  AluminumClientCreationRequest,
+  AluminumTransactionCreationRequest,
+  CastingProdcutsCreationRequest,
+} from "./Validators/AllAluminumValidators";
 
 export const login = async (values: LoginSchemaRequest) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -3138,5 +3142,215 @@ export const getAluminumClientDetailsBasedOnId = async (id: string) => {
   });
   if (!response)
     return { error: "Could not create customer, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const getSuppliers = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.aluminumClient.findMany({
+    select: {
+      name: true,
+      id: true,
+      type: true,
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find suppliers, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const upserAluminumTransaction = async (
+  value: AluminumTransactionCreationRequest
+) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const existingTransaction = await db.aluminumTransaction.findUnique({
+    where: {
+      id: value.id,
+    },
+    include: {
+      TransactionCalculation: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (existingTransaction) {
+    const exisitingCalculationIds =
+      existingTransaction.TransactionCalculation.map((id) => id.id);
+    const newCalculationIds = value.TransactionCalculation?.map((id) => id.id);
+
+    const productsToDelete = exisitingCalculationIds?.filter(
+      (id) => !newCalculationIds?.includes(id)
+    );
+
+    await db.transactionCalculation.deleteMany({
+      where: {
+        id: {
+          in: productsToDelete,
+        },
+      },
+    });
+
+    const response = await db.aluminumTransaction.update({
+      where: {
+        id: value.id,
+      },
+      data: {
+        docketDate: value.docketDate ?? new Date(),
+        docketNumber: value.docketNumber,
+        status: value.status,
+        weight: value.weight,
+        aluminumType: value.aluminumType,
+        inwardType: value.inwardType,
+        price: value.price,
+        quantity: value.quantity,
+        quantityType: value.quantityType,
+        supplierId: value.supplierId,
+        userId: value.userId,
+        TransactionCalculation: {
+          upsert: value.TransactionCalculation?.map((trans) => {
+            return {
+              where: {
+                id: trans.id,
+              },
+              create: {
+                index: trans.index,
+                weight: trans.weight,
+                quantity: trans.quantity,
+                quantityType: trans.quantityType,
+              },
+              update: {
+                index: trans.index,
+                weight: trans.weight,
+                quantity: trans.quantity,
+                quantityType: trans.quantityType,
+              },
+            };
+          }),
+        },
+      },
+    });
+    if (!response)
+      return { error: "Could not update transaction, please try again later!" };
+    if (response) return { success: response };
+  } else {
+    const response = await db.aluminumTransaction.create({
+      data: {
+        docketDate: value.docketDate ?? new Date(),
+        docketNumber: value.docketNumber,
+        status: value.status,
+        weight: value.weight,
+        aluminumType: value.aluminumType,
+        inwardType: value.inwardType,
+        price: value.price,
+        quantity: value.quantity,
+        quantityType: value.quantityType,
+        supplierId: value.supplierId,
+        userId: value.userId,
+        TransactionCalculation: {
+          create: value.TransactionCalculation?.map((trans) => {
+            return {
+              index: trans.index,
+              weight: trans.weight,
+              quantity: trans.quantity,
+              quantityType: trans.quantityType,
+            };
+          }),
+        },
+      },
+    });
+
+    if (!response)
+      return { error: "Could not update transaction, please try again later!" };
+    if (response) return { success: response };
+  }
+};
+
+export const getTransactionBasedOnId = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.aluminumTransaction.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      TransactionCalculation: true,
+      supplier: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find transaction, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const fetchDocketForSelect = async (id?: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+  if (!id) return { error: "No docket found." };
+
+  const response = await db.aluminumTransaction.findMany({
+    where: {
+      AND: [
+        {
+          inwardType: "ALUMINUM",
+        },
+        {
+          supplierId: id,
+        },
+      ],
+    },
+    select: {
+      docketNumber: true,
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find supplier, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const upsertCasting = async (values: CastingProdcutsCreationRequest) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.castings.upsert({
+    where: {
+      id: values.id,
+    },
+    create: {
+      name: values.name,
+      description: values.description,
+      weight: values.weight,
+      slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
+    },
+    update: {
+      name: values.name,
+      description: values.description,
+      weight: values.weight,
+      slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
+    },
+  });
+  if (!response)
+    return { error: "Could not find transaction, please try again later!" };
   if (response) return { success: response };
 };
