@@ -31,6 +31,16 @@ export const AluminumTransactionValidator = z.object({
   quantityType: z.string().optional(),
   price: z.coerce.number().optional(),
   userId: z.string().optional(),
+  Castings: z
+    .object({
+      id: z.string().optional(),
+      castingId: z.string(),
+      quantity: z.coerce.number().optional(),
+      weight: z.coerce.number().optional(),
+      description: z.string().optional(),
+    })
+    .array()
+    .optional(),
   TransactionCalculation: z
     .object({
       id: z.string().optional(),

@@ -125,7 +125,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         <Card>
           <CardContent>
             <ProductsTable
-              totalPages={0}
+              totalPages={totalPages}
               columns={
                 <>
                   <div className="grid grid-cols-7 items-center border-b  p-4 ">

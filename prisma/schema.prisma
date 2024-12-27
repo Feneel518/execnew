@@ -584,13 +584,14 @@ model AluminumTransaction {
   weight       Float
   quantity     Int?
   quantityType String?
-  price        Int?
+  price        Float?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
   user                   AluminumClient?          @relation("User", fields: [userId], references: [id])
   userId                 String?                  @db.ObjectId
   TransactionCalculation TransactionCalculation[]
+  CastingForTransaction  CastingForTransaction[]
 }
 
 model TransactionCalculation {
@@ -608,11 +609,28 @@ model TransactionCalculation {
 }
 
 model Castings {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String
-  slug        String
-  weight      Float?
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  name                  String
+  slug                  String
+  weight                Float?
+  description           String?
+  CastingForTransaction CastingForTransaction[]
+}
+
+model CastingForTransaction {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   description String?
+  weight      Float?
+  quantity    Int?
+
+  transaction           AluminumTransaction @relation(fields: [aluminumTransactionId], references: [id])
+  aluminumTransactionId String              @db.ObjectId
+
+  casting    Castings @relation(fields: [castingsId], references: [id])
+  castingsId String   @db.ObjectId
 }

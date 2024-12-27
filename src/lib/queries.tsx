@@ -3173,6 +3173,11 @@ export const upserAluminumTransaction = async (
       id: value.id,
     },
     include: {
+      CastingForTransaction: {
+        select: {
+          id: true,
+        },
+      },
       TransactionCalculation: {
         select: {
           id: true,
@@ -3186,14 +3191,30 @@ export const upserAluminumTransaction = async (
       existingTransaction.TransactionCalculation.map((id) => id.id);
     const newCalculationIds = value.TransactionCalculation?.map((id) => id.id);
 
-    const productsToDelete = exisitingCalculationIds?.filter(
+    const exisitingCastingIds = existingTransaction.CastingForTransaction.map(
+      (id) => id.id
+    );
+    const newCastingIds = value.Castings?.map((id) => id.id);
+
+    const calculatiionsToDelete = exisitingCalculationIds?.filter(
       (id) => !newCalculationIds?.includes(id)
+    );
+    const castingsToDelete = exisitingCastingIds?.filter(
+      (id) => !newCastingIds?.includes(id)
     );
 
     await db.transactionCalculation.deleteMany({
       where: {
         id: {
-          in: productsToDelete,
+          in: calculatiionsToDelete,
+        },
+      },
+    });
+
+    await db.castingForTransaction.deleteMany({
+      where: {
+        id: {
+          in: castingsToDelete,
         },
       },
     });
@@ -3214,6 +3235,27 @@ export const upserAluminumTransaction = async (
         quantityType: value.quantityType,
         supplierId: value.supplierId,
         userId: value.userId,
+        CastingForTransaction: {
+          upsert: value.Castings?.map((casting) => {
+            return {
+              where: {
+                id: casting.id,
+              },
+              create: {
+                castingsId: casting.castingId,
+                description: casting.description,
+                quantity: casting.quantity,
+                weight: casting.weight,
+              },
+              update: {
+                castingsId: casting.castingId,
+                description: casting.description,
+                quantity: casting.quantity,
+                weight: casting.weight,
+              },
+            };
+          }),
+        },
         TransactionCalculation: {
           upsert: value.TransactionCalculation?.map((trans) => {
             return {
@@ -3254,6 +3296,16 @@ export const upserAluminumTransaction = async (
         quantityType: value.quantityType,
         supplierId: value.supplierId,
         userId: value.userId,
+        CastingForTransaction: {
+          create: value.Castings?.map((casting) => {
+            return {
+              castingsId: casting.castingId,
+              description: casting.description,
+              quantity: casting.quantity,
+              weight: casting.weight,
+            };
+          }),
+        },
         TransactionCalculation: {
           create: value.TransactionCalculation?.map((trans) => {
             return {
@@ -3283,6 +3335,7 @@ export const getTransactionBasedOnId = async (id: string) => {
     },
     include: {
       TransactionCalculation: true,
+      CastingForTransaction: true,
       supplier: {
         select: {
           id: true,
@@ -3365,6 +3418,12 @@ export const deleteTransaction = async (id: string) => {
     },
   });
 
+  await db.castingForTransaction.deleteMany({
+    where: {
+      aluminumTransactionId: id,
+    },
+  });
+
   const response = await db.aluminumTransaction.delete({
     where: {
       id,
@@ -3373,5 +3432,16 @@ export const deleteTransaction = async (id: string) => {
 
   if (!response)
     return { error: "Could not delete transaction, please try again later!" };
+  if (response) return { success: response };
+};
+
+export const fetchCastingForSelect = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.castings.findMany({});
+
+  if (!response)
+    return { error: "Could not find products, please try again later!" };
   if (response) return { success: response };
 };

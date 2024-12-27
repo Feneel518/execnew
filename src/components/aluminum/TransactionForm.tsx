@@ -62,6 +62,8 @@ import ObjectID from "bson-objectid";
 import { useRouter } from "next/navigation";
 import { TransactionType } from "@/lib/types";
 import { useGetDocketNumberForSelect } from "@/data/get-docket-number-for-select";
+import { useGetCastingsForSelect } from "@/data/get-castings-for-select";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TransactionFormProps {
   supplier: {
@@ -76,14 +78,19 @@ const TransactionForm: FC<TransactionFormProps> = ({
   supplier,
   transaction,
 }) => {
+  // router imports
   const router = useRouter();
+  const queries = useQueryClient();
+
+  // states
   const [date, setDate] = useState<Date | undefined>(
     transaction?.docketDate ? transaction.docketDate : new Date()
   );
   const [isLoading, setIsLoading] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState(false);
-
   const [suppId, setSuppId] = useState<string | undefined>(undefined);
+
+  // form default
   const form = useForm<AluminumTransactionCreationRequest>({
     resolver: zodResolver(AluminumTransactionValidator),
     defaultValues: {
@@ -114,32 +121,70 @@ const TransactionForm: FC<TransactionFormProps> = ({
               };
             })
           : [],
+      Castings:
+        transaction?.CastingForTransaction &&
+        transaction.CastingForTransaction.length > 0
+          ? transaction.CastingForTransaction.map((trans) => {
+              return {
+                id: trans.id,
+                castingId: trans.castingsId,
+                description: trans.description ?? "",
+                quantity: trans.quantity ?? undefined,
+                weight: trans.weight ?? undefined,
+              };
+            })
+          : [
+              {
+                castingId: ObjectID().toString(),
+                id: ObjectID().toString(),
+                description: "",
+                quantity: 0,
+                weight: 0,
+              },
+            ],
     },
   });
 
-  const { append, fields, remove } = useFieldArray({
-    name: "TransactionCalculation",
-    control: form.control,
-  });
-
+  // dynamic data from form
   const status = form.watch("status");
   const inwardType = form.watch("inwardType");
   const aluminumType = form.watch("aluminumType");
   const weightCalculations = form.watch("TransactionCalculation");
-
+  const weightCastingCalculations = form.watch("Castings");
   const supplierId = form.watch("supplierId");
-
   useEffect(() => {
     setSuppId(supplierId);
+    queries.invalidateQueries({
+      queryKey: ["docketForSelect"],
+      refetchType: "all",
+    });
   }, [supplierId]);
 
+  // use field arrays
+  const { append, fields, remove } = useFieldArray({
+    name: "TransactionCalculation",
+    control: form.control,
+  });
+  const {
+    append: ProductAppend,
+    fields: ProductFields,
+    remove: ProductRemove,
+  } = useFieldArray({
+    name: "Castings",
+    control: form.control,
+  });
+
+  // fetch datas
   const fetch =
     (inwardType === "REPLACE_ALUMINUM" || inwardType === "RETURNABLE") && suppId
       ? true
       : false;
+  const fetchProducts = inwardType === "CASTING";
 
   const { data: docketNumbers } = useGetDocketNumberForSelect(suppId, fetch);
+  const { data: products } = useGetCastingsForSelect(fetchProducts);
 
+  // total weight calculations
   if (weightCalculations && weightCalculations.length > 0) {
     const totalWeight = weightCalculations.reduce((acc, total) => {
       return acc + Number(total.weight);
@@ -150,7 +195,18 @@ const TransactionForm: FC<TransactionFormProps> = ({
     form.setValue("weight", totalWeight);
     form.setValue("quantity", totalQuantity);
   }
+  if (weightCastingCalculations && weightCastingCalculations.length > 0) {
+    const totalWeight = weightCastingCalculations.reduce((acc, total) => {
+      return acc + Number(total.weight);
+    }, 0);
+    const totalQuantity = weightCastingCalculations.reduce((acc, total) => {
+      return acc + Number(total.quantity);
+    }, 0);
+    form.setValue("weight", totalWeight);
+    form.setValue("quantity", totalQuantity);
+  }
 
+  // submitting
   const handleSubmit = async (values: AluminumTransactionCreationRequest) => {
     if (!values.supplierId) {
       return toast({
@@ -164,6 +220,8 @@ const TransactionForm: FC<TransactionFormProps> = ({
     values.quantityType = values.aluminumType === "SCRAP" ? "Bags" : "Slabs";
 
     setIsLoading(true);
+
+    console.log(values);
 
     const response = await upserAluminumTransaction(values);
 
@@ -187,6 +245,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
     }
   };
 
+  // deleting
   const handleTransaction = async () => {
     setDeletingTransaction(true);
     if (!transaction?.id) return;
@@ -227,7 +286,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
               className="flex flex-col gap-4 "
             >
               <div className="">
-                {/* Status */}
+                {/* In or out */}
                 <FormField
                   disabled={isLoading}
                   control={form.control}
@@ -264,7 +323,8 @@ const TransactionForm: FC<TransactionFormProps> = ({
                   )}
                 ></FormField>
               </div>
-              {/* In ward Type */}
+
+              {/* Inward Type */}
               {status === "IN" ? (
                 <div className="">
                   <FormField
@@ -550,87 +610,6 @@ const TransactionForm: FC<TransactionFormProps> = ({
                       />
                     )}
                     {/* Products */}
-                    {/* {supplier.length > 0 && inwardType === "CASTING" && (
-                      <FormField
-                        control={form.control}
-                        name="supplierId"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormLabel>Supplier</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value
-                                      ? field.value === "null"
-                                        ? "-----null-----"
-                                        : supplier.find(
-                                            (cust) => cust.id === field.value
-                                          )?.name
-                                      : "Select supplier"}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                                <Command>
-                                  <CommandInput placeholder="Search supplier..." />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      No supplier found.
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      <CommandItem
-                                        onSelect={() => {
-                                          form.setValue("supplierId", "null");
-                                        }}
-                                        key={"null"}
-                                        value={"null"}
-                                      >
-                                        <div className="flex items-center gap-4">
-                                          <span>{"-----null-----"}</span>
-                                        </div>
-                                      </CommandItem>
-                                      {supplier.map((language) => (
-                                        <CommandItem
-                                          value={language.name}
-                                          key={language.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "supplierId",
-                                              language.id
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              language.name === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {language.name}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )} */}
                     {fetch ? (
                       docketNumbers &&
                       docketNumbers.success &&
@@ -734,6 +713,10 @@ const TransactionForm: FC<TransactionFormProps> = ({
                             <FormLabel>Docket Number</FormLabel>
                             <FormControl>
                               <Input
+                                disabled={
+                                  inwardType === "REPLACE_ALUMINUM" ||
+                                  inwardType === "RETURNABLE"
+                                }
                                 placeholder="Docket Number"
                                 {...field}
                               ></Input>
@@ -794,7 +777,11 @@ const TransactionForm: FC<TransactionFormProps> = ({
                         <FormItem className="flex-1">
                           <FormLabel>Weight</FormLabel>
                           <FormControl>
-                            <Input placeholder="Weight" {...field}></Input>
+                            <Input
+                              placeholder="Weight"
+                              {...field}
+                              type="number"
+                            ></Input>
                           </FormControl>
                           <FormMessage></FormMessage>
                         </FormItem>
@@ -808,7 +795,11 @@ const TransactionForm: FC<TransactionFormProps> = ({
                         <FormItem className="flex-1">
                           <FormLabel>Quantity</FormLabel>
                           <FormControl>
-                            <Input placeholder="Quantity" {...field}></Input>
+                            <Input
+                              placeholder="Quantity"
+                              {...field}
+                              type="number"
+                            ></Input>
                           </FormControl>
                           <FormMessage></FormMessage>
                         </FormItem>
@@ -822,15 +813,201 @@ const TransactionForm: FC<TransactionFormProps> = ({
                         <FormItem className="flex-1">
                           <FormLabel>Price</FormLabel>
                           <FormControl>
-                            <Input placeholder="Price" {...field}></Input>
+                            <Input
+                              placeholder="Price"
+                              {...field}
+                              type="number"
+                            ></Input>
                           </FormControl>
                           <FormMessage></FormMessage>
                         </FormItem>
                       )}
                     ></FormField>
+                    {inwardType === "CASTING" &&
+                      ProductFields.map((fields, index) => {
+                        return (
+                          <div className="flex items-end col-span-3 gap-2">
+                            {products?.success &&
+                              products?.success.length > 0 && (
+                                <FormField
+                                  control={form.control}
+                                  name={`Castings.${index}.castingId`}
+                                  render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                      {index === 0 && (
+                                        <FormLabel>Product</FormLabel>
+                                      )}
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <FormControl>
+                                            <Button
+                                              variant="outline"
+                                              role="combobox"
+                                              className={cn(
+                                                "w-full justify-between",
+                                                !field.value &&
+                                                  "text-muted-foreground"
+                                              )}
+                                            >
+                                              {field.value
+                                                ? field.value === "null"
+                                                  ? "-----null-----"
+                                                  : products.success.find(
+                                                      (cust) =>
+                                                        cust.id === field.value
+                                                    )?.name
+                                                : "Select Product"}
+                                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                          </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                                          <Command>
+                                            <CommandInput placeholder="Search product..." />
+                                            <CommandList>
+                                              <CommandEmpty>
+                                                No product found.
+                                              </CommandEmpty>
+                                              <CommandGroup>
+                                                <CommandItem
+                                                  onSelect={() => {
+                                                    form.setValue(
+                                                      `Castings.${index}.castingId`,
+                                                      "null"
+                                                    );
+                                                  }}
+                                                  key={"null"}
+                                                  value={"null"}
+                                                >
+                                                  <div className="flex items-center gap-4">
+                                                    <span>
+                                                      {"-----null-----"}
+                                                    </span>
+                                                  </div>
+                                                </CommandItem>
+                                                {products.success.map(
+                                                  (language) => (
+                                                    <CommandItem
+                                                      value={language.name}
+                                                      key={language.id}
+                                                      onSelect={() => {
+                                                        form.setValue(
+                                                          `Castings.${index}.castingId`,
+                                                          language.id
+                                                        );
+                                                      }}
+                                                    >
+                                                      <Check
+                                                        className={cn(
+                                                          "mr-2 h-4 w-4",
+                                                          language.name ===
+                                                            field.value
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                        )}
+                                                      />
+                                                      {language.name}
+                                                    </CommandItem>
+                                                  )
+                                                )}
+                                              </CommandGroup>
+                                            </CommandList>
+                                          </Command>
+                                        </PopoverContent>
+                                      </Popover>
+
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.description`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && (
+                                    <FormLabel>Description</FormLabel>
+                                  )}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Description"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.weight`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && <FormLabel>Weight</FormLabel>}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Weight"
+                                      type="number"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.quantity`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && (
+                                    <FormLabel>Quantity</FormLabel>
+                                  )}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Quantity"
+                                      type="number"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            {ProductFields.length - 1 === index && (
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  ProductAppend({
+                                    id: ObjectID().toString(),
+                                    castingId: "",
+                                    description: "",
+                                    quantity: 0,
+                                    weight: 0,
+                                  })
+                                }
+                              >
+                                +
+                              </Button>
+                            )}
+                            {index !== 0 && (
+                              <Button
+                                type="button"
+                                onClick={() => ProductRemove(index)}
+                              >
+                                -
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
 
-                  {fields.length == 0 && (
+                  {inwardType !== "CASTING" && fields.length == 0 && (
                     <Button
                       type="button"
                       className="mt-10 w-80 mx-auto"
@@ -865,6 +1042,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
                                 <FormControl>
                                   <Input
                                     placeholder="Weight"
+                                    type="number"
                                     {...field}
                                   ></Input>
                                 </FormControl>
@@ -882,6 +1060,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
                                 <FormControl>
                                   <Input
                                     placeholder="Quantity"
+                                    type="number"
                                     {...field}
                                   ></Input>
                                 </FormControl>
@@ -898,7 +1077,8 @@ const TransactionForm: FC<TransactionFormProps> = ({
                                   index: index,
                                   weight: 0,
                                   quantity: 0,
-                                  quantityType: "Bags",
+                                  quantityType:
+                                    aluminumType === "SCRAP" ? "Bags" : "Slabs",
                                 })
                               }
                             >
@@ -914,209 +1094,6 @@ const TransactionForm: FC<TransactionFormProps> = ({
                   })}
                 </>
               )}
-              {/* {products?.success && (
-            <div className="flex md:flex-row gap-4 items-end">
-              <FormField
-                control={form.control}
-                name="storeProductId"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col w-full">
-                    <FormLabel>Products</FormLabel>
-                    <Popover>   
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? products.success.find(
-                                  (cust) =>
-                                    cust.StoreProductId === field.value
-                                )?.name
-                              : "Select products"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search products..." />
-                          <CommandList>
-                            <CommandEmpty>No products found.</CommandEmpty>
-                            <CommandGroup>
-                              {products.success.map((language) => (
-                                <CommandItem
-                                  value={language.name}
-                                  key={language.id}
-                                  onSelect={() => {
-                                    form.setValue(
-                                      "storeProductId",
-                                      language.StoreProductId
-                                    );
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      language.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  <div className="flex items-center gap-4">
-                                    <span>{language.StoreProductId}</span>
-                                    <span>|</span>
-                                    <span>{language.name}</span>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )} */}
-              {/* <div className="flex md:flex-row gap-4 items-end">
-            {employee.length > 0 && (
-              <FormField
-                control={form.control}
-                name="employeeId"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Employee</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? field.value === "null"
-                                ? "-----null-----"
-                                : employee.find(
-                                    (cust) => cust.id === field.value
-                                  )?.name
-                              : "Select employee"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search employees..." />
-                          <CommandList>
-                            <CommandEmpty>No employee found.</CommandEmpty>
-                            <CommandGroup>
-                              <CommandItem
-                                onSelect={() => {
-                                  form.setValue("employeeId", "null");
-                                }}
-                                key={"null"}
-                                value={"null"}
-                              >
-                                <div className="flex items-center gap-4">
-                                  <span>{"-----null-----"}</span>
-                                </div>
-                              </CommandItem>
-                              {employee.map((language) => (
-                                <CommandItem
-                                  value={language.name}
-                                  key={language.id}
-                                  onSelect={() => {
-                                    form.setValue(
-                                      "employeeId",
-                                      language.id
-                                    );
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      language.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {language.name}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select inward or outward" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem key={"in"} value={"IN"}>
-                          <div className="flex items-center gap-4">
-                            <span>{"IN"}</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem key={"out"} value={"OUT"}>
-                          <div className="flex items-center gap-4">
-                            <span>{"OUT"}</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage></FormMessage>
-                </FormItem>
-              )}
-            ></FormField>
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>Quantity</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Quantity" {...field}></Input>
-                  </FormControl>
-                  <FormMessage></FormMessage>
-                </FormItem>
-              )}
-            ></FormField>
-          </div> */}
 
               {/* ////////////////////////////////////////////////////////////////////////////////////////////////// */}
 

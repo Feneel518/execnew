@@ -894,6 +894,7 @@ export type TransactionTable = Prisma.AluminumTransactionGetPayload<{
 export type TransactionType = Prisma.AluminumTransactionGetPayload<{
   include: {
     TransactionCalculation: true;
+    CastingForTransaction: true;
     supplier: {
       select: {
         id: true;
