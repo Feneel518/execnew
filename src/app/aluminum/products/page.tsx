@@ -22,6 +22,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     slug: string;
     name: string;
     weight: number | null;
+    id: string;
   }[] = [];
 
   let totalPages: number = 0;
@@ -54,6 +55,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         slug: true,
         name: true,
         weight: true,
+        id: true,
       },
       take: 10,
       skip: (currentPage - 1) * 10,

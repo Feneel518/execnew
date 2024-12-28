@@ -143,21 +143,21 @@ const MenuOptions: FC<MenuOptionsProps> = ({
     },
     {
       id: 1,
-      icon: <FaFileInvoiceDollar />,
-      label: "Transactions",
-      link: "/aluminum/transactions",
-    },
-    {
-      id: 2,
       icon: <FaLightbulb />,
       label: "Products",
       link: "/aluminum/products",
     },
     {
+      id: 2,
+      icon: <FaFileInvoiceDollar />,
+      label: "Transactions",
+      link: "/aluminum/transactions",
+    },
+    {
       id: 3,
-      icon: <BadgeIndianRupee size={20} />,
-      label: "Peroma Invoice",
-      link: "/dashboard/perfoma",
+      icon: <IoDocumentText />,
+      label: "Stock",
+      link: "/aluminum/stock",
     },
     {
       id: 4,

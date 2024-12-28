@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { upsertAluminumClient } from "@/lib/queries";
+import { upsertAluminumClient } from "@/lib/aluminumQueries";
 import ObjectID from "bson-objectid";
 import { toast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";

@@ -130,6 +130,7 @@ model Product {
   ProductInQuotation ProductInQuotation[]
   ProductInOrder     ProductInOrder[]
   ProductInChallan   ProductInChallan[]
+  Castings           Castings[]
 
   @@index([name, slug])
 }
@@ -568,7 +569,7 @@ enum ALUMINUMTYPE {
   SCRAP
   GRAVITY
   PRESSURE
-  LADI
+  INGOT
 }
 
 model AluminumTransaction {
@@ -609,13 +610,16 @@ model TransactionCalculation {
 }
 
 model Castings {
-  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  name                  String
-  slug                  String
-  weight                Float?
-  description           String?
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  name         String
+  slug         String
+  weight       Float?
+  description  String?
+  finalProduct Product  @relation(fields: [productId], references: [id])
+  productId    String   @db.ObjectId
+
   CastingForTransaction CastingForTransaction[]
 }
 
@@ -633,4 +637,17 @@ model CastingForTransaction {
 
   casting    Castings @relation(fields: [castingsId], references: [id])
   castingsId String   @db.ObjectId
+}
+
+model AluminumStock {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  weight       Float
+  aluminumType ALUMINUMTYPE
+  month        Int
+  year         Int
+  status       TRANSACTIONSTATUS
+
+  @@unique([month, year, aluminumType, status])
 }

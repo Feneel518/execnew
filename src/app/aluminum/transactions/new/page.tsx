@@ -1,5 +1,5 @@
 import TransactionForm from "@/components/aluminum/TransactionForm";
-import { getSuppliers } from "@/lib/queries";
+import { getSuppliers } from "@/lib/aluminumQueries";
 import { FC } from "react";
 
 interface pageProps {}
@@ -12,6 +12,7 @@ const page: FC<pageProps> = async ({}) => {
   return (
     <div>
       <TransactionForm supplier={supplier.success}></TransactionForm>
+      {/* <TransactionForm></TransactionForm> */}
     </div>
   );
 };

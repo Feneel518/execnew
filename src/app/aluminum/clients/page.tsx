@@ -1,15 +1,13 @@
 import { buttonVariants } from "@/components/ui/button";
 
-import CustomerTableBody from "@/components/Dashboard/Customers/CustomerTableBody";
+import AluminumClientTableBody from "@/components/aluminum/AluminumClientTableBody";
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
-import { Dancing_Script } from "next/font/google";
 import Link from "next/link";
 import { FC } from "react";
-import AluminumClientTableBody from "@/components/aluminum/AluminumClientTableBody";
 
 interface pageProps {
   searchParams?: {

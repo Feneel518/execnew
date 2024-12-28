@@ -1,5 +1,5 @@
 import AluminumClientForm from "@/components/aluminum/AluminumClientForm";
-import { getAluminumClientDetailsBasedOnId } from "@/lib/queries";
+import { getAluminumClientDetailsBasedOnId } from "@/lib/aluminumQueries";
 import { redirect } from "next/navigation";
 import { FC } from "react";
 

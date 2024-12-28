@@ -1,4 +1,4 @@
-import { fetchCastingForSelect } from "@/lib/queries";
+import { fetchCastingForSelect } from "@/lib/aluminumQueries";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetCastingsForSelect(enable?: boolean) {

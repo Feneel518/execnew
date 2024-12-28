@@ -18,6 +18,7 @@ interface CastingsTableBodyProps {
     name: string;
     weight: number | null;
     slug: string;
+    id: string;
   }[];
 }
 
@@ -48,19 +49,14 @@ const CastingsTableBody: FC<CastingsTableBodyProps> = ({ castings }) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() => navigator.clipboard.writeText(cate.slug)}
-                    >
-                      Copy payment ID
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push(`/dashboard/categories/${cate.slug}`)
+                        router.push(`/aluminum/products/${cate.id}`)
                       }
                     >
                       {" "}
-                      View Category
+                      Edit Casting
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

@@ -909,3 +909,5 @@ export type TransactionType = Prisma.AluminumTransactionGetPayload<{
     };
   };
 }>;
+
+export type CastingType = Prisma.CastingsGetPayload<{}>;

@@ -81,7 +81,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       skip: (currentPage - 1) * 10,
     });
   } else {
-    const invoiceCount = await db.invoice.count({});
+    const invoiceCount = await db.aluminumTransaction.count({});
 
     transaction = await db.aluminumTransaction.findMany({
       select: {

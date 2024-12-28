@@ -20,35 +20,49 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { upsertCasting } from "@/lib/queries";
+import { useGetProductsForSelect } from "@/data/get-products-for-select";
+import { upsertCasting } from "@/lib/aluminumQueries";
+import { CastingType } from "@/lib/types";
 import {
   CastingProdcutsCreationRequest,
   CastingProdcutsValidator,
 } from "@/lib/Validators/AllAluminumValidators";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ObjectID from "bson-objectid";
+import { useRouter } from "next/navigation";
 import { FC } from "react";
 import { useForm } from "react-hook-form";
+import SelectProduct from "../Dashboard/Quotations/SelectProduct";
 import { toast } from "../ui/use-toast";
-import { useRouter } from "next/navigation";
-interface AluminumProductFormProps {}
+interface AluminumProductFormProps {
+  data?: CastingType;
+}
 
-const AluminumProductForm: FC<AluminumProductFormProps> = ({}) => {
+const AluminumProductForm: FC<AluminumProductFormProps> = ({ data }) => {
   const router = useRouter();
+
+  const { data: products } = useGetProductsForSelect();
+
   const form = useForm<CastingProdcutsCreationRequest>({
     resolver: zodResolver(CastingProdcutsValidator),
     defaultValues: {
-      id: ObjectID().toString(),
+      id: data?.id ? data.id : ObjectID().toString(),
+      description: data?.description ? data.description : "",
+      name: data?.name ? data.name : "",
+      productId: data?.productId ? data.productId : "",
+      weight: data?.weight ? data.weight : 0,
     },
   });
   const isLoading = form.formState.isLoading;
+
+  const productId = form.watch(`productId`);
 
   const handleSubmit = async (values: CastingProdcutsCreationRequest) => {
     const response = await upsertCasting(values);
 
     if (response?.success) {
       toast({
-        title: "Your Transacrion has been saved.",
+        title: "Your Casting has been saved.",
       });
 
       router.push("/aluminum/products");
@@ -58,7 +72,7 @@ const AluminumProductForm: FC<AluminumProductFormProps> = ({}) => {
       toast({
         variant: "destructive",
         title: "Oppse!",
-        description: "could not save your product",
+        description: "could not save your casting",
       });
     }
   };
@@ -113,6 +127,17 @@ const AluminumProductForm: FC<AluminumProductFormProps> = ({}) => {
                   )}
                 ></FormField>
               </div>
+              {products?.success && (
+                <div className="col-span-2">
+                  <SelectProduct
+                    labelText="Final Product"
+                    setValueAsText={`productId`}
+                    products={products.success}
+                    setProductId={form.setValue}
+                    productId={productId}
+                  ></SelectProduct>
+                </div>
+              )}
               <div className="flex mf:flex-row gap-4">
                 <FormField
                   disabled={isLoading}

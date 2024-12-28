@@ -1,5 +1,5 @@
 import TransactionForm from "@/components/aluminum/TransactionForm";
-import { getSuppliers, getTransactionBasedOnId } from "@/lib/queries";
+import { getSuppliers, getTransactionBasedOnId } from "@/lib/aluminumQueries";
 import { redirect } from "next/navigation";
 
 import { FC } from "react";
