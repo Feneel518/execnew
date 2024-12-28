@@ -1,4 +1,3 @@
-import { getSupplierAluminumStock } from "@/lib/aluminumQueries";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetAluminumWeightBasedOnDocket(
@@ -6,7 +5,7 @@ export function useGetAluminumWeightBasedOnDocket(
   supplierId?: string
 ) {
   return useQuery({
-    queryFn: async () => getSupplierAluminumStock(docketNumber, supplierId),
+    // queryFn: async () => getSupplierAluminumStock(docketNumber, supplierId),
     queryKey: ["AluminumWeightOnSupplier"],
   });
 }
