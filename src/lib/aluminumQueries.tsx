@@ -633,12 +633,20 @@ export const getAluminumStock = async () => {
   if (response) return { success: filteredDockets };
 };
 
-export const getMonthlyUsage = async (id: string) => {
+export const getMonthlyUsage = async (
+  id: string,
+  month?: string,
+  year?: string
+) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  const startDate = startOfMonth(new Date());
-  const endDate = endOfMonth(new Date());
+  const startDate = month
+    ? new Date(Number(year), Number(month) - 1, 1)
+    : startOfMonth(new Date());
+  const endDate = month
+    ? new Date(Number(year), Number(month), 0)
+    : endOfMonth(new Date());
 
   const response = await db.aluminumTransaction.findMany({
     where: {
@@ -679,6 +687,9 @@ export const getMonthlyUsage = async (id: string) => {
           },
         },
       },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 

@@ -4,7 +4,11 @@ import { getMonthlyUsage } from "@/lib/aluminumQueries";
 import { FC } from "react";
 
 interface pageProps {
-  searchParams: { user: string | undefined };
+  searchParams: {
+    user: string | undefined;
+    month: string | undefined;
+    year: string | undefined;
+  };
 }
 
 const page: FC<pageProps> = async ({ searchParams }) => {
@@ -12,7 +16,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     <div>
       <SelectUserForUsage></SelectUserForUsage>
       {searchParams.user && (
-        <UsageTable userId={searchParams.user}></UsageTable>
+        <UsageTable
+          userId={searchParams.user}
+          month={searchParams.month}
+          year={searchParams.year}
+        ></UsageTable>
       )}
     </div>
   );

@@ -7,10 +7,12 @@ import { object } from "zod";
 
 interface UsageTableProps {
   userId: string;
+  month?: string;
+  year?: string;
 }
 
-const UsageTable: FC<UsageTableProps> = async ({ userId }) => {
-  const usage = await getMonthlyUsage(userId);
+const UsageTable: FC<UsageTableProps> = async ({ userId, month, year }) => {
+  const usage = await getMonthlyUsage(userId, month, year);
 
   if (!usage || usage.error || !usage?.success || usage.success.length === 0) {
     return (
@@ -86,8 +88,12 @@ const UsageTable: FC<UsageTableProps> = async ({ userId }) => {
                         user.aluminumType
                       ) : (
                         <div className="">
-                          {user.CastingForTransaction.map((cast) => {
-                            return <div className="">{cast.casting.name}</div>;
+                          {user.CastingForTransaction.map((cast, index) => {
+                            return (
+                              <div className="" key={index}>
+                                {cast.casting.name}
+                              </div>
+                            );
                           })}
                         </div>
                       )}
