@@ -8,6 +8,7 @@ import {
   AluminumTransactionCreationRequest,
   CastingProdcutsCreationRequest,
 } from "./Validators/AllAluminumValidators";
+import { endOfMonth, startOfMonth } from "date-fns";
 
 export const upsertAluminumClient = async (
   value: AluminumClientCreationRequest
@@ -630,6 +631,60 @@ export const getAluminumStock = async () => {
   if (!response)
     return { error: "Could not find products, please try again later!" };
   if (response) return { success: filteredDockets };
+};
+
+export const getMonthlyUsage = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const startDate = startOfMonth(new Date());
+  const endDate = endOfMonth(new Date());
+
+  const response = await db.aluminumTransaction.findMany({
+    where: {
+      AND: [
+        {
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        {
+          OR: [
+            {
+              status: "OUT",
+            },
+            {
+              inwardType: "CASTING",
+            },
+          ],
+        },
+        {
+          userId: id,
+        },
+      ],
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      CastingForTransaction: {
+        select: {
+          casting: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find products, please try again later!" };
+  if (response) return { success: response };
 };
 
 // export const getAluminumStock = async () => {

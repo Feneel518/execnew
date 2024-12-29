@@ -162,8 +162,8 @@ const MenuOptions: FC<MenuOptionsProps> = ({
     {
       id: 4,
       icon: <FaFileInvoiceDollar />,
-      label: "Delivery Challan",
-      link: "/dashboard/delivery-challan",
+      label: "Monthly Usage",
+      link: "/aluminum/usage",
     },
   ];
   if (!isMounted) return;

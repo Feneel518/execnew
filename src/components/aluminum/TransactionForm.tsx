@@ -208,14 +208,14 @@ const TransactionForm: FC<TransactionFormProps> = ({
   const { data: products } = useGetCastingsForSelect(fetchProducts);
 
   const onSubmit = async (values: AluminumTransactionCreationRequest) => {
-    if (!values.supplierId) {
+    if (inwardType !== "CASTING" && !values.supplierId) {
       return toast({
         variant: "destructive",
         title: "Oppse!",
         description: "Please Select Supplier to submit the form.",
       });
     }
-    if (!values.docketNumber) {
+    if (inwardType !== "CASTING" && values.docketNumber) {
       return toast({
         variant: "destructive",
         title: "Oppse!",
@@ -231,6 +231,9 @@ const TransactionForm: FC<TransactionFormProps> = ({
         (el) => el.docketNumber === values.docketNumber
       )?.type;
       values.aluminumType = alType as ALUMINUMTYPE;
+    }
+    if (inwardType === "CASTING") {
+      values.supplierId = values.userId!;
     }
     values.docketDate = date;
     values.quantityType = values.aluminumType === "SCRAP" ? "Bags" : "Slabs";
@@ -379,12 +382,14 @@ const TransactionForm: FC<TransactionFormProps> = ({
               {/* ALUMINUMTYPE */}
               {(!docketNumbers?.success ||
                 docketNumbers.error ||
-                docketNumbers.success.length === 0) && (
-                <div className="text-red-500">
-                  There's no stock of this supplier, please select a different
-                  supplier
-                </div>
-              )}
+                docketNumbers.success.length === 0) &&
+                suppId &&
+                fetch && (
+                  <div className="text-red-500">
+                    There's no stock of this supplier, please select a different
+                    supplier
+                  </div>
+                )}
               {/* Common Fields */}
               {status && (
                 <>
@@ -398,19 +403,32 @@ const TransactionForm: FC<TransactionFormProps> = ({
                     {/* SUPPLIER */}
                     <TransitionCombo
                       setValue={form.setValue}
-                      title="Supplier"
+                      title={
+                        inwardType === "CASTING"
+                          ? "Supplier Or User"
+                          : "Supplier"
+                      }
                       control={form.control}
                       isLoading={isLoading}
                       label="Type of Inward"
-                      name="supplierId"
-                      select={supplier
-                        .filter((supp) => supp.type !== "USER")
-                        .map((supp) => {
-                          return {
-                            id: supp.id,
-                            value: supp.name,
-                          };
-                        })}
+                      name={inwardType === "CASTING" ? "userId" : "supplierId"}
+                      select={
+                        inwardType !== "CASTING"
+                          ? supplier
+                              .filter((supp) => supp.type !== "USER")
+                              .map((supp) => {
+                                return {
+                                  id: supp.id,
+                                  value: supp.name,
+                                };
+                              })
+                          : supplier.map((supp) => {
+                              return {
+                                id: supp.id,
+                                value: `${supp.name} | ${supp.type}`,
+                              };
+                            })
+                      }
                       placeholder="Select type of inward"
                     ></TransitionCombo>
 
