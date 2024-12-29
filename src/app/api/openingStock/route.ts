@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { ALUMINUMTYPE } from "@prisma/client";
 import { z } from "zod";
 
 export async function GET(req: Request) {
@@ -29,21 +30,44 @@ export async function GET(req: Request) {
           {
             year: oldYear,
           },
-          {
-            status: "IN",
-          },
         ],
       },
     });
 
-    await db.aluminumStock.createMany({
-      data: oldStock.map((old) => {
+    const groupedData: Record<string, { IN: number; OUT: number }> =
+      oldStock.reduce((acc, item) => {
+        const { aluminumType, weight, status } = item;
+
+        // @ts-ignore
+        if (!acc[aluminumType]) {
+          // @ts-ignore
+          acc[aluminumType] = { IN: 0, OUT: 0 };
+        }
+
+        // @ts-ignore
+        acc[aluminumType][status] += weight;
+
+        return acc;
+      }, {});
+
+    const openingStock = Object.entries(groupedData).map(
+      ([aluminumType, item]) => {
         return {
-          aluminumType: old.aluminumType,
+          aluminumType: aluminumType,
+          in: item.IN,
+          out: item.OUT,
+        };
+      }
+    );
+
+    await db.aluminumStock.createMany({
+      data: openingStock.map((old) => {
+        return {
+          aluminumType: old.aluminumType as ALUMINUMTYPE,
           month: thisMonth,
           year: thisYear,
-          status: old.status,
-          weight: old.weight,
+          status: "IN",
+          weight: old.in - old.out,
         };
       }),
     });

@@ -86,7 +86,7 @@ export const fetchCastingForSelect = async () => {
 export const fetchDocketForSelect = async (id?: string) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
-  if (!id) return { error: "No docket found." };
+  if (!id || id === "null") return { error: "No docket found." };
 
   const response = await db.aluminumTransaction.findMany({
     where: {
@@ -582,6 +582,54 @@ export const getCastingDetailsBasedOnId = async (id: string) => {
   if (!response)
     return { error: "Could not find products, please try again later!" };
   if (response) return { success: response };
+};
+
+export const getAluminumStock = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.aluminumStock.findMany({
+    where: {
+      AND: [
+        {
+          month: new Date().getUTCMonth(),
+          year: new Date().getUTCFullYear(),
+        },
+      ],
+    },
+  });
+
+  const groupedData: Record<string, { IN: number; OUT: number; TYPE: string }> =
+    response.reduce((acc, entry) => {
+      const { status, weight, aluminumType } = entry;
+      // @ts-ignore
+      if (!acc[aluminumType]) {
+        // @ts-ignore
+        acc[aluminumType] = {
+          IN: 0,
+          OUT: 0,
+          TYPE: aluminumType,
+        };
+      }
+      // @ts-ignore
+      acc[aluminumType][status] += weight;
+      return acc;
+    }, {});
+
+  const filteredDockets = Object.entries(groupedData)
+    .filter(([_, weights]) => weights.IN !== weights.OUT)
+    .map(([aluminumType, a]) => {
+      return {
+        aluminumType: aluminumType,
+        in: a.IN,
+        out: a.OUT,
+        stock: a.IN - a.OUT,
+      };
+    });
+
+  if (!response)
+    return { error: "Could not find products, please try again later!" };
+  if (response) return { success: filteredDockets };
 };
 
 // export const getAluminumStock = async () => {

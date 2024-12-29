@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SearchNumber from "@/components/Global/SearchNumber";
+import { cn } from "@/lib/utils";
 interface ProductsTableProps {
   products?: {
     name: string;
@@ -39,6 +40,7 @@ interface ProductsTableProps {
   columns: React.ReactNode;
   body: React.ReactNode;
   sort?: boolean;
+  className?: string;
 }
 
 const ProductsTable: FC<ProductsTableProps> = ({
@@ -46,6 +48,7 @@ const ProductsTable: FC<ProductsTableProps> = ({
   columns,
   body,
   sort,
+  className,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -58,7 +61,7 @@ const ProductsTable: FC<ProductsTableProps> = ({
   };
 
   return (
-    <div className="py-4 lg:p-8 flex flex-col gap-8">
+    <div className={cn("py-4 lg:p-8 flex flex-col gap-8", className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center  gap-4">
           {pathname.includes("stock") ? null : <Search></Search>}
