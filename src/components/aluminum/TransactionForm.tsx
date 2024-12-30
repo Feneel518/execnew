@@ -145,21 +145,23 @@ const TransactionForm: FC<TransactionFormProps> = ({
   const supplierId = form.watch("supplierId");
 
   useEffect(() => {
-    if (inwardType === "CASTING") {
+    if (inwardType === "CASTING" || inwardType === "REJECT_CASTING") {
       productAppend({
         id: ObjectID().toString(),
         castingId: "",
         description: "",
         quantity: 0,
         weight: 0,
+        quantityType: "Nos.",
       });
     }
-  }, [inwardType]);
+  }, [inwardType === "CASTING", inwardType === "REJECT_CASTING"]);
 
   if (
     weightCalculations &&
     weightCalculations.length > 0 &&
-    inwardType !== "CASTING"
+    inwardType !== "CASTING" &&
+    inwardType !== "REJECT_CASTING"
   ) {
     const totalWeight = weightCalculations.reduce((acc, total) => {
       return acc + Number(total.weight);
@@ -175,7 +177,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
   if (
     weightCastingCalculations &&
     weightCastingCalculations.length > 0 &&
-    inwardType === "CASTING"
+    (inwardType === "CASTING" || inwardType === "REJECT_CASTING")
   ) {
     const totalWeight = weightCastingCalculations.reduce((acc, total) => {
       return acc + Number(total.weight);
@@ -190,7 +192,8 @@ const TransactionForm: FC<TransactionFormProps> = ({
   const fetch =
     (inwardType === "REPLACE_ALUMINUM" ||
       inwardType === "RETURNABLE" ||
-      status === "OUT") &&
+      status === "OUT" ||
+      inwardType === "RETURN_ALUMINUM_FROM_USER") &&
     suppId
       ? true
       : false;
@@ -202,20 +205,26 @@ const TransactionForm: FC<TransactionFormProps> = ({
       refetchType: "all",
     });
   }, [supplierId]);
-  const fetchProducts = inwardType === "CASTING";
+  const fetchProducts =
+    inwardType === "CASTING" || inwardType === "REJECT_CASTING";
 
   const { data: docketNumbers } = useGetDocketNumberForSelect(suppId, fetch);
   const { data: products } = useGetCastingsForSelect(fetchProducts);
 
   const onSubmit = async (values: AluminumTransactionCreationRequest) => {
-    if (inwardType !== "CASTING" && !values.supplierId) {
+    if (
+      inwardType !== "CASTING" &&
+      inwardType !== "REJECT_CASTING" &&
+      inwardType !== "RETURN_ALUMINUM_FROM_USER" &&
+      !values.supplierId
+    ) {
       return toast({
         variant: "destructive",
         title: "Oppse!",
         description: "Please Select Supplier to submit the form.",
       });
     }
-    if (inwardType !== "CASTING" && values.docketNumber) {
+    if (inwardType !== "CASTING" && !values.docketNumber) {
       return toast({
         variant: "destructive",
         title: "Oppse!",
@@ -223,7 +232,7 @@ const TransactionForm: FC<TransactionFormProps> = ({
           "Please Select Docket Number or enter Docket Number to submit the form.",
       });
     }
-    if (inwardType !== "CASTING") {
+    if (inwardType !== "CASTING" && inwardType !== "REJECT_CASTING") {
       values.Castings = [];
     }
     if (fetch && docketNumbers?.success) {
@@ -232,11 +241,11 @@ const TransactionForm: FC<TransactionFormProps> = ({
       )?.type;
       values.aluminumType = alType as ALUMINUMTYPE;
     }
-    if (inwardType === "CASTING") {
+    if (inwardType === "CASTING" || inwardType === "REJECT_CASTING") {
       values.supplierId = values.userId!;
     }
     values.docketDate = date;
-    values.quantityType = values.aluminumType === "SCRAP" ? "Bags" : "Slabs";
+    values.quantityType = values.aluminumType === "SCRAP" ? "Bags" : "Ingot";
     values.weight === Number(values.weight);
 
     setIsLoading(true);
@@ -345,6 +354,14 @@ const TransactionForm: FC<TransactionFormProps> = ({
                       id: "Losses",
                       value: "LOSSES",
                     },
+                    {
+                      id: "Reject Casting",
+                      value: "REJECT_CASTING",
+                    },
+                    {
+                      id: "Return Aluminum From User",
+                      value: "RETURN_ALUMINUM_FROM_USER",
+                    },
                   ]}
                   placeholder="Select type of inward"
                 ></TransitionSelect>
@@ -401,19 +418,27 @@ const TransactionForm: FC<TransactionFormProps> = ({
                     }  gap-4`}
                   >
                     {/* SUPPLIER */}
+
                     <TransitionCombo
                       setValue={form.setValue}
                       title={
-                        inwardType === "CASTING"
+                        inwardType === "CASTING" ||
+                        inwardType === "REJECT_CASTING"
                           ? "Supplier Or User"
                           : "Supplier"
                       }
                       control={form.control}
                       isLoading={isLoading}
                       label="Type of Inward"
-                      name={inwardType === "CASTING" ? "userId" : "supplierId"}
+                      name={
+                        inwardType === "CASTING" ||
+                        inwardType === "REJECT_CASTING"
+                          ? "userId"
+                          : "supplierId"
+                      }
                       select={
-                        inwardType !== "CASTING"
+                        inwardType !== "CASTING" &&
+                        inwardType !== "REJECT_CASTING"
                           ? supplier
                               .filter((supp) => supp.type !== "USER")
                               .map((supp) => {
@@ -435,7 +460,9 @@ const TransactionForm: FC<TransactionFormProps> = ({
                     {/* SUPPLIER */}
 
                     {/* USER */}
-                    {(inwardType === "RETURNABLE" || status === "OUT") && (
+                    {(inwardType === "RETURNABLE" ||
+                      status === "OUT" ||
+                      inwardType === "RETURN_ALUMINUM_FROM_USER") && (
                       <TransitionCombo
                         setValue={form.setValue}
                         title="User"
@@ -621,128 +648,139 @@ const TransactionForm: FC<TransactionFormProps> = ({
               {/* SUBMITBUTTON */}
               {status && (
                 <>
-                  {inwardType === "CASTING" &&
-                    productFields.map((fields, index) => {
-                      return (
-                        <div className="flex items-end col-span-3 gap-2">
-                          {products?.success &&
-                            products?.success.length > 0 && (
-                              <TransitionCombo
-                                setValue={form.setValue}
-                                title="Casting"
-                                control={form.control}
-                                isLoading={isLoading}
-                                label="Type of Inward"
-                                name={`Castings.${index}.castingId`}
-                                select={products.success.map((supp) => {
-                                  return {
-                                    id: supp.id,
-                                    value: supp.name,
-                                  };
-                                })}
-                              ></TransitionCombo>
+                  {inwardType === "CASTING" || inwardType === "REJECT_CASTING"
+                    ? productFields.map((fields, index) => {
+                        console.log("its here");
+
+                        return (
+                          <div
+                            className="flex items-end col-span-3 gap-2"
+                            key={fields.id}
+                          >
+                            {products?.success &&
+                              products?.success.length > 0 && (
+                                <TransitionCombo
+                                  setValue={form.setValue}
+                                  title="Casting"
+                                  control={form.control}
+                                  isLoading={isLoading}
+                                  label="Type of Inward"
+                                  name={`Castings.${index}.castingId`}
+                                  select={products.success.map((supp) => {
+                                    return {
+                                      id: supp.id,
+                                      value: supp.name,
+                                    };
+                                  })}
+                                ></TransitionCombo>
+                              )}
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.description`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && (
+                                    <FormLabel>Description</FormLabel>
+                                  )}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Description"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.weight`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && <FormLabel>Weight</FormLabel>}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Weight"
+                                      type="number"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`Castings.${index}.quantity`}
+                              render={({ field }) => (
+                                <FormItem className="flex-1">
+                                  {index === 0 && (
+                                    <FormLabel>Quantity</FormLabel>
+                                  )}
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Quantity"
+                                      type="number"
+                                      {...field}
+                                    ></Input>
+                                  </FormControl>
+                                  <FormMessage></FormMessage>
+                                </FormItem>
+                              )}
+                            ></FormField>
+                            {productFields.length - 1 === index && (
+                              <Button
+                                type="button"
+                                onClick={() =>
+                                  productAppend({
+                                    id: ObjectID().toString(),
+                                    castingId: "",
+                                    description: "",
+                                    quantity: 0,
+                                    weight: 0,
+                                    quantityType: "Nos.",
+                                  })
+                                }
+                              >
+                                +
+                              </Button>
                             )}
-                          <FormField
-                            disabled={isLoading}
-                            control={form.control}
-                            name={`Castings.${index}.description`}
-                            render={({ field }) => (
-                              <FormItem className="flex-1">
-                                {index === 0 && (
-                                  <FormLabel>Description</FormLabel>
-                                )}
-                                <FormControl>
-                                  <Input
-                                    placeholder="Description"
-                                    {...field}
-                                  ></Input>
-                                </FormControl>
-                                <FormMessage></FormMessage>
-                              </FormItem>
+                            {index !== 0 && (
+                              <Button
+                                type="button"
+                                onClick={() => productRemove(index)}
+                              >
+                                -
+                              </Button>
                             )}
-                          ></FormField>
-                          <FormField
-                            disabled={isLoading}
-                            control={form.control}
-                            name={`Castings.${index}.weight`}
-                            render={({ field }) => (
-                              <FormItem className="flex-1">
-                                {index === 0 && <FormLabel>Weight</FormLabel>}
-                                <FormControl>
-                                  <Input
-                                    placeholder="Weight"
-                                    type="number"
-                                    {...field}
-                                  ></Input>
-                                </FormControl>
-                                <FormMessage></FormMessage>
-                              </FormItem>
-                            )}
-                          ></FormField>
-                          <FormField
-                            disabled={isLoading}
-                            control={form.control}
-                            name={`Castings.${index}.quantity`}
-                            render={({ field }) => (
-                              <FormItem className="flex-1">
-                                {index === 0 && <FormLabel>Quantity</FormLabel>}
-                                <FormControl>
-                                  <Input
-                                    placeholder="Quantity"
-                                    type="number"
-                                    {...field}
-                                  ></Input>
-                                </FormControl>
-                                <FormMessage></FormMessage>
-                              </FormItem>
-                            )}
-                          ></FormField>
-                          {productFields.length - 1 === index && (
-                            <Button
-                              type="button"
-                              onClick={() =>
-                                productAppend({
-                                  id: ObjectID().toString(),
-                                  castingId: "",
-                                  description: "",
-                                  quantity: 0,
-                                  weight: 0,
-                                })
-                              }
-                            >
-                              +
-                            </Button>
-                          )}
-                          {index !== 0 && (
-                            <Button
-                              type="button"
-                              onClick={() => productRemove(index)}
-                            >
-                              -
-                            </Button>
-                          )}
-                        </div>
-                      );
-                    })}
+                          </div>
+                        );
+                      })
+                    : null}
                   {/* Weight Calculation */}
-                  {inwardType !== "CASTING" && weightFields.length == 0 && (
-                    <Button
-                      type="button"
-                      className="mt-10 w-80 mx-auto"
-                      onClick={() =>
-                        weightAppend({
-                          id: ObjectID().toString(),
-                          index: 0,
-                          weight: 0,
-                          quantity: 0,
-                          quantityType:
-                            aluminumType === "SCRAP" ? "Bags" : "Ingot",
-                        })
-                      }
-                    >
-                      open Weight Calculator
-                    </Button>
-                  )}
+                  {inwardType !== "CASTING" &&
+                    inwardType !== "REJECT_CASTING" &&
+                    weightFields.length == 0 && (
+                      <Button
+                        type="button"
+                        className="mt-10 w-80 mx-auto"
+                        onClick={() =>
+                          weightAppend({
+                            id: ObjectID().toString(),
+                            index: 0,
+                            weight: 0,
+                            quantity: 0,
+                            quantityType:
+                              aluminumType === "SCRAP" ? "Bags" : "Ingot",
+                          })
+                        }
+                      >
+                        open Weight Calculator
+                      </Button>
+                    )}
                   {weightFields.length > 0 && (
                     <CardTitle className="mt-10">Weight Calculator</CardTitle>
                   )}

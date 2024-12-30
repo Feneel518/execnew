@@ -20,7 +20,15 @@ export const AluminumTransactionValidator = z.object({
   id: z.string().optional(),
   status: z.enum(["IN", "OUT"]),
   inwardType: z
-    .enum(["ALUMINUM", "CASTING", "LOSSES", "REPLACE_ALUMINUM", "RETURNABLE"])
+    .enum([
+      "ALUMINUM",
+      "CASTING",
+      "LOSSES",
+      "REPLACE_ALUMINUM",
+      "RETURNABLE",
+      "REJECT_CASTING",
+      "RETURN_ALUMINUM_FROM_USER",
+    ])
     .optional(),
   aluminumType: z.enum(["SCRAP", "GRAVITY", "PRESSURE", "INGOT"]).optional(),
   supplierId: z.string(),
@@ -61,7 +69,13 @@ export const CastingProdcutsValidator = z.object({
   id: z.string().optional(),
   description: z.string().optional(),
   weight: z.coerce.number(),
-  productId: z.string(),
+  productId: z
+    .object({
+      label: z.string(),
+      value: z.string(),
+      id: z.string().optional(),
+    })
+    .array(),
   name: z
     .string()
     .min(1, { message: "Product should atleast have one character" }),

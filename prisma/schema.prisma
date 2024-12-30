@@ -130,7 +130,7 @@ model Product {
   ProductInQuotation ProductInQuotation[]
   ProductInOrder     ProductInOrder[]
   ProductInChallan   ProductInChallan[]
-  Castings           Castings[]
+  ProductsForCasting ProductsForCasting[]
 
   @@index([name, slug])
 }
@@ -563,6 +563,8 @@ enum INWARDTYPE {
   LOSSES
   REPLACE_ALUMINUM
   RETURNABLE
+  REJECT_CASTING
+  RETURN_ALUMINUM_FROM_USER
 }
 
 enum ALUMINUMTYPE {
@@ -610,17 +612,16 @@ model TransactionCalculation {
 }
 
 model Castings {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  name         String
-  slug         String
-  weight       Float?
-  description  String?
-  finalProduct Product  @relation(fields: [productId], references: [id])
-  productId    String   @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  slug        String
+  weight      Float?
+  description String?
 
   CastingForTransaction CastingForTransaction[]
+  ProductsForCasting    ProductsForCasting[]
 }
 
 model CastingForTransaction {
@@ -634,6 +635,18 @@ model CastingForTransaction {
 
   transaction           AluminumTransaction @relation(fields: [aluminumTransactionId], references: [id])
   aluminumTransactionId String              @db.ObjectId
+
+  casting    Castings @relation(fields: [castingsId], references: [id])
+  castingsId String   @db.ObjectId
+}
+
+model ProductsForCasting {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
 
   casting    Castings @relation(fields: [castingsId], references: [id])
   castingsId String   @db.ObjectId

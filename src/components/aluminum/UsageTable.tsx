@@ -22,14 +22,34 @@ const UsageTable: FC<UsageTableProps> = async ({ userId, month, year }) => {
     );
   }
 
+  console.log(usage);
+
   const totals: Record<string, number> = usage.success.reduce((acc, item) => {
     // @ts-ignore
     if (!acc[item.status]) {
       // @ts-ignore
       acc[item.status] = 0;
     }
-    // @ts-ignore
-    acc[item.status] += item.weight;
+
+    if (item.inwardType === "RETURN_ALUMINUM_FROM_USER") {
+      // @ts-ignore
+      if (!acc["OUT"]) {
+        // @ts-ignore
+        acc["OUT"] = 0;
+      }
+
+      // @ts-ignore
+      acc["OUT"] = acc["OUT"] - Number(item.weight);
+
+      console.log(item.weight);
+      console.log(acc);
+    } else {
+      // @ts-ignore
+      acc[item.status] += item.weight;
+    }
+
+    // console.log(acc["OUT"]);
+
     return acc;
   }, {});
 
@@ -81,10 +101,13 @@ const UsageTable: FC<UsageTableProps> = async ({ userId, month, year }) => {
                       {format(user.createdAt, "PP")}
                     </div>
                     <div className="p-4 align-middle text-sm font-normal flex-1">
-                      {user.status}
+                      {user.inwardType === "RETURN_ALUMINUM_FROM_USER"
+                        ? "Returned"
+                        : user.status}
                     </div>
                     <div className="p-4 align-middle text-sm font-normal flex-1">
-                      {user.status === "OUT" ? (
+                      {user.status === "OUT" ||
+                      user.inwardType === "RETURN_ALUMINUM_FROM_USER" ? (
                         user.aluminumType
                       ) : (
                         <div className="">

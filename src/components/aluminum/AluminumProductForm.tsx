@@ -34,6 +34,7 @@ import { FC } from "react";
 import { useForm } from "react-hook-form";
 import SelectProduct from "../Dashboard/Quotations/SelectProduct";
 import { toast } from "../ui/use-toast";
+import MultipleSelector from "../ui/multiple-selector";
 interface AluminumProductFormProps {
   data?: CastingType;
 }
@@ -49,8 +50,17 @@ const AluminumProductForm: FC<AluminumProductFormProps> = ({ data }) => {
       id: data?.id ? data.id : ObjectID().toString(),
       description: data?.description ? data.description : "",
       name: data?.name ? data.name : "",
-      productId: data?.productId ? data.productId : "",
+      // productId: data?.productId ? data.productId : [],
       weight: data?.weight ? data.weight : 0,
+      productId: data?.ProductsForCasting
+        ? data.ProductsForCasting.map((prod) => {
+            return {
+              id: prod.id,
+              label: prod.product.name,
+              value: prod.productId,
+            };
+          })
+        : [],
     },
   });
   const isLoading = form.formState.isLoading;
@@ -58,6 +68,8 @@ const AluminumProductForm: FC<AluminumProductFormProps> = ({ data }) => {
   const productId = form.watch(`productId`);
 
   const handleSubmit = async (values: CastingProdcutsCreationRequest) => {
+    console.log(values);
+
     const response = await upsertCasting(values);
 
     if (response?.success) {
@@ -129,13 +141,47 @@ const AluminumProductForm: FC<AluminumProductFormProps> = ({ data }) => {
               </div>
               {products?.success && (
                 <div className="col-span-2">
-                  <SelectProduct
+                  <FormField
+                    control={form.control}
+                    name="productId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Frameworks</FormLabel>
+                        <FormControl>
+                          <MultipleSelector
+                            {...field}
+                            defaultOptions={products.success.map((product) => {
+                              return {
+                                label: product.name,
+                                value: product.id,
+                                id: data?.ProductsForCasting.find(
+                                  (prod) => prod.productId === product.id
+                                )
+                                  ? data?.ProductsForCasting.find(
+                                      (prod) => prod.productId === product.id
+                                    )?.id
+                                  : ObjectID().toString(),
+                              };
+                            })}
+                            placeholder="Select products."
+                            emptyIndicator={
+                              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                no results found.
+                              </p>
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* <SelectProduct
                     labelText="Final Product"
                     setValueAsText={`productId`}
                     products={products.success}
                     setProductId={form.setValue}
                     productId={productId}
-                  ></SelectProduct>
+                  ></SelectProduct> */}
                 </div>
               )}
               <div className="flex mf:flex-row gap-4">

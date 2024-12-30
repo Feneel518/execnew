@@ -37,7 +37,7 @@ const TransactionTableBody: FC<TransactionTableBodyProps> = ({
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {invo.status}
               </div>
-              <div className="p-4 align-middle text-sm font-normal flex-1">
+              <div className="p-4 align-middle text-sm font-normal flex-1 break-words">
                 {invo.inwardType}
               </div>
               <div className="p-4 align-middle text-sm font-normal flex-1">

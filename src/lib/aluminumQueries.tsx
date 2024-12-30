@@ -74,6 +74,7 @@ export const getSuppliers = async () => {
     return { error: "Could not find suppliers, please try again later!" };
   if (response) return { success: response };
 };
+
 export const fetchCastingForSelect = async () => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
@@ -84,6 +85,7 @@ export const fetchCastingForSelect = async () => {
     return { error: "Could not find products, please try again later!" };
   if (response) return { success: response };
 };
+
 export const fetchDocketForSelect = async (id?: string) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
@@ -145,6 +147,7 @@ export const fetchDocketForSelect = async (id?: string) => {
     return { error: "Could not find supplier, please try again later!" };
   if (response) return { success: filteredDockets };
 };
+
 export const upserAluminumTransaction = async (
   value: AluminumTransactionCreationRequest
 ) => {
@@ -285,9 +288,16 @@ export const upserAluminumTransaction = async (
           true
         );
       }
+
+      if (value.inwardType === "RETURN_ALUMINUM_FROM_USER") {
+        AluminumStockUpdate("OUT", value.aluminumType!, difference, true);
+      }
     } else if (existingTransaction.weight < value.weight) {
       const difference = value.weight - existingTransaction.weight;
 
+      if (value.inwardType === "RETURN_ALUMINUM_FROM_USER") {
+        AluminumStockUpdate("OUT", value.aluminumType!, difference, false);
+      }
       if (
         value.inwardType === "ALUMINUM" ||
         value.inwardType === "REPLACE_ALUMINUM" ||
@@ -377,6 +387,10 @@ export const upserAluminumTransaction = async (
         );
       }
     }
+
+    if (value.inwardType === "RETURN_ALUMINUM_FROM_USER") {
+      AluminumStockUpdate("OUT", value.aluminumType!, value.weight, false);
+    }
     if (!response)
       return { error: "Could not update transaction, please try again later!" };
     if (response) return { success: response };
@@ -410,6 +424,15 @@ export const deleteTransaction = async (id: string) => {
       status: true,
     },
   });
+
+  if (transaction?.inwardType === "RETURN_ALUMINUM_FROM_USER") {
+    AluminumStockUpdate(
+      "OUT",
+      transaction.aluminumType!,
+      transaction.weight,
+      true
+    );
+  }
 
   if (
     transaction?.inwardType === "ALUMINUM" ||
@@ -547,28 +570,85 @@ export const upsertCasting = async (values: CastingProdcutsCreationRequest) => {
   const user = await auth();
   if (!user || user.user.role !== "ADMIN") return null;
 
-  const response = await db.castings.upsert({
+  const existingCasting = await db.castings.findUnique({
     where: {
       id: values.id,
     },
-    create: {
-      name: values.name,
-      description: values.description,
-      weight: values.weight,
-      slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
-      productId: values.productId,
-    },
-    update: {
-      name: values.name,
-      description: values.description,
-      weight: values.weight,
-      slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
-      productId: values.productId,
+    include: {
+      ProductsForCasting: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
-  if (!response)
-    return { error: "Could not find transaction, please try again later!" };
-  if (response) return { success: response };
+
+  if (existingCasting) {
+    const oldProductIds = existingCasting.ProductsForCasting.map(
+      (prods) => prods.id
+    );
+
+    const newIds = values.productId.map((prod) => prod.id);
+
+    const difference = oldProductIds.filter((prod) => !newIds.includes(prod));
+
+    await db.productsForCasting.deleteMany({
+      where: {
+        id: {
+          in: difference,
+        },
+      },
+    });
+
+    const response = await db.castings.update({
+      where: {
+        id: values.id,
+      },
+      data: {
+        name: values.name,
+        description: values.description,
+        weight: values.weight,
+        slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
+        ProductsForCasting: {
+          upsert: values.productId.map((product) => {
+            return {
+              where: {
+                id: product.id,
+              },
+              create: {
+                productId: product.value,
+              },
+              update: {
+                productId: product.value,
+              },
+            };
+          }),
+        },
+      },
+    });
+    if (!response)
+      return { error: "Could not find products, please try again later!" };
+    if (response) return { success: response };
+  } else {
+    const response = await db.castings.create({
+      data: {
+        name: values.name,
+        description: values.description,
+        weight: values.weight,
+        slug: encodeURI(values.name?.toLowerCase().replace(/\//g, "-")),
+        ProductsForCasting: {
+          create: values.productId.map((product) => {
+            return {
+              productId: product.value,
+            };
+          }),
+        },
+      },
+    });
+    if (!response)
+      return { error: "Could not find transaction, please try again later!" };
+    if (response) return { success: response };
+  }
 };
 
 export const getCastingDetailsBasedOnId = async (id: string) => {
@@ -578,6 +658,17 @@ export const getCastingDetailsBasedOnId = async (id: string) => {
   const response = await db.castings.findUnique({
     where: {
       id,
+    },
+    include: {
+      ProductsForCasting: {
+        include: {
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
   if (!response)
@@ -665,6 +756,9 @@ export const getMonthlyUsage = async (
             {
               inwardType: "CASTING",
             },
+            {
+              inwardType: "RETURN_ALUMINUM_FROM_USER",
+            },
           ],
         },
         {
@@ -698,92 +792,47 @@ export const getMonthlyUsage = async (
   if (response) return { success: response };
 };
 
-// export const getAluminumStock = async () => {
-//   const user = await auth();
-//   if (!user || user.user.role !== "ADMIN") return null;
+export const getCastingStock = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
 
-//   const response = await db.aluminumStock.findMany({
-//     where: {
-//       AND: [
-//         {
-//           month: new Date().getUTCMonth(),
-//         },
-//         {
-//           status: "IN",
-//         },
-//       ],
-//     },
-//   });
+  const response = await db.product.findMany({
+    where: {
+      ProductsForCasting: {
+        some: {
+          casting: {
+            CastingForTransaction: {
+              some: {
+                quantity: {
+                  gte: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    select: {
+      name: true,
+      ProductsForCasting: {
+        select: {
+          casting: {
+            select: {
+              name: true,
+              CastingForTransaction: {
+                select: {
+                  weight: true,
+                  quantity: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 
-//   const outwards = await db.aluminumStock.findMany({
-//     where: {
-//       AND: [
-//         {
-//           month: new Date().getUTCMonth(),
-//         },
-//         {
-//           status: "OUT",
-//         },
-//       ],
-//     },
-//   });
-
-//   // interface NetWeightRecord {
-//   //   aluminumType: string;
-//   //   netWeight: number;
-//   // }
-//   const combined = [...response, ...outwards];
-
-//   const netWeight = combined.reduce<
-//     {
-//       aluminumType: string;
-//       netWeight: number;
-//     }[]
-//   >((acc, total) => {
-//     const { aluminumType, status, weight } = total;
-
-//     const existing = acc.find((el) => el.aluminumType === aluminumType);
-
-//     if (existing) {
-//       existing.netWeight += status === "IN" ? weight : -weight;
-//     } else {
-//       acc.push({
-//         aluminumType,
-//         netWeight: status === "IN" ? weight : -weight,
-//       });
-//     }
-
-//     return acc;
-//   }, []);
-
-//   if (!response)
-//     return { error: "Could not find products, please try again later!" };
-//   if (response) return { success: netWeight };
-// };
-
-// export const getSupplierAluminumStock = async (
-//   docketNumber: string,
-//   supplierId?: string
-// ) => {
-//   const user = await auth();
-//   if (!user || user.user.role !== "ADMIN") return null;
-
-//   const response = await db.aluminumTransaction.findMany({
-//     where: {
-//       AND: [
-//         {
-//           supplierId: supplierId,
-//         },
-//         {
-//           docketNumber: docketNumber,
-//         },
-//       ],
-//     },
-//   });
-
-//   console.log(response);
-
-//   if (!response)
-//     return { error: "Could not find products, please try again later!" };
-//   if (response) return { success: response };
-// };
+  if (!response)
+    return { error: "Could not delete transaction, please try again later!" };
+  if (response) return { success: response };
+};

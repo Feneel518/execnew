@@ -910,4 +910,16 @@ export type TransactionType = Prisma.AluminumTransactionGetPayload<{
   };
 }>;
 
-export type CastingType = Prisma.CastingsGetPayload<{}>;
+export type CastingType = Prisma.CastingsGetPayload<{
+  include: {
+    ProductsForCasting: {
+      include: {
+        product: {
+          select: {
+            name: true;
+          };
+        };
+      };
+    };
+  };
+}>;
