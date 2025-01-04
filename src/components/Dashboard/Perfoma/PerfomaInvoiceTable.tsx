@@ -77,14 +77,14 @@ const PerfomaInvoiceTable: FC<PerfomaInvoiceTableProps> = ({
             <div className="grid grid-cols-2">
               <div className="">GST (18%)</div>
               <div className="place-self-end">
-                {formatPrice(Amounts.taxAmount)}
+                {formatPrice(Amounts.taxAmount, true)}
               </div>
             </div>
             <Separator></Separator>
             <div className="grid grid-cols-2">
               <div className="">Total</div>
               <div className="place-self-end">
-                {formatPrice(Amounts.totalAmount)}
+                {formatPrice(Amounts.totalAmount, true)}
               </div>
             </div>
           </div>
