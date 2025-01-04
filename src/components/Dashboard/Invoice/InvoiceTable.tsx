@@ -57,11 +57,12 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
                   </TableCell>
 
                   <TableCell className="text-right">
-                    {formatPrice(invoice.ProductInOrder.price)}
+                    {formatPrice(invoice.ProductInOrder.price, true)}
                   </TableCell>
                   <TableCell className="text-right">
                     {formatPrice(
-                      invoice.ProductInOrder.price * invoice.supplidQuantity
+                      invoice.ProductInOrder.price * invoice.supplidQuantity,
+                      true
                     )}
                   </TableCell>
                 </TableRow>
