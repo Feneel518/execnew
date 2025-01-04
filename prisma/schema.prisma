@@ -283,7 +283,7 @@ model ProductInChallan {
   index       Int?
   quantity    String?
   description String?
-  price       Int
+  price       Float
   challan     DeliveryChallan @relation(fields: [challanId], references: [id])
   challanId   String          @db.ObjectId
   product     Product         @relation(fields: [productId], references: [id])
@@ -315,7 +315,7 @@ model ProductInQuotation {
   HorsePower   String?
   poReferrence String?
   quantity     String?
-  price        Int
+  price        Float
   quotation    Quotation @relation(fields: [quotationId], references: [id])
   quotationId  String    @db.ObjectId
 
@@ -382,7 +382,7 @@ model Order {
 
 model ProductInOrder {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  price             Int
+  price             Float
   index             Int?
   quantity          Int
   description       String?
