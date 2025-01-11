@@ -128,7 +128,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               totalPages={totalPages}
               columns={
                 <>
-                  <div className="grid grid-cols-7 items-center border-b  p-4 ">
+                  <div className="grid grid-cols-7 items-center border-b  p-4 max-lg:hidden ">
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 ">
                       Status
                     </h1>
