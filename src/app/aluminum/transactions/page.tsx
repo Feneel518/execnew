@@ -129,10 +129,10 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               columns={
                 <>
                   <div className="grid grid-cols-7 items-center border-b  p-4 ">
-                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 lg:flex hidden">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 ">
                       Status
                     </h1>
-                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 lg:flex hidden">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 ">
                       type
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
@@ -141,7 +141,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       User
                     </h1>
-                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1 lg:flex hidden">
+                    <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">
                       Weight
                     </h1>
                     <h1 className=" px-4 text-left align-middle font-medium text-muted-foreground flex-1">

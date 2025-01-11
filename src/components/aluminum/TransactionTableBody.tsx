@@ -46,10 +46,10 @@ const TransactionTableBody: FC<TransactionTableBodyProps> = ({
               <div className="p-4 align-middle text-sm font-normal flex-1">
                 {invo.user?.name}
               </div>
-              <div className="p-4 align-middle text-sm font-normal flex-1 lg:flex hidden">
+              <div className="p-4 align-middle text-sm font-normal flex-1 ">
                 {invo.weight}
               </div>
-              <div className="p-4 align-middle text-sm font-normal flex-1 lg:flex hidden">
+              <div className="p-4 align-middle text-sm font-normal flex-1 ">
                 {invo.createdAt
                   ? format(invo.createdAt as Date, "PP")
                   : format(new Date(), "PP")}
