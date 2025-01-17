@@ -30,7 +30,9 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
         return (
           <>
             <div
-              className="border-b transition-colors hover:bg-muted/50 max-lg:hidden"
+              className={`border-b transition-colors hover:bg-muted/50 max-lg:hidden ${
+                order.status === "COMPLETED" && "bg-green-200"
+              }`}
               key={order.id}
             >
               <div className="px-4 text-left align-middle font-medium flex items-center     ">
@@ -98,12 +100,17 @@ const OrderTableBody: FC<OrderTableBodyProps> = ({ orders }) => {
               <div
                 key={order.id}
                 className={cn(
-                  "border-b transition-colors hover:bg-muted/50 p-4 flex items-center justify-between"
+                  "border-b transition-colors hover:bg-muted/50 p-4 flex items-center justify-between",
+                  {
+                    "bg-green-200": order.status === "COMPLETED",
+                  }
                 )}
               >
                 <div className="flex flex-col">
                   <div className="flex gap-3 items-center">
-                    <div className="">ExOr-{order.orderNumber}</div>
+                    <div className="">
+                      ExOr-{order.orderNumber} | {order.status}
+                    </div>
                   </div>
                   <div className="">{order.customer.name}</div>
                   <div className="">{order.poNumber}</div>
