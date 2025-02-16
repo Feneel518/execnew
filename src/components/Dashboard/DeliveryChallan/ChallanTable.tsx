@@ -59,6 +59,8 @@ const ChallanTable: FC<ChallanTableProps> = ({ products }) => {
         </TableFooter>
       </Table>
       <div className="text-center mt-4">Not For sale</div>
+
+      <div className="text-right mt-20">Explosion Proof Electrical Control</div>
     </div>
   );
 };
