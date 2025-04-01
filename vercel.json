@@ -3,10 +3,6 @@
     {
       "path": "/api/openingStock",
       "schedule": "0 0 1 * *"
-    },
-    {
-      "path": "/api/archiveData",
-      "schedule": "0 0 1 4"
     }
   ]
 }
