@@ -175,6 +175,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
     }
 
     const response = await upsertOrder({
+      uniqueQuotationNumber: value.uniqueQuotationNumber,
       customerId: value.customerId,
       id: orderData?.id ? orderData.id : ObjectID().toString(),
       notes: value.notes,
