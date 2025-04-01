@@ -62,9 +62,14 @@ const ThirdBlock: FC<ThirdBlockProps> = async ({}) => {
     }, 0);
   });
 
-  const totalQuoattaionAmount = total.reduce((a, b) => {
-    return a + b;
-  });
+  console.log(total);
+
+  const totalQuoattaionAmount =
+    total.length > 0
+      ? total.reduce((a, b) => {
+          return a + b;
+        })
+      : 0;
 
   return (
     <div className="bg-black/10 row-span-2 text-woodsmoke-200 flex flex-col justify-between p-4 lg:p-8">
