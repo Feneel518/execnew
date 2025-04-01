@@ -91,7 +91,7 @@ const TransactionTableBody: FC<TransactionTableBodyProps> = ({
                 </div>
               </div>
             </div>
-            key={invo.id}
+
             <div className="border-b transition-colors hover:bg-muted/50 lg:hidden">
               <div className="p-4 text-left align-middle font-medium     ">
                 <div className="grid grid-cols-6">

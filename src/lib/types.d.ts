@@ -194,6 +194,29 @@ export type QuotationWithProductInQuotation = Prisma.QuotationGetPayload<{
     };
   };
 }>;
+export type AQuotationWithProductInQuotation =
+  Prisma.ArchivedQuotationGetPayload<{
+    include: {
+      customer: true;
+      ArchivedProductInQuotation: {
+        include: {
+          product: {
+            include: {
+              ProductComponentsOnProducts: {
+                include: {
+                  productComponents: {
+                    select: {
+                      item: true;
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  }>;
 
 export type ProductInQuotationTypes = Prisma.ProductInQuotationGetPayload<{
   include: {
@@ -491,6 +514,26 @@ export type Quotationtable = Prisma.QuotationGetPayload<{
     orderNumber: true;
 
     ProductInQuotation: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;
+export type ArchiveQuotationtable = Prisma.ArchivedQuotationGetPayload<{
+  select: {
+    id: true;
+    createdAt: true;
+    originalId: true;
+    customer: {
+      select: {
+        name: true;
+      };
+    };
+    quotationNumber: true;
+    orderNumber: true;
+
+    ArchivedProductInQuotation: {
       select: {
         id: true;
       };

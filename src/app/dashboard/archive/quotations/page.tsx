@@ -8,12 +8,13 @@ import { Plus } from "lucide-react";
 import { Lora } from "next/font/google";
 import Link from "next/link";
 import { FC } from "react";
-import { quotationColumn } from "../../../components/columns/quotationColumn";
+// import { quotationColumn } from "../../../components/columns/quotationColumn";
 import { format } from "date-fns";
-import { Quotationtable } from "@/lib/types";
+import { ArchiveQuotationtable, Quotationtable } from "@/lib/types";
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import QuotationTableBody from "@/components/Dashboard/Quotations/QuotationTableBody";
 import TableToDisplay from "@/components/Global/TableToDisplay";
+import ArchiveQuotationTableBocy from "@/components/Dashboard/Quotations/ArchiveQuotationTableBocy";
 
 interface pageProps {
   searchParams?: {
@@ -27,7 +28,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   const query = searchParams?.query || "";
   const queryNumber = searchParams?.queryNumber || "";
   const currentPage = Number(searchParams?.page || 1);
-  let quotation: Quotationtable[] = [];
+  let quotation: ArchiveQuotationtable[] = [];
 
   let totalPages: number = 0;
 
@@ -39,74 +40,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   if (query) {
     const quotationCount = await db.quotation.count({
       where: {
-        AND: [
-          {
-            OR: [
-              {
-                customer: {
-                  slug: {
-                    contains: encodeURI(query?.toLowerCase()),
-                  },
-                },
-              },
-            ],
-          },
-          {
-            archived: false,
-          },
-        ],
-      },
-    });
-
-    totalPages = Math.ceil(Number(quotationCount) / 10);
-
-    quotation = await db.quotation.findMany({
-      where: {
-        AND: [
-          {
-            OR: [
-              {
-                customer: {
-                  slug: {
-                    contains: encodeURI(query?.toLowerCase()),
-                  },
-                },
-              },
-            ],
-          },
-          {
-            archived: false,
-          },
-        ],
-      },
-      select: {
-        id: true,
-        createdAt: true,
-        customer: {
-          select: {
-            name: true,
-          },
-        },
-        orderNumber: true,
-
-        quotationNumber: true,
-        ProductInQuotation: {
-          select: {
-            id: true,
-          },
-        },
-      },
-      take: 10,
-      skip: (currentPage - 1) * 10,
-    });
-  } else if (queryNumber) {
-    const quotationCount = await db.quotation.count({
-      where: {
-        AND: [
-          {
-            archived: false,
-          },
-
+        OR: [
           {
             customer: {
               slug: {
@@ -120,23 +54,21 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
     totalPages = Math.ceil(Number(quotationCount) / 10);
 
-    quotation = await db.quotation.findMany({
+    quotation = await db.archivedQuotation.findMany({
       where: {
-        AND: [
+        OR: [
           {
-            OR: [
-              {
-                quotationNumber: Number(queryNumber),
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
               },
-            ],
-          },
-          {
-            archived: false,
+            },
           },
         ],
       },
       select: {
         id: true,
+        originalId: true,
         createdAt: true,
         customer: {
           select: {
@@ -146,7 +78,53 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         orderNumber: true,
 
         quotationNumber: true,
-        ProductInQuotation: {
+        ArchivedProductInQuotation: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      take: 10,
+      skip: (currentPage - 1) * 10,
+    });
+  } else if (queryNumber) {
+    const quotationCount = await db.archivedQuotation.count({
+      where: {
+        OR: [
+          {
+            customer: {
+              slug: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    totalPages = Math.ceil(Number(quotationCount) / 10);
+
+    quotation = await db.archivedQuotation.findMany({
+      where: {
+        OR: [
+          {
+            quotationNumber: Number(queryNumber),
+          },
+        ],
+      },
+      select: {
+        id: true,
+        originalId: true,
+        createdAt: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+        orderNumber: true,
+
+        quotationNumber: true,
+        ArchivedProductInQuotation: {
           select: {
             id: true,
           },
@@ -156,18 +134,12 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       skip: (currentPage - 1) * 10,
     });
   } else {
-    const quotationCount = await db.quotation.count({
-      where: {
-        archived: false,
-      },
-    });
+    const quotationCount = await db.archivedQuotation.count({});
 
-    quotation = await db.quotation.findMany({
-      where: {
-        archived: false,
-      },
+    quotation = await db.archivedQuotation.findMany({
       select: {
         orderNumber: true,
+        originalId: true,
         id: true,
         createdAt: true,
         customer: {
@@ -176,7 +148,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
           },
         },
         quotationNumber: true,
-        ProductInQuotation: {
+        ArchivedProductInQuotation: {
           select: {
             id: true,
           },
@@ -193,14 +165,14 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="text-3xl">List of quotations</div>
-        <Link
+        <div className="text-3xl">List of Archived quotations</div>
+        {/* <Link
           href={"/dashboard/quotations/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}
         >
           <Plus></Plus>
           <span>New</span>
-        </Link>
+        </Link> */}
       </div>
       <div className="mt-4">
         <Card>
@@ -264,7 +236,10 @@ const page: FC<pageProps> = async ({ searchParams }) => {
                 </div>
               }
               body={
-                <QuotationTableBody quotation={quotation}></QuotationTableBody>
+                // <div className=""></div>
+                <ArchiveQuotationTableBocy
+                  quotation={quotation}
+                ></ArchiveQuotationTableBocy>
               }
             ></TableToDisplay>
           </CardContent>

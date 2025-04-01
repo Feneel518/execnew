@@ -68,6 +68,7 @@ export async function POST(req: Request) {
       },
       create: {
         gst: quotation.gst,
+        uniqueQuotationNumber: quotation.uniqueQuotationNumber,
         quotationNumber: quotation.quotationNumber,
         additionalNotes: quotation.additionalNotes,
         clientName: quotation.clientName ?? "",
@@ -121,6 +122,7 @@ export async function POST(req: Request) {
       },
       update: {
         gst: quotation.gst,
+        uniqueQuotationNumber: quotation.uniqueQuotationNumber,
         quotationNumber: quotation.quotationNumber,
         additionalNotes: quotation.additionalNotes,
         clientName: quotation.clientName ?? "",

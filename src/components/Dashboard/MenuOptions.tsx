@@ -134,6 +134,38 @@ const MenuOptions: FC<MenuOptionsProps> = ({
       link: "/dashboard/delivery-challan",
     },
   ];
+  const ARCHIVEITEMS = [
+    {
+      id: 0,
+      icon: <IoDocumentText />,
+      label: "Quotations",
+      link: "/dashboard/archive/quotations",
+    },
+    {
+      id: 1,
+      icon: <FaLightbulb />,
+      label: "Products",
+      link: "/aluminum/products",
+    },
+    {
+      id: 2,
+      icon: <FaFileInvoiceDollar />,
+      label: "Transactions",
+      link: "/aluminum/transactions",
+    },
+    {
+      id: 3,
+      icon: <IoDocumentText />,
+      label: "Stock",
+      link: "/aluminum/stock",
+    },
+    {
+      id: 4,
+      icon: <FaFileInvoiceDollar />,
+      label: "Monthly Usage",
+      link: "/aluminum/usage",
+    },
+  ];
   const ALUMINUMITEMS = [
     {
       id: 0,
@@ -288,6 +320,29 @@ const MenuOptions: FC<MenuOptionsProps> = ({
                     Stock
                   </AccordionTrigger>
                   {ADMINROLESTOCK.map((link) => {
+                    return (
+                      <AccordionContent key={link.id}>
+                        <Link
+                          onClick={() => !defaultOpen && setOpenSheet(!open)}
+                          href={link.link}
+                          draggable={false}
+                          className="p-2 hover:bg-white/10 cursor-pointer rounded-md flex items-center gap-2"
+                        >
+                          {link.icon}
+                          {link.label}
+                        </Link>
+                      </AccordionContent>
+                    );
+                  })}
+                </AccordionItem>
+                <AccordionItem
+                  className="border-none text-white  flex flex-col "
+                  value="item-3"
+                >
+                  <AccordionTrigger className="p-2 cursor-pointer rounded-md flex items-center gap-2">
+                    Archive
+                  </AccordionTrigger>
+                  {ARCHIVEITEMS.map((link) => {
                     return (
                       <AccordionContent key={link.id}>
                         <Link

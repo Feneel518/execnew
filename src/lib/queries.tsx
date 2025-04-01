@@ -686,6 +686,9 @@ export const fetchProductsForSelect = async () => {
 
 export const fetchPreviousQuotationNumber = async () => {
   const quotationNumber = await db.quotation.findFirst({
+    where: {
+      archived: false,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -778,6 +781,19 @@ export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
       return { error: "Could not create quotation, please try again later!" };
     if (response) return { success: { id: existingQuotation.id } };
   } else if (!existingQuotation) {
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1; // 0-indexed
+    const currentYear = new Date().getFullYear();
+    const archiveYear = currentYear - 1;
+
+    const fyStartYear = currentMonth >= 4 ? currentYear : currentYear - 1;
+    const fyEndYear = fyStartYear + 1;
+
+    const start = String(fyStartYear).slice(-2);
+    const end = String(fyEndYear).slice(-2);
+
+    console.log(start, end);
+
     const response = await db.quotation.create({
       data: {
         gst: quotation.gst,
@@ -791,6 +807,10 @@ export const upsertQuotation = async (quotation: QuotationCreationRequest) => {
         packingCharges: quotation.packingCharges,
         paymentTerms: quotation.paymentTerms,
         transportationPayment: quotation.transportationPayment,
+        uniqueQuotationNumber: `${start.toString().slice(-2)}-${end
+          .toString()
+          .slice(-2)}/${quotation.quotationNumber}`,
+        archived: false,
       },
     });
 
@@ -1017,6 +1037,44 @@ export const getQuotationBasedOnid = async (id: string) => {
     return { error: "Could not find quotation, please try again later!" };
   if (response) return { success: response };
 };
+export const getArchiveQuotationBasedOnid = async (id: string) => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.archivedQuotation.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      customer: true,
+
+      ArchivedProductInQuotation: {
+        include: {
+          product: {
+            include: {
+              ProductComponentsOnProducts: {
+                include: {
+                  productComponents: {
+                    select: {
+                      item: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          index: "asc",
+        },
+      },
+    },
+  });
+
+  if (!response)
+    return { error: "Could not find quotation, please try again later!" };
+  if (response) return { success: response };
+};
 
 export const deleteQuotation = async (id: string) => {
   const user = await auth();
@@ -1105,7 +1163,7 @@ export const upsertOrder = async (order: OrderCreationRequest) => {
   if (order.quotationNumber) {
     await db.quotation.update({
       where: {
-        quotationNumber: Number(order.quotationNumber),
+        uniqueQuotationNumber: order.uniqueQuotationNumber,
       },
       data: {
         orderNumber: order.orderNumber,
@@ -3078,7 +3136,7 @@ export const deleteOrder = async (id: string) => {
   if (order?.quotationNumber) {
     await db.quotation.update({
       where: {
-        quotationNumber: Number(order.quotationNumber),
+        uniqueQuotationNumber: order.quotationNumber,
       },
       data: {
         orderNumber: null,

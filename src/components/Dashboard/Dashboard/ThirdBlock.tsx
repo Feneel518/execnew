@@ -10,6 +10,9 @@ const ThirdBlock: FC<ThirdBlockProps> = async ({}) => {
   const dates = getThisMonthsDate();
 
   const quotations = await db.quotation.findMany({
+    where: {
+      archived: false,
+    },
     select: {
       createdAt: true,
       ProductInQuotation: {

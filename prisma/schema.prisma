@@ -125,12 +125,13 @@ model Product {
 
   ProductComponentsOnProducts ProductComponentsOnProducts[]
 
-  Category           Category?            @relation(fields: [categoryId], references: [id])
-  categoryId         String?              @db.ObjectId
-  ProductInQuotation ProductInQuotation[]
-  ProductInOrder     ProductInOrder[]
-  ProductInChallan   ProductInChallan[]
-  ProductsForCasting ProductsForCasting[]
+  Category                   Category?                    @relation(fields: [categoryId], references: [id])
+  categoryId                 String?                      @db.ObjectId
+  ProductInQuotation         ProductInQuotation[]
+  ProductInOrder             ProductInOrder[]
+  ProductInChallan           ProductInChallan[]
+  ProductsForCasting         ProductsForCasting[]
+  ArchivedProductInQuotation ArchivedProductInQuotation[]
 
   @@index([name, slug])
 }
@@ -190,6 +191,7 @@ model Customer {
   Quotation             Quotation[]
   Order                 Order[]
   DeliveryChallan       DeliveryChallan[]
+  ArchivedQuotation     ArchivedQuotation[]
 
   @@index([name, slug])
 }
@@ -229,7 +231,8 @@ enum TransportationPayment {
 model Quotation {
   id                    String                @id @default(auto()) @map("_id") @db.ObjectId
   clientName            String?
-  quotationNumber       Int                   @unique
+  quotationNumber       Int
+  uniqueQuotationNumber String                @unique
   additionalNotes       String?
   gst                   GST
   packingCharges        PackingCharges        @default(INCLUDED)
@@ -241,6 +244,7 @@ model Quotation {
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
   orderNumber           Int?
+  archived              Boolean?
 
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId String   @db.ObjectId
@@ -525,6 +529,66 @@ model Todo {
   updatedAt DateTime      @updatedAt
   userId    String        @db.ObjectId
   user      User          @relation(fields: [userId], references: [id])
+}
+
+model ArchivedQuotation {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  originalId            String                @db.ObjectId
+  clientName            String?
+  quotationNumber       Int                   @unique
+  additionalNotes       String?
+  gst                   GST
+  packingCharges        PackingCharges
+  paymentTerms          PaymentTerms
+  transportationPayment TransportationPayment
+  deliveryDate          DateTime?
+  deliverDateNew        String?
+  discount              String?
+  createdAt             DateTime
+  archivedAt            DateTime              @default(now())
+  orderNumber           Int?
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+
+  ArchivedProductInQuotation ArchivedProductInQuotation[]
+
+  @@index([quotationNumber, customerId])
+}
+
+model ArchivedProductInQuotation {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  index        Int?
+  rating       String?
+  terminals    String?
+  hardware     String?
+  gasket       String?
+  mounting     String?
+  cableEntry   String?
+  earting      String?
+  typeNumber   String?
+  hsnCode      String?
+  cutoutSize   String?
+  plateSize    String?
+  glass        String?
+  wireGuard    String?
+  variant      String?
+  size         String?
+  rpm          String?
+  kW           String?
+  HorsePower   String?
+  poReferrence String?
+  quantity     String?
+  price        Float
+  createdAt    DateTime
+  updatedAt    DateTime
+  archivedAt   DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id])
+  productId    String   @db.ObjectId
+
+  quotationId         String             @db.ObjectId
+  ArchivedQuotation   ArchivedQuotation? @relation(fields: [archivedQuotationId], references: [id])
+  archivedQuotationId String?            @db.ObjectId
 }
 
 // ///////////////////////////////////////////////////////////////////////////
