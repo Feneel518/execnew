@@ -143,9 +143,9 @@ const MenuOptions: FC<MenuOptionsProps> = ({
     },
     {
       id: 1,
-      icon: <FaLightbulb />,
-      label: "Products",
-      link: "/aluminum/products",
+      icon: <FaShoppingCart />,
+      label: "Orders",
+      link: "/dashboard/archive/orders",
     },
     {
       id: 2,

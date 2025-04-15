@@ -132,6 +132,7 @@ model Product {
   ProductInChallan           ProductInChallan[]
   ProductsForCasting         ProductsForCasting[]
   ArchivedProductInQuotation ArchivedProductInQuotation[]
+  ArchiveProductInOrder      ArchiveProductInOrder[]
 
   @@index([name, slug])
 }
@@ -192,6 +193,7 @@ model Customer {
   Order                 Order[]
   DeliveryChallan       DeliveryChallan[]
   ArchivedQuotation     ArchivedQuotation[]
+  ArchiveOrder          ArchiveOrder[]
 
   @@index([name, slug])
 }
@@ -365,23 +367,26 @@ enum OrderStatus {
 }
 
 model Order {
-  id              String           @id @default(auto()) @map("_id") @db.ObjectId
-  orderNumber     Int              @unique
-  poNumber        String?
-  poNumberSlug    String?
-  poDate          DateTime?
-  customer        Customer         @relation(fields: [customerId], references: [id])
-  customerId      String           @db.ObjectId
-  status          OrderStatus      @default(PENDING)
-  notes           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  quotationNumber String?
-  ProductInOrder  ProductInOrder[]
-  orderPDFFile    String?
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber           Int                     @unique
+  // uniqueOrderNumber     String                 @unique
+  poNumber              String?
+  poNumberSlug          String?
+  poDate                DateTime?
+  customer              Customer                @relation(fields: [customerId], references: [id])
+  customerId            String                  @db.ObjectId
+  status                OrderStatus             @default(PENDING)
+  notes                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  quotationNumber       String?
+  ProductInOrder        ProductInOrder[]
+  orderPDFFile          String?
+  archived              Boolean?                @default(false)
   // TestCertificate TestCertificate?
-  Invoice         Invoice[]
-  PerfomaInvoice  PerfomaInvoice[]
+  Invoice               Invoice[]
+  PerfomaInvoice        PerfomaInvoice[]
+  ArchiveProductInOrder ArchiveProductInOrder[]
 }
 
 model ProductInOrder {
@@ -465,6 +470,8 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+  ArchiveOrder            ArchiveOrder?             @relation(fields: [archiveOrderId], references: [id])
+  archiveOrderId          String?                   @db.ObjectId
 }
 
 model ProductInInvoiceOfOrder {
@@ -477,8 +484,10 @@ model ProductInInvoiceOfOrder {
   Invoice   Invoice @relation(fields: [invoiceId], references: [id])
   invoiceId String  @db.ObjectId
 
-  ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
-  productInOrderId String         @db.ObjectId
+  ProductInOrder          ProductInOrder         @relation(fields: [productInOrderId], references: [id])
+  productInOrderId        String                 @db.ObjectId
+  ArchiveProductInOrder   ArchiveProductInOrder? @relation(fields: [archiveProductInOrderId], references: [id])
+  archiveProductInOrderId String?                @db.ObjectId
 }
 
 enum PaymentStatus {
@@ -589,6 +598,53 @@ model ArchivedProductInQuotation {
   quotationId         String             @db.ObjectId
   ArchivedQuotation   ArchivedQuotation? @relation(fields: [archivedQuotationId], references: [id])
   archivedQuotationId String?            @db.ObjectId
+}
+
+model ArchiveOrder {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  originalId            String                  @db.ObjectId
+  orderNumber           Int
+  uniqueOrderNumber     String?                 @unique
+  poNumber              String?
+  poNumberSlug          String?
+  poDate                DateTime?
+  customer              Customer                @relation(fields: [customerId], references: [id])
+  customerId            String                  @db.ObjectId
+  status                OrderStatus             @default(PENDING)
+  notes                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  quotationNumber       String?
+  // ProductInOrder    ProductInOrder[]
+  orderPDFFile          String?
+  archived              Boolean?                @default(false)
+  // TestCertificate TestCertificate?
+  Invoice               Invoice[]
+  // PerfomaInvoice    PerfomaInvoice[]
+  ArchiveProductInOrder ArchiveProductInOrder[]
+}
+
+model ArchiveProductInOrder {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  price             Float
+  index             Int?
+  quantity          Int
+  description       String?
+  certificateNumber String?
+  supplied          Int?     @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  archivedAt        DateTime @default(now())
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  product                 Product                   @relation(fields: [productId], references: [id])
+  productId               String                    @db.ObjectId
+  archivedOrder           ArchiveOrder?             @relation(fields: [archiveOrderId], references: [id])
+  archiveOrderId          String?                   @db.ObjectId
+  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+  // ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
 }
 
 // ///////////////////////////////////////////////////////////////////////////

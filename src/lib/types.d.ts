@@ -474,6 +474,25 @@ export type OrderTable = Prisma.OrderGetPayload<{
     };
   };
 }>;
+export type ArchiveOrderTable = Prisma.ArchiveOrderGetPayload<{
+  select: {
+    id: true;
+    orderNumber: true;
+    poNumber: true;
+    poDate: true;
+    status: true;
+    customer: {
+      select: {
+        name: true;
+      };
+    };
+    ArchiveProductInOrder: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;
 
 export type challanTable = Prisma.DeliveryChallanGetPayload<{
   select: {

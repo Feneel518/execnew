@@ -79,13 +79,12 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
   const { data: customers } = useGetCustomersForSelect();
   const { data: products } = useGetProductsForSelect();
   const [deletingOrder, setDeletingOrder] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [customerForm, setCustomerForm] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
     orderData?.poDate ? orderData.poDate : new Date()
   );
-
-  console.log(orderData?.orderPDFFile);
 
   //
 
@@ -139,7 +138,6 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       status: orderData?.status ? orderData.status : "PENDING",
     },
   });
-  const isLoading = form.formState.isLoading;
 
   const { fields, append, remove } = useFieldArray({
     name: "ProductInOrder",
@@ -174,6 +172,7 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       });
     }
 
+    setIsLoading(true);
     const response = await upsertOrder({
       uniqueQuotationNumber: value.uniqueQuotationNumber,
       customerId: value.customerId,
@@ -188,6 +187,9 @@ const OrderForm: FC<OrderFormProps> = ({ orderData, isEdit }) => {
       // @ts-ignore
       ProductInOrder: value.ProductInOrder,
     });
+
+    setIsLoading(false);
+
     if (response?.success) {
       toast({
         title: "Your Order has been saved.",

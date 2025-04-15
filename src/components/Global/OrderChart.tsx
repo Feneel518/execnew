@@ -13,7 +13,7 @@ interface OrderChartProps {
 const OrderChart: FC<OrderChartProps> = ({ results }) => {
   return (
     <div>
-      <ResponsiveContainer width={384} height={180} className=" z-20">
+      <ResponsiveContainer width={450} height={180} className=" z-20">
         <BarChart width={150} height={40} data={results}>
           <XAxis dataKey="name" stroke="#e1f3fd" />
           <Tooltip

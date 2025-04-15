@@ -13,18 +13,18 @@ const ChartComponent: FC<ChartComponentProps> = async ({}) => {
   });
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
     "May",
     "June",
     "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const groupedOrders: { [key: string]: Partial<Order>[] } = {};

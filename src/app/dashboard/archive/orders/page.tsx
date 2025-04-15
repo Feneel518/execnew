@@ -1,4 +1,5 @@
 import { DataTable } from "@/components/Dashboard/Customers/data-table";
+import ArchiveOrderTableBody from "@/components/Dashboard/Orders/ArchiveOrderTableBody";
 import OrderTableBody from "@/components/Dashboard/Orders/OrderTableBody";
 import ProductsTable from "@/components/Dashboard/Products/ProductsTable";
 import NoResults from "@/components/Global/NoResults";
@@ -7,7 +8,7 @@ import { ordersColumns } from "@/components/columns/ordersColumns";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/lib/db";
-import { OrderColumns, OrderTable } from "@/lib/types";
+import { ArchiveOrderTable, OrderColumns, OrderTable } from "@/lib/types";
 
 import clsx from "clsx";
 import { format } from "date-fns";
@@ -29,30 +30,26 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   const queryNumber = searchParams?.queryNumber || "";
   const currentPage = Number(searchParams?.page || 1);
   const sortStatus = searchParams?.sort || "all";
-  let orders: OrderTable[] = [];
+  let orders: ArchiveOrderTable[] = [];
 
   let totalPages: number = 0;
 
   if (query) {
     if (sortStatus === "all") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
-          AND: [
+          OR: [
             {
-              OR: [
-                {
-                  customer: {
-                    slug: {
-                      contains: encodeURI(query?.toLowerCase()),
-                    },
-                  },
+              customer: {
+                slug: {
+                  contains: encodeURI(query?.toLowerCase()),
                 },
-                {
-                  poNumber: {
-                    contains: encodeURI(query?.toLowerCase()),
-                  },
-                },
-              ],
+              },
+            },
+            {
+              poNumber: {
+                contains: encodeURI(query?.toLowerCase()),
+              },
             },
           ],
         },
@@ -63,26 +60,20 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
-          AND: [
+          OR: [
             {
-              OR: [
-                {
-                  customer: {
-                    slug: {
-                      contains: encodeURI(query?.toLowerCase()),
-                    },
-                  },
+              customer: {
+                slug: {
+                  contains: encodeURI(query?.toLowerCase()),
                 },
-                {
-                  poNumberSlug: {
-                    contains: encodeURI(
-                      query?.toLowerCase().replace(/\//g, "-")
-                    ),
-                  },
-                },
-              ],
+              },
+            },
+            {
+              poNumberSlug: {
+                contains: encodeURI(query?.toLowerCase().replace(/\//g, "-")),
+              },
             },
           ],
         },
@@ -98,7 +89,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -112,7 +103,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       });
     }
     if (sortStatus === "pending") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
           AND: [
             {
@@ -147,7 +138,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
           AND: [
             {
@@ -187,7 +178,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -201,7 +192,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       });
     }
     if (sortStatus === "completed") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
           AND: [
             {
@@ -236,7 +227,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
           AND: [
             {
@@ -279,7 +270,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -294,15 +285,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     }
   } else if (queryNumber) {
     if (sortStatus === "all") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
-          AND: [
+          OR: [
             {
-              OR: [
-                {
-                  orderNumber: Number(queryNumber),
-                },
-              ],
+              orderNumber: Number(queryNumber),
             },
           ],
         },
@@ -313,15 +300,11 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
-          AND: [
+          OR: [
             {
-              OR: [
-                {
-                  orderNumber: Number(queryNumber),
-                },
-              ],
+              orderNumber: Number(queryNumber),
             },
           ],
         },
@@ -337,7 +320,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -351,7 +334,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       });
     }
     if (sortStatus === "pending") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
           AND: [
             {
@@ -375,7 +358,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
           AND: [
             {
@@ -404,7 +387,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -418,7 +401,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       });
     }
     if (sortStatus === "completed") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
           AND: [
             {
@@ -442,7 +425,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
 
       totalPages = Math.ceil(Number(orderCount) / 10);
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
           AND: [
             {
@@ -485,7 +468,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
             },
@@ -500,7 +483,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     }
   } else {
     if (sortStatus === "all") {
-      const orderCount = await db.order.count({});
+      const orderCount = await db.archiveOrder.count({});
 
       orders = await db.order.findMany({
         select: {
@@ -515,7 +498,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
               quantity: true,
@@ -532,27 +515,19 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       totalPages = Math.ceil(Number(orderCount) / 10);
     }
     if (sortStatus === "pending") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
-          AND: [
-            {
-              status: {
-                not: "COMPLETED",
-              },
-            },
-          ],
+          status: {
+            not: "COMPLETED",
+          },
         },
       });
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
-          AND: [
-            {
-              status: {
-                not: "COMPLETED",
-              },
-            },
-          ],
+          status: {
+            not: "COMPLETED",
+          },
         },
         select: {
           id: true,
@@ -566,7 +541,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
               quantity: true,
@@ -583,25 +558,17 @@ const page: FC<pageProps> = async ({ searchParams }) => {
       totalPages = Math.ceil(Number(orderCount) / 10);
     }
     if (sortStatus === "completed") {
-      const orderCount = await db.order.count({
+      const orderCount = await db.archiveOrder.count({
         where: {
-          AND: [
-            {
-              status: {
-                equals: "COMPLETED",
-              },
-            },
-          ],
+          status: {
+            equals: "COMPLETED",
+          },
         },
       });
 
-      orders = await db.order.findMany({
+      orders = await db.archiveOrder.findMany({
         where: {
-          AND: [
-            {
-              status: "COMPLETED",
-            },
-          ],
+          status: "COMPLETED",
         },
         select: {
           id: true,
@@ -615,7 +582,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               name: true,
             },
           },
-          ProductInOrder: {
+          ArchiveProductInOrder: {
             select: {
               id: true,
               quantity: true,
@@ -636,7 +603,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
   return (
     <div className="">
       <div className="flex items-center justify-between">
-        <div className="text-3xl">List of Orders</div>
+        <div className="text-3xl">List of Archived Orders</div>
         <Link
           href={"/dashboard/orders/new"}
           className={clsx(buttonVariants({ variant: "default" }), "flex gap-2")}
@@ -680,7 +647,10 @@ const page: FC<pageProps> = async ({ searchParams }) => {
               }
               body={
                 orders.length > 0 ? (
-                  <OrderTableBody orders={orders}></OrderTableBody>
+                  // <div className=""></div>
+                  <ArchiveOrderTableBody
+                    orders={orders}
+                  ></ArchiveOrderTableBody>
                 ) : (
                   <NoResults></NoResults>
                 )
