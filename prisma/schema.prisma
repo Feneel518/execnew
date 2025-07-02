@@ -1,0 +1,859 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  USER
+  STORE
+}
+
+model User {
+  id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String?
+  email                 String?                @unique
+  emailVerified         DateTime?
+  image                 String?
+  password              String?
+  role                  UserRole               @default(USER)
+  accounts              Account[]
+  isTwoFactorEnabled    Boolean                @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
+  Todo                  Todo[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////
+
+model Product {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  slug       String  @unique
+  image      String
+  type       String?
+  protection String?
+  gasGroup   String?
+  material   String?
+  finish     String?
+  rating     String?
+  terminals  String?
+  hardware   String?
+  gasket     String?
+  mounting   String?
+  cableEntry String?
+  earting    String?
+  typeNumber String?
+  hsnCode    String?
+  cutoutSize String?
+  plateSize  String?
+  glass      String?
+  wireGuard  String?
+  variant    String?
+  size       String?
+  rpm        String?
+  kW         String?
+  HorsePower String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ProductComponentsOnProducts ProductComponentsOnProducts[]
+
+  Category                   Category?                    @relation(fields: [categoryId], references: [id])
+  categoryId                 String?                      @db.ObjectId
+  ProductInQuotation         ProductInQuotation[]
+  ProductInOrder             ProductInOrder[]
+  ProductInChallan           ProductInChallan[]
+  ProductsForCasting         ProductsForCasting[]
+  ArchivedProductInQuotation ArchivedProductInQuotation[]
+  ArchiveProductInOrder      ArchiveProductInOrder[]
+
+  @@index([name, slug])
+}
+
+model ProductComponents {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  item String
+
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  ProductComponentsOnProducts ProductComponentsOnProducts[]
+}
+
+model ProductComponentsOnProducts {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  productComponentsId String            @db.ObjectId
+  productComponents   ProductComponents @relation(fields: [productComponentsId], references: [id])
+
+  @@index([productId, productComponentsId])
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  image       String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product Product[]
+}
+
+model Customer {
+  id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String
+  slug                  String                 @unique
+  GST                   String?
+  email                 String?
+  country               String
+  addressLine1          String
+  addressLine2          String?
+  city                  String?
+  state                 String
+  pincode               String?
+  phoneNumber           String?
+  paymentTerms          PaymentTerms?          @default(ADVANCE)
+  transportationPayment TransportationPayment? @default(TO_PAY)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  Quotation             Quotation[]
+  Order                 Order[]
+  DeliveryChallan       DeliveryChallan[]
+  ArchivedQuotation     ArchivedQuotation[]
+  ArchiveOrder          ArchiveOrder[]
+
+  @@index([name, slug])
+}
+
+enum GST {
+  IGST_18
+  CGST_SGST_18
+  IGST_5
+  CGST_SGST_5
+  IGST_12
+  CGST_SGST_12
+  IGST_28
+  CGST_SGST_28
+  IGST_0_1
+  CGST_SGST_0_1
+}
+
+enum PackingCharges {
+  INCLUDED
+  EXCLUDED
+}
+
+enum PaymentTerms {
+  ADVANCE
+  AGAINST_PERFOMA_INVOICE
+  AGAINST_DELIVERY
+  CREDIT_30
+  CREDIT_60
+  CREDIT_45
+}
+
+enum TransportationPayment {
+  PAID
+  TO_PAY
+}
+
+model Quotation {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  clientName            String?
+  quotationNumber       Int
+  uniqueQuotationNumber String                @unique
+  additionalNotes       String?
+  gst                   GST
+  packingCharges        PackingCharges        @default(INCLUDED)
+  paymentTerms          PaymentTerms          @default(ADVANCE)
+  transportationPayment TransportationPayment @default(TO_PAY)
+  deliveryDate          DateTime?
+  deliverDateNew        String?
+  discount              String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  orderNumber           Int?
+  archived              Boolean?
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+
+  ProductInQuotation ProductInQuotation[]
+
+  @@index([quotationNumber, customerId])
+}
+
+enum CauseOfChallan {
+  AS_PER_SAMPLE
+  FOR_REPLACEMENT
+  RETURNABLE
+}
+
+enum ChallanStatus {
+  OPEN
+  CLOSE
+}
+
+model DeliveryChallan {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  challanNumber    Int
+  additionalNotes  String?
+  challanDate      DateTime?
+  poNumber         String?
+  poNumberSlug     String?
+  poDate           DateTime?
+  causeOfChallan   CauseOfChallan
+  status           ChallanStatus
+  customer         Customer           @relation(fields: [customerId], references: [id])
+  customerId       String             @db.ObjectId
+  ProductInChallan ProductInChallan[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model ProductInChallan {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  index       Int?
+  quantity    String?
+  description String?
+  price       Float
+  challan     DeliveryChallan @relation(fields: [challanId], references: [id])
+  challanId   String          @db.ObjectId
+  product     Product         @relation(fields: [productId], references: [id])
+  productId   String          @db.ObjectId
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ProductInQuotation {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  index        Int?
+  rating       String?
+  terminals    String?
+  hardware     String?
+  gasket       String?
+  mounting     String?
+  cableEntry   String?
+  earting      String?
+  typeNumber   String?
+  hsnCode      String?
+  cutoutSize   String?
+  plateSize    String?
+  glass        String?
+  wireGuard    String?
+  variant      String?
+  size         String?
+  rpm          String?
+  kW           String?
+  HorsePower   String?
+  poReferrence String?
+  quantity     String?
+  price        Float
+  quotation    Quotation @relation(fields: [quotationId], references: [id])
+  quotationId  String    @db.ObjectId
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ComponentsOfProductInQuotation ComponentsOfProductInQuotation[]
+
+  @@index([quotationId, productId])
+}
+
+model ComponentsOfProductInQuotation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productInQuotationId String             @db.ObjectId
+  productInQuotation   ProductInQuotation @relation(fields: [productInQuotationId], references: [id])
+
+  componentsOfQuotation   ComponentsOfQuotation @relation(fields: [componentsOfQuotationId], references: [id])
+  componentsOfQuotationId String                @unique @db.ObjectId
+
+  @@index([productInQuotationId, componentsOfQuotationId])
+}
+
+model ComponentsOfQuotation {
+  id                             String                           @id @default(auto()) @map("_id") @db.ObjectId
+  item                           String
+  createdAt                      DateTime                         @default(now())
+  updatedAt                      DateTime                         @updatedAt
+  ComponentsOfProductInQuotation ComponentsOfProductInQuotation[]
+
+  @@index([item])
+}
+
+enum OrderStatus {
+  COMPLETED
+  PENDING
+  PARTIAL_COMPLETED
+}
+
+model Order {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber           Int                     @unique
+  // uniqueOrderNumber     String                 @unique
+  poNumber              String?
+  poNumberSlug          String?
+  poDate                DateTime?
+  customer              Customer                @relation(fields: [customerId], references: [id])
+  customerId            String                  @db.ObjectId
+  status                OrderStatus             @default(PENDING)
+  notes                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  quotationNumber       String?
+  ProductInOrder        ProductInOrder[]
+  orderPDFFile          String?
+  archived              Boolean?                @default(false)
+  // TestCertificate TestCertificate?
+  Invoice               Invoice[]
+  PerfomaInvoice        PerfomaInvoice[]
+  ArchiveProductInOrder ArchiveProductInOrder[]
+}
+
+model ProductInOrder {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  price             Float
+  index             Int?
+  quantity          Int
+  description       String?
+  certificateNumber String?
+  supplied          Int?     @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  product                        Product                          @relation(fields: [productId], references: [id])
+  productId                      String                           @db.ObjectId
+  ProductInInvoiceOfOrder        ProductInInvoiceOfOrder[]
+  ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
+}
+
+model StoreProduct {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  image          String?
+  slug           String      @unique
+  description    String?
+  StoreProductId String      @unique
+  qrCodeLink     String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  Inventory      Inventory[]
+}
+
+model Employee {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  image        String?
+  slug         String      @unique
+  phoneNumber  String?
+  aadharNumber String?
+  createdAt    DateTime?   @default(now())
+  updatedAt    DateTime?   @updatedAt
+  Inventory    Inventory[]
+}
+
+model Inventory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  quantity  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @db.ObjectId
+
+  storeProduct   StoreProduct? @relation(fields: [storeProductId], references: [StoreProductId])
+  storeProductId String?
+
+  status Status
+}
+
+enum Status {
+  IN
+  OUT
+}
+
+model Invoice {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber     String   @unique
+  invoiceNumberSlug String   @unique
+  invoiceDate       DateTime
+  transportName     String?
+  LrNumber          String?
+  LrUrl             String?
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+  ArchiveOrder            ArchiveOrder?             @relation(fields: [archiveOrderId], references: [id])
+  archiveOrderId          String?                   @db.ObjectId
+}
+
+model ProductInInvoiceOfOrder {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  supplidQuantity   Int
+  certificateNumber String
+  typeNumber        String
+  numberOfBoxes     Int?
+
+  Invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  invoiceId String  @db.ObjectId
+
+  ProductInOrder          ProductInOrder         @relation(fields: [productInOrderId], references: [id])
+  productInOrderId        String                 @db.ObjectId
+  ArchiveProductInOrder   ArchiveProductInOrder? @relation(fields: [archiveProductInOrderId], references: [id])
+  archiveProductInOrderId String?                @db.ObjectId
+}
+
+enum PaymentStatus {
+  RECEIVED
+  PENDING
+  CANCELLED
+}
+
+model PerfomaInvoice {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  perfomaInvoiceNumber Int           @unique
+  perfomaInvoiceDate   DateTime
+  additionalNotes      String?
+  paymentStatus        PaymentStatus
+  shippingCharges      Int?
+  order                Order         @relation(fields: [orderId], references: [id])
+  orderId              String        @db.ObjectId
+
+  createdAt                      DateTime                         @default(now())
+  updatedAt                      DateTime                         @updatedAt
+  ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
+}
+
+model ProductInPerfomaInvoiceOfOrder {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  supplidQuantity Int
+
+  perfomaInvoice   PerfomaInvoice @relation(fields: [perfomaInvoiceId], references: [id])
+  perfomaInvoiceId String         @db.ObjectId
+
+  ProductInOrder   ProductInOrder @relation(fields: [productInOrderId], references: [id])
+  productInOrderId String         @db.ObjectId
+}
+
+enum TODO_PRIORITY {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Todo {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  priority  TODO_PRIORITY @default(MEDIUM)
+  dueDate   DateTime?
+  completed Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  userId    String        @db.ObjectId
+  user      User          @relation(fields: [userId], references: [id])
+}
+
+model ArchivedQuotation {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  originalId            String                @db.ObjectId
+  clientName            String?
+  quotationNumber       Int                   @unique
+  additionalNotes       String?
+  gst                   GST
+  packingCharges        PackingCharges
+  paymentTerms          PaymentTerms
+  transportationPayment TransportationPayment
+  deliveryDate          DateTime?
+  deliverDateNew        String?
+  discount              String?
+  createdAt             DateTime
+  archivedAt            DateTime              @default(now())
+  orderNumber           Int?
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+
+  ArchivedProductInQuotation ArchivedProductInQuotation[]
+
+  @@index([quotationNumber, customerId])
+}
+
+model ArchivedProductInQuotation {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  index        Int?
+  rating       String?
+  terminals    String?
+  hardware     String?
+  gasket       String?
+  mounting     String?
+  cableEntry   String?
+  earting      String?
+  typeNumber   String?
+  hsnCode      String?
+  cutoutSize   String?
+  plateSize    String?
+  glass        String?
+  wireGuard    String?
+  variant      String?
+  size         String?
+  rpm          String?
+  kW           String?
+  HorsePower   String?
+  poReferrence String?
+  quantity     String?
+  price        Float
+  createdAt    DateTime
+  updatedAt    DateTime
+  archivedAt   DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id])
+  productId    String   @db.ObjectId
+
+  quotationId         String             @db.ObjectId
+  ArchivedQuotation   ArchivedQuotation? @relation(fields: [archivedQuotationId], references: [id])
+  archivedQuotationId String?            @db.ObjectId
+}
+
+model ArchiveOrder {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  originalId            String                  @db.ObjectId
+  orderNumber           Int
+  uniqueOrderNumber     String?                 @unique
+  poNumber              String?
+  poNumberSlug          String?
+  poDate                DateTime?
+  customer              Customer                @relation(fields: [customerId], references: [id])
+  customerId            String                  @db.ObjectId
+  status                OrderStatus             @default(PENDING)
+  notes                 String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  quotationNumber       String?
+  // ProductInOrder    ProductInOrder[]
+  orderPDFFile          String?
+  archived              Boolean?                @default(false)
+  // TestCertificate TestCertificate?
+  Invoice               Invoice[]
+  // PerfomaInvoice    PerfomaInvoice[]
+  ArchiveProductInOrder ArchiveProductInOrder[]
+}
+
+model ArchiveProductInOrder {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  price             Float
+  index             Int?
+  quantity          Int
+  description       String?
+  certificateNumber String?
+  supplied          Int?     @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  archivedAt        DateTime @default(now())
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  product                 Product                   @relation(fields: [productId], references: [id])
+  productId               String                    @db.ObjectId
+  archivedOrder           ArchiveOrder?             @relation(fields: [archiveOrderId], references: [id])
+  archiveOrderId          String?                   @db.ObjectId
+  ProductInInvoiceOfOrder ProductInInvoiceOfOrder[]
+  // ProductInPerfomaInvoiceOfOrder ProductInPerfomaInvoiceOfOrder[]
+}
+
+// ///////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////
+enum ALUMINUMCLIENTTYPE {
+  USER
+  SUPPLIER
+  BOTH
+}
+
+model AluminumClient {
+  id           String                @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  slug         String
+  GST          String?
+  addressLine1 String?
+  phoneNumber  String?
+  type         ALUMINUMCLIENTTYPE    @default(USER)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  Supplier     AluminumTransaction[] @relation("Supplier")
+  User         AluminumTransaction[] @relation("User")
+
+  @@index([name, id])
+}
+
+enum TRANSACTIONSTATUS {
+  IN
+  OUT
+}
+
+enum INWARDTYPE {
+  ALUMINUM
+  CASTING
+  LOSSES
+  REPLACE_ALUMINUM
+  RETURNABLE
+  REJECT_CASTING
+  RETURN_ALUMINUM_FROM_USER
+}
+
+enum ALUMINUMTYPE {
+  SCRAP
+  GRAVITY
+  PRESSURE
+  INGOT
+}
+
+model AluminumTransaction {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  status       TRANSACTIONSTATUS
+  inwardType   INWARDTYPE?
+  aluminumType ALUMINUMTYPE?
+
+  supplier     AluminumClient @relation("Supplier", fields: [supplierId], references: [id])
+  supplierId   String         @db.ObjectId
+  docketNumber String
+  docketDate   DateTime
+  weight       Float
+  quantity     Int?
+  quantityType String?
+  price        Float?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user                   AluminumClient?          @relation("User", fields: [userId], references: [id])
+  userId                 String?                  @db.ObjectId
+  TransactionCalculation TransactionCalculation[]
+  CastingForTransaction  CastingForTransaction[]
+}
+
+model TransactionCalculation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transaction           AluminumTransaction @relation(fields: [aluminumTransactionId], references: [id])
+  aluminumTransactionId String              @db.ObjectId
+
+  index        Int
+  weight       Float
+  quantity     Int?
+  quantityType String?
+}
+
+model Castings {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  slug        String
+  weight      Float?
+  description String?
+
+  CastingForTransaction CastingForTransaction[]
+  ProductsForCasting    ProductsForCasting[]
+}
+
+model CastingForTransaction {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  description String?
+  weight      Float?
+  quantity    Int?
+
+  transaction           AluminumTransaction @relation(fields: [aluminumTransactionId], references: [id])
+  aluminumTransactionId String              @db.ObjectId
+
+  casting    Castings @relation(fields: [castingsId], references: [id])
+  castingsId String   @db.ObjectId
+}
+
+model ProductsForCasting {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  casting    Castings @relation(fields: [castingsId], references: [id])
+  castingsId String   @db.ObjectId
+}
+
+model AluminumStock {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  weight       Float
+  aluminumType ALUMINUMTYPE
+  month        Int
+  year         Int
+  status       TRANSACTIONSTATUS
+
+  @@unique([month, year, aluminumType, status])
+}
+
+model Property {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  address            String
+  rent               Float
+  tenant             Tenant[]
+  records            RentRecord[]
+  createdAt          DateTime             @default(now())
+  ElectricityReading ElectricityReading[]
+}
+
+model Tenant {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  contact        String
+  email          String?
+  property       Property     @relation(fields: [propertyId], references: [id])
+  propertyId     String       @db.ObjectId
+  isActive       Boolean      @default(true)
+  openingBalance Float        @default(0) // ✅ New field
+  createdAt      DateTime     @default(now())
+  RentRecord     RentRecord[]
+  vacatedOn      DateTime?
+  unitRate       Float? // on Tenant
+  advanceAmount  Float        @default(0)
+  Payment        Payment[]
+}
+
+model RentRecord {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  month       String // e.g., "Jul-2025"
+  rentAmount  Float
+  lightBill   Float? // optional
+  totalAmount Float
+  isPaid      Boolean   @default(false)
+  paymentMode String? // 'lumpsum' | 'bill-wise'
+  paidOn      DateTime?
+  createdAt   DateTime  @default(now())
+
+  propertyId String @db.ObjectId
+  tenantId   String @db.ObjectId
+
+  property    Property  @relation(fields: [propertyId], references: [id])
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  payments    Payment[]
+  partialPaid Float? // ✅ NEW (optional): how much has been paid so far
+}
+
+model Payment {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String      @db.ObjectId
+  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  rentId    String?     @db.ObjectId
+  rent      RentRecord? @relation(fields: [rentId], references: [id])
+  amount    Float
+  date      DateTime    @default(now())
+  mode      String?
+  note      String?
+  createdAt DateTime    @default(now())
+}
+
+model ElectricityReading {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
+  month      String // "Jul-2025"
+  reading    Float // current meter reading
+  unitRate   Float // per unit rate for this month
+  createdAt  DateTime @default(now())
+
+  @@unique([propertyId, month]) // ✅ Only one reading per property per month
+}
