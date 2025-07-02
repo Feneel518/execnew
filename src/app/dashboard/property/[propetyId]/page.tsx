@@ -31,8 +31,6 @@ export default async function PropertyPage({
     },
   });
 
-  console.log(property);
-
   const currentMonth = format(new Date(), "MMM-yyyy");
 
   const alreadyExists = await db.electricityReading.findFirst({

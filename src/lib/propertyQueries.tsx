@@ -201,13 +201,16 @@ export async function generateRentRecord({
 
   const rentAmount = property.rent;
 
+  const gstRate = 0.18;
+  const gstAmount = property.rent * gstRate;
+  const rentWithGst = property.rent + gstAmount;
   await db.rentRecord.create({
     data: {
       propertyId,
       tenantId: activeTenant.id,
       month,
-      rentAmount,
-      totalAmount: rentAmount, // will include lightBill later
+      rentAmount: rentWithGst,
+      totalAmount: rentWithGst, // will include lightBill later
     },
   });
 
