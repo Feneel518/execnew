@@ -4,6 +4,7 @@ import ejs from "ejs";
 import path from "path";
 import { promises as fs } from "fs";
 import { format } from "date-fns";
+import puppeteer from "puppeteer";
 
 export async function POST(req: NextRequest) {
   const {
@@ -16,7 +17,29 @@ export async function POST(req: NextRequest) {
     lrNumber,
     transporterName,
     lrUrl,
+    slug,
   } = await req.json();
+
+  const browser = await puppeteer.launch({
+    headless: true, // Needed for latest Puppeteer versions
+    args: ["--no-sandbox", "--disable-setuid-sandbox"], // For Vercel or Linux hosting
+  });
+
+  const page = await browser.newPage();
+
+  // 🧠 URL of your invoice page (must be public or internally accessible)
+  const invoiceUrl = `http://localhost:3000/pdf/invoice/${slug}`;
+  await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
+
+  // 🖨 Generate PDF buffer
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+  });
+
+  await browser.close();
+
+  const buffer = Buffer.from(pdfBuffer);
 
   const formattedPoDate = poDate
     ? format(new Date(poDate), "dd MMM yyyy")
@@ -67,6 +90,13 @@ export async function POST(req: NextRequest) {
       to,
       subject: `Dispatch Details for Invoice ${invoiceNumber}`,
       html,
+      attachments: [
+        {
+          filename: `Invoice-${invoiceNumber}.pdf`,
+          content: buffer,
+          contentType: "application/pdf",
+        },
+      ],
     });
 
     return NextResponse.json({ success: true });

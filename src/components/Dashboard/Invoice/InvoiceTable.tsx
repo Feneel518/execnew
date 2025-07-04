@@ -41,7 +41,7 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
         <TableBody>
           {products.map((invoice, index) => {
             return (
-              <>
+              <div key={invoice.id}>
                 <TableRow key={invoice.id} className="">
                   <TableCell className="font-medium">
                     {itemsIndex + 1 + index}
@@ -67,7 +67,7 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
                   </TableCell>
                 </TableRow>
                 <Separator></Separator>
-              </>
+              </div>
             );
           })}
         </TableBody>

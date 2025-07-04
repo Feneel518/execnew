@@ -85,6 +85,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         LrNumber: true,
         LrUrl: true,
         transportName: true,
+        invoiceNumberSlug: true,
         order: {
           select: {
             id: true,
@@ -123,6 +124,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         LrNumber: true,
         LrUrl: true,
         transportName: true,
+        invoiceNumberSlug: true,
         order: {
           select: {
             id: true,

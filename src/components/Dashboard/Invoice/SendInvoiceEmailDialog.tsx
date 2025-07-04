@@ -104,6 +104,7 @@ const SendInvoiceEmailDialog: FC<Props> = ({
                     lrNumber: invoice.LrNumber,
                     transporterName: invoice.transportName,
                     lrUrl: invoice.LrUrl,
+                    slug: invoice.invoiceNumberSlug,
                   }),
                 });
 
