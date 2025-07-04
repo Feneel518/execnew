@@ -27,8 +27,9 @@ export async function POST(req: NextRequest) {
 
   const page = await browser.newPage();
 
+  // http://localhost:3000/pdf/invoice/25-26%25586
   // 🧠 URL of your invoice page (must be public or internally accessible)
-  const invoiceUrl = `https://explosionproofelectrical.com/pdf/invoice/${slug}`;
+  const invoiceUrl = `https://www.explosionproofelectrical.com/pdf/invoice/${slug}`;
   await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
 
   // 🖨 Generate PDF buffer

@@ -117,7 +117,10 @@ const SendInvoiceEmailDialog: FC<Props> = ({
                   toast({ description: "✅ Email sent successfully!" });
                   setEmail("");
                   onClose(); // close the modal
+                  setIsLoading(false);
                 } else {
+                  setIsLoading(false);
+
                   toast({
                     description: "❌ Failed to send email.",
                     variant: "destructive",

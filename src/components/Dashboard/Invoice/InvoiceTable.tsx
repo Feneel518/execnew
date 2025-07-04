@@ -28,7 +28,7 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
 }) => {
   return (
     <div>
-      <Table>
+      <Table className="">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[50px]">#</TableHead>
@@ -38,15 +38,15 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
             <TableHead className="text-right w-[100px]">Net Price</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="">
           {products.map((invoice, index) => {
             return (
-              <div key={invoice.id}>
-                <TableRow key={invoice.id} className="">
-                  <TableCell className="font-medium">
+              <>
+                <TableRow className="">
+                  <TableCell className="font-medium ">
                     {itemsIndex + 1 + index}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-[300px]!">
                     <div className="">
                       {invoice.ProductInOrder.product.name}
                     </div>
@@ -67,7 +67,7 @@ const InvoiceTable: FC<InvoiceTableProps> = ({
                   </TableCell>
                 </TableRow>
                 <Separator></Separator>
-              </div>
+              </>
             );
           })}
         </TableBody>

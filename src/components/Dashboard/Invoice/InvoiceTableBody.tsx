@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,20 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { InvoiceTable } from "@/lib/types";
+import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { InvoiceTable, OrderTable } from "@/lib/types";
-import { format } from "date-fns";
-import { updateOrder } from "@/lib/queries";
-import { toast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { FC, useEffect, useState } from "react";
 import SendInvoiceEmailDialog from "./SendInvoiceEmailDialog";
 
 interface InvoiceTableBodyProps {
