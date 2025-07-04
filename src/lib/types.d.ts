@@ -662,7 +662,7 @@ export type InvoiceTable = Prisma.InvoiceGetPayload<{
     LrNumber: true;
     LrUrl: true;
     transportName: true;
-
+    invoiceNumberSlug: true;
     order: {
       select: {
         id: true;
