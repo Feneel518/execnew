@@ -103,7 +103,7 @@ const SendInvoiceEmailDialog: FC<Props> = ({
                     productCount: invoice.ProductInInvoiceOfOrder.length,
                     lrNumber: invoice.LrNumber,
                     transporterName: invoice.transportName,
-                    lrUrl: invoice.LrNumber,
+                    lrUrl: invoice.LrUrl,
                   }),
                 });
 
