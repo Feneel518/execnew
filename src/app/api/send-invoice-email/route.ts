@@ -27,29 +27,6 @@ export async function POST(req: NextRequest) {
     totalAmount,
   } = await req.json();
 
-  // http://localhost:3000/pdf/invoice/25-26%25586
-  // 🧠 URL of your invoice page (must be public or internally accessible)
-  const invoiceUrl = `https://www.explosionproofelectrical.com/pdf/invoice/${slug}`;
-
-  const executablePath = await chrome.executablePath;
-  const browser = await puppeteer.launch({
-    args: chrome.args,
-    executablePath,
-    headless: chrome.headless,
-    defaultViewport: chrome.defaultViewport,
-  });
-
-  const page = await browser.newPage();
-  await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
-
-  const pdfBuffer = await page.pdf({
-    format: "a4",
-    printBackground: true,
-  });
-
-  await browser.close();
-  // const buffer = Buffer.from(pdfBuffer);
-
   const formattedPoDate = poDate
     ? format(new Date(poDate), "dd MMM yyyy")
     : "N/A";
@@ -72,8 +49,6 @@ export async function POST(req: NextRequest) {
       "email-template.ejs"
     );
     const template = await fs.readFile(filePath, "utf8");
-
-    console.log(lrUrl);
 
     const html = ejs.render(template, {
       invoiceNumber,
@@ -100,13 +75,6 @@ export async function POST(req: NextRequest) {
       to,
       subject: `Dispatch Details for Invoice ${invoiceNumber}`,
       html,
-      attachments: [
-        {
-          filename: `Invoice-${invoiceNumber}.pdf`,
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-      ],
     });
 
     return NextResponse.json({ success: true });
