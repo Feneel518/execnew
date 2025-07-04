@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,7 @@ const SendInvoiceEmailDialog: FC<Props> = ({
   email,
   setEmail,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   if (!invoice) return null;
 
   return (
@@ -79,12 +80,13 @@ const SendInvoiceEmailDialog: FC<Props> = ({
           />
 
           <Button
-            disabled={!invoice.LrNumber || !invoice.transportName}
+            disabled={!invoice.LrNumber || !invoice.transportName || isLoading}
             className="w-full"
             onClick={async () => {
               if (!invoice) return;
 
               try {
+                setIsLoading(true);
                 if (!email || !email.includes("@")) {
                   toast({ description: "Please enter a valid email address." });
                   return;
@@ -109,6 +111,7 @@ const SendInvoiceEmailDialog: FC<Props> = ({
                 });
 
                 const data = await res.json();
+                setIsLoading(false);
 
                 if (data.success) {
                   toast({ description: "✅ Email sent successfully!" });
@@ -128,7 +131,7 @@ const SendInvoiceEmailDialog: FC<Props> = ({
               }
             }}
           >
-            Send Email
+            {isLoading ? "Sending" : "Send"} Email
           </Button>
           {(!invoice.LrNumber || !invoice.transportName) && (
             <p className="text-xs text-red-400 ">
