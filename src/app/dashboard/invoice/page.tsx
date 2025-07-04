@@ -82,6 +82,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         id: true,
         invoiceNumber: true,
         invoiceDate: true,
+        LrNumber: true,
+        LrUrl: true,
+        transportName: true,
         order: {
           select: {
             id: true,
@@ -91,6 +94,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             customer: {
               select: {
                 name: true,
+                email: true,
               },
             },
           },
@@ -116,6 +120,9 @@ const page: FC<pageProps> = async ({ searchParams }) => {
         id: true,
         invoiceNumber: true,
         invoiceDate: true,
+        LrNumber: true,
+        LrUrl: true,
+        transportName: true,
         order: {
           select: {
             id: true,
@@ -124,6 +131,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
             orderNumber: true,
             customer: {
               select: {
+                email: true,
                 name: true,
               },
             },

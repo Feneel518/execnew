@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,14 @@ import { InvoiceTable, OrderTable } from "@/lib/types";
 import { format } from "date-fns";
 import { updateOrder } from "@/lib/queries";
 import { toast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import SendInvoiceEmailDialog from "./SendInvoiceEmailDialog";
 
 interface InvoiceTableBodyProps {
   invoice: InvoiceTable[];
@@ -23,8 +31,23 @@ interface InvoiceTableBodyProps {
 
 const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
   const router = useRouter();
+  const [openDialogFor, setOpenDialogFor] = useState<string | null>(null);
+  const seletedInvoice = invoice.find((id) => id.id === openDialogFor);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    setEmail(seletedInvoice?.order.customer.email as string);
+  }, [openDialogFor]);
+
   return (
     <div>
+      <SendInvoiceEmailDialog
+        open={!!openDialogFor}
+        onClose={() => setOpenDialogFor(null)}
+        invoice={seletedInvoice!}
+        email={email}
+        setEmail={setEmail}
+      />
       {invoice.map((invo) => {
         return (
           <div
@@ -93,6 +116,14 @@ const InvoiceTableBody: FC<InvoiceTableBodyProps> = ({ invoice }) => {
                       }
                     >
                       Edit Invoice
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setOpenDialogFor(invo.id); // or invoice number if preferred
+                      }}
+                    >
+                      Send Email
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

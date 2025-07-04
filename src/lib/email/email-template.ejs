@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Invoice <%= invoiceNumber %></title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f6f6f6;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: white;
+        border: 1px solid #ddd;
+      }
+
+      .header {
+        background-color: #072536; /* your .bg-exec */
+        color: white;
+        text-align: center;
+        padding: 20px 10px;
+      }
+
+      .header img {
+        max-width: 220px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .address {
+        font-size: 12px;
+        color: #e0e0e0;
+      }
+
+      .orange-bar {
+        height: 8px;
+        background-color: #e46414; /* your .bg-execorange */
+      }
+
+      .content {
+        padding: 20px;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .footer {
+        font-size: 12px;
+        color: #999;
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <% if (logoUrl) { %>
+        <img src="<%= logoUrl %>" alt="Company Logo" />
+        <% } %>
+        <div class="address">
+          Plot no. 920, GIDC, Phase 4, Vapi, Gujarat, India
+        </div>
+      </div>
+      <div class="orange-bar"></div>
+
+      <div class="content">
+        <h2>Invoice Details</h2>
+        <p><strong>Invoice No:</strong> <%= invoiceNumber %></p>
+        <p><strong>Customer:</strong> <%= customerName %></p>
+        <p><strong>PO Number:</strong> <%= poNumber %></p>
+        <p><strong>PO Date:</strong> <%= poDate %></p>
+
+        <% if (lrNumber || transporterName || lrUrl) { %>
+        <hr />
+        <h3>Logistics Details</h3>
+        <% if (lrNumber) { %>
+        <p><strong>LR Number:</strong> <%= lrNumber %></p>
+        <% } %> <% if (transporterName) { %>
+        <p><strong>Transporter:</strong> <%= transporterName %></p>
+        <% } %> <% if (lrUrl) { %>
+        <p>
+          <strong>LR Document:</strong>
+          <a href="<%= lrUrl %>" target="_blank">View LR</a>
+        </p>
+        <% } %> <% } %>
+        <p>Thank you for your business.</p>
+      </div>
+
+      <div class="footer">
+        This is an automated email from Explosion Proof Electrical Control.
+      </div>
+    </div>
+  </body>
+</html>
