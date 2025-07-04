@@ -5,6 +5,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { format } from "date-fns";
 import puppeteer from "puppeteer";
+import chromium from "chrome-aws-lambda";
 
 export async function POST(req: NextRequest) {
   const {
@@ -21,8 +22,10 @@ export async function POST(req: NextRequest) {
   } = await req.json();
 
   const browser = await puppeteer.launch({
-    headless: true, // Needed for latest Puppeteer versions
-    args: ["--no-sandbox", "--disable-setuid-sandbox"], // For Vercel or Linux hosting
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: chromium.headless,
   });
 
   const page = await browser.newPage();
