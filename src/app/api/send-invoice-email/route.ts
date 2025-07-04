@@ -5,7 +5,6 @@ import path from "path";
 import { promises as fs } from "fs";
 import { format } from "date-fns";
 import chromium from "chrome-aws-lambda";
-import puppeteer from "puppeteer-core";
 
 export async function POST(req: NextRequest) {
   const {
