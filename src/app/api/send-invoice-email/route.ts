@@ -43,12 +43,12 @@ export async function POST(req: NextRequest) {
   await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
 
   const pdfBuffer = await page.pdf({
-    format: "A4",
+    format: "a4",
     printBackground: true,
   });
 
   await browser.close();
-  const buffer = Buffer.from(pdfBuffer);
+  // const buffer = Buffer.from(pdfBuffer);
 
   const formattedPoDate = poDate
     ? format(new Date(poDate), "dd MMM yyyy")
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       attachments: [
         {
           filename: `Invoice-${invoiceNumber}.pdf`,
-          content: buffer,
+          content: pdfBuffer,
           contentType: "application/pdf",
         },
       ],
