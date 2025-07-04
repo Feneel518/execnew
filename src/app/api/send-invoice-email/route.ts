@@ -4,7 +4,8 @@ import ejs from "ejs";
 import path from "path";
 import { promises as fs } from "fs";
 import { format } from "date-fns";
-import chromium from "chrome-aws-lambda";
+
+import chrome from "chrome-aws-lambda";
 import puppeteer from "puppeteer-core";
 
 export async function POST(req: NextRequest) {
@@ -12,6 +13,8 @@ export async function POST(req: NextRequest) {
     to,
     invoiceNumber,
     customerName,
+    customerAddress,
+    date,
     poNumber,
     poDate,
     productCount,
@@ -19,31 +22,33 @@ export async function POST(req: NextRequest) {
     transporterName,
     lrUrl,
     slug,
+    items,
+    gstAmount,
+    totalAmount,
   } = await req.json();
-
-  const isDev = process.env.NODE_ENV !== "production";
-
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath:
-      (await chromium.executablePath) || "/usr/bin/chromium-browser",
-    headless: chromium.headless,
-  });
-
-  const page = await browser.newPage();
 
   // http://localhost:3000/pdf/invoice/25-26%25586
   // 🧠 URL of your invoice page (must be public or internally accessible)
   const invoiceUrl = `https://www.explosionproofelectrical.com/pdf/invoice/${slug}`;
+
+  const executablePath = await chrome.executablePath;
+  const browser = await puppeteer.launch({
+    args: chrome.args,
+    executablePath,
+    headless: chrome.headless,
+    defaultViewport: chrome.defaultViewport,
+  });
+
+  const page = await browser.newPage();
   await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
 
-  // 🖨 Generate PDF buffer
-  const pdfBuffer = await page.pdf({ format: "a4", printBackground: true });
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+  });
 
   await browser.close();
-
-  // const buffer = Buffer.from(pdfBuffer);
+  const buffer = Buffer.from(pdfBuffer);
 
   const formattedPoDate = poDate
     ? format(new Date(poDate), "dd MMM yyyy")
@@ -57,6 +62,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Generate PDF buffer
     // Load and render EJS template
     const filePath = path.join(
       process.cwd(),
@@ -97,7 +103,7 @@ export async function POST(req: NextRequest) {
       attachments: [
         {
           filename: `Invoice-${invoiceNumber}.pdf`,
-          content: pdfBuffer,
+          content: buffer,
           contentType: "application/pdf",
         },
       ],
