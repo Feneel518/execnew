@@ -5,6 +5,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { format } from "date-fns";
 import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
 export async function POST(req: NextRequest) {
   const {
@@ -22,14 +23,13 @@ export async function POST(req: NextRequest) {
 
   const isDev = process.env.NODE_ENV !== "production";
 
-  const browser = await (isDev
-    ? require("puppeteer").launch()
-    : require("puppeteer-core").launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath,
-        headless: chromium.headless,
-      }));
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath:
+      (await chromium.executablePath) || "/usr/bin/chromium-browser",
+    headless: chromium.headless,
+  });
 
   const page = await browser.newPage();
 
@@ -39,14 +39,11 @@ export async function POST(req: NextRequest) {
   await page.goto(invoiceUrl, { waitUntil: "networkidle0" });
 
   // 🖨 Generate PDF buffer
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-  });
+  const pdfBuffer = await page.pdf({ format: "a4", printBackground: true });
 
   await browser.close();
 
-  const buffer = Buffer.from(pdfBuffer);
+  // const buffer = Buffer.from(pdfBuffer);
 
   const formattedPoDate = poDate
     ? format(new Date(poDate), "dd MMM yyyy")
@@ -100,7 +97,7 @@ export async function POST(req: NextRequest) {
       attachments: [
         {
           filename: `Invoice-${invoiceNumber}.pdf`,
-          content: buffer,
+          content: pdfBuffer,
           contentType: "application/pdf",
         },
       ],
