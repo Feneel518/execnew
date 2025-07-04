@@ -39,6 +39,9 @@ export async function POST(req: NextRequest) {
       "email-template.ejs"
     );
     const template = await fs.readFile(filePath, "utf8");
+
+    console.log(lrUrl);
+
     const html = ejs.render(template, {
       invoiceNumber,
       customerName,
