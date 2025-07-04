@@ -21,12 +21,16 @@ export async function POST(req: NextRequest) {
     slug,
   } = await req.json();
 
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath,
-    headless: chromium.headless,
-  });
+  const isDev = process.env.NODE_ENV !== "production";
+
+  const browser = await (isDev
+    ? require("puppeteer").launch()
+    : require("puppeteer-core").launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: chromium.headless,
+      }));
 
   const page = await browser.newPage();
 
