@@ -24,11 +24,15 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
     invoiceData.ProductInInvoiceOfOrder.length,
   ]);
 
+  let itemCounter = 1;
   let pages = perPage.map((amount, i) => {
     let offset = perPage
       .slice(0, i)
       .reduce((total, amount) => total + amount, 0);
-    return invoiceData.ProductInInvoiceOfOrder.slice(offset, offset + amount);
+    return invoiceData.ProductInInvoiceOfOrder.slice(
+      offset,
+      offset + amount
+    ).map((product) => ({ ...product, itemNumber: itemCounter++ }));
   });
 
   //
@@ -61,6 +65,8 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
     <div className="flex flex-col gap-4 print:gap-0">
       <div className="">
         {pages.map((group, index, list) => {
+          console.log(group);
+
           return (
             <A4Page
               onResize={() => {
@@ -79,11 +85,11 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
                   //   @ts-ignore
                   products={group}
                   itemsIndex={
-                    index === 0 ? index : list[index - 1].length + index - 1
+                    // index === 0 ? index : list[index - 1].length + index - 1
+                    index === 0 ? 0 : group.length
                   }
                   lastIndex={index + 1 === list.length ? true : false}
-                  Amounts={taxAmount}
-                ></TestTable>
+                  Amounts={taxAmount}></TestTable>
                 //   <div className=""></div>
               }
               heading={
@@ -96,10 +102,8 @@ const TestCertificate: FC<TestCertificateProps> = ({ invoiceData }) => {
               footer={
                 <QuotationFooter
                   pageIndex={index + 1}
-                  totalLength={list.length}
-                ></QuotationFooter>
-              }
-            ></A4Page>
+                  totalLength={list.length}></QuotationFooter>
+              }></A4Page>
           );
         })}
       </div>

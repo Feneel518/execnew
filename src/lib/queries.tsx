@@ -2504,6 +2504,9 @@ export const getInvoiceDetailsBasedOnInvoiceNumber = async (
             },
           },
         },
+        orderBy: {
+          productInOrderId: "asc",
+        },
       },
     },
   });
@@ -3153,3 +3156,45 @@ export const deleteOrder = async (id: string) => {
 
 // //////////////////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////////////////
+
+export const getAllProducts = async () => {
+  const user = await auth();
+  if (!user || user.user.role !== "ADMIN") return null;
+
+  const response = await db.category.findMany({
+    where: {
+      product: {
+        some: {
+          image: {
+            not: "",
+          },
+        },
+      },
+    },
+    select: {
+      name: true,
+      product: {
+        where: {
+          image: {
+            not: "",
+          },
+        },
+        select: {
+          name: true,
+          image: true,
+          gasGroup: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  if (!response)
+    return { error: "Something went wrong, Please try again later" };
+  if (response) return { success: response };
+};

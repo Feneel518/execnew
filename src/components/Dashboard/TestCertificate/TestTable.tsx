@@ -10,8 +10,9 @@ import {
 import { ProductInInvoiceTable } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 
+type ProductWithItemNumber = ProductInInvoiceTable & { itemNumber: number };
 interface TestTableProps {
-  products: ProductInInvoiceTable[];
+  products: ProductWithItemNumber[];
   itemsIndex: number;
 }
 
@@ -33,11 +34,13 @@ const TestTable: FC<TestTableProps> = ({ products, itemsIndex }) => {
         </TableHeader>
         <TableBody>
           {products.map((invoice, index) => {
+            console.log(itemsIndex + 1 + index, itemsIndex);
+
             return (
               <>
                 <TableRow key={invoice.id} className="">
                   <TableCell className="font-medium">
-                    {itemsIndex + 1 + index}
+                    {invoice.itemNumber}
                   </TableCell>
                   <TableCell>
                     <div className="">

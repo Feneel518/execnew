@@ -1,4 +1,4 @@
-import ProductsPage from "@/components/catalog/ProductsPage";
+import ProductsDiaryPage from "@/components/Frontend/Gallery/ProductsDiaryPage";
 import { Montserrat } from "next/font/google";
 import { FC } from "react";
 
@@ -11,7 +11,7 @@ const font = Montserrat({
 const page: FC<pageProps> = ({}) => {
   return (
     <div className={`flex flex-col items-center gap-8 ${font.className}`}>
-      <ProductsPage></ProductsPage>
+      <ProductsDiaryPage></ProductsDiaryPage>
     </div>
   );
 };

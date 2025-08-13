@@ -26,8 +26,6 @@ const Catalog: FC<CatalogProps> = ({ catalogData, index }) => {
       {pages.map((group, pageIndex, list) => {
         return (
           <CatalogPage
-            index={index}
-            pageIndex={pageIndex}
             className="bg-exec text-white relative "
             onResize={() => {
               setPerPage((perPage) => {
