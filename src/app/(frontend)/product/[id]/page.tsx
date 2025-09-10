@@ -46,13 +46,12 @@ const page: FC<pageProps> = async ({ params }) => {
           <div className="border-color border-bottom lg:border-right flex-1 max-md:border-r-0 flex items-center justify-center ">
             {/* Category Image */}
             {productDetails?.success?.image ? (
-              <div className="w-[511.33px] h-[511.33px] flex items-center justify-center">
+              <div className="w-[511.33px] h-[511.33px] flex items-center justify-center relative">
                 <Image
                   className="  object-contain my-8"
                   src={productDetails?.success?.image}
                   alt={productDetails.success.name}
-                  width={511.33}
-                  height={411.33}
+                fill
                 />
               </div>
             ) : (
